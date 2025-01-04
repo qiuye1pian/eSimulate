@@ -1,18 +1,21 @@
 package org.core.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  * 光伏出力计算 (Java 版)
  */
 public class SolarPowerModel {
 
     // 光伏系统额定功率 (kW)
-    private double P_pvN;
+    private final BigDecimal P_pvN;
     // 光伏组件温度系数 (1/℃)，通常为负值
-    private double t_e;
+    private final BigDecimal t_e;
     // 参考温度 (℃)
-    private double T_ref;
+    private final BigDecimal T_ref;
     // 参考辐照度 (W/m²)
-    private double G_ref;
+    private final BigDecimal G_ref;
 
     /**
      * 构造函数，初始化光伏系统参数
@@ -22,11 +25,11 @@ public class SolarPowerModel {
      * @param T_ref 参考温度 (℃)
      * @param G_ref 参考辐照度 (W/m²)
      */
-    public SolarPowerModel(double P_pvN, double t_e, double T_ref, double G_ref) {
-        this.P_pvN = P_pvN;
-        this.t_e = t_e;
-        this.T_ref = T_ref;
-        this.G_ref = G_ref;
+    public SolarPowerModel(String P_pvN, String t_e, String T_ref, String G_ref) {
+        this.P_pvN = new BigDecimal(P_pvN);
+        this.t_e = new BigDecimal(t_e);
+        this.T_ref = new BigDecimal(T_ref);
+        this.G_ref = new BigDecimal(G_ref);
     }
 
     /**
@@ -36,9 +39,24 @@ public class SolarPowerModel {
      * @param G_T 当前辐照度 (W/m²)
      * @return 光伏输出功率 (kW)
      */
-    public double calculatePower(double T_e, double G_T) {
+    public BigDecimal calculatePower(String T_e, String G_T) {
+        BigDecimal currentTemperature = new BigDecimal(T_e);
+        BigDecimal currentIrradiance = new BigDecimal(G_T);
+
+        // 计算公式: P = P_pvN * (1 + t_e * (T_e - T_ref)) * (G_T / G_ref)
+        BigDecimal temperatureEffect = t_e.multiply(currentTemperature.subtract(T_ref));
+        BigDecimal irradianceRatio = currentIrradiance.divide(G_ref, 10, RoundingMode.HALF_UP);
+
         return P_pvN
-                * (1 + t_e * (T_e - T_ref))
-                * (G_T / G_ref);
+                .multiply(BigDecimal.ONE.add(temperatureEffect))
+                .multiply(irradianceRatio)
+                .setScale(10, RoundingMode.HALF_UP);
+    }
+
+    public static void main(String[] args) {
+        SolarPowerModel model = new SolarPowerModel("5.0", "-0.004", "25", "1000");
+
+        BigDecimal powerOutput = model.calculatePower("30", "800");
+        System.out.println("光伏输出功率: " + powerOutput + " kW");
     }
 }

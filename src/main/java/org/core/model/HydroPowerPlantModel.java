@@ -1,18 +1,21 @@
 package org.core.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  * 小水电机组功率计算 (Java 版)
  */
 public class HydroPowerPlantModel {
 
     // 水轮机效率
-    private double eta1;
+    private final BigDecimal eta1;
     // 发电机效率
-    private double eta2;
+    private final BigDecimal eta2;
     // 机组传动效率
-    private double eta3;
+    private final BigDecimal eta3;
     // 总效率 = eta1 * eta2 * eta3
-    private double eta;
+    private final BigDecimal eta;
 
     /**
      * 构造函数
@@ -21,12 +24,11 @@ public class HydroPowerPlantModel {
      * @param eta2 发电机效率
      * @param eta3 机组传动效率
      */
-    public HydroPowerPlantModel(double eta1, double eta2, double eta3) {
-        this.eta1 = eta1;
-        this.eta2 = eta2;
-        this.eta3 = eta3;
-        // 计算总效率
-        this.eta = eta1 * eta2 * eta3;
+    public HydroPowerPlantModel(String eta1, String eta2, String eta3) {
+        this.eta1 = new BigDecimal(eta1);
+        this.eta2 = new BigDecimal(eta2);
+        this.eta3 = new BigDecimal(eta3);
+        this.eta = this.eta1.multiply(this.eta2).multiply(this.eta3).setScale(10, RoundingMode.HALF_UP);
     }
 
     /**
@@ -42,22 +44,34 @@ public class HydroPowerPlantModel {
      * @param g   重力加速度 (m/s²)，缺省可设为 9.81
      * @return    水头 (m)
      */
-    public double calculateHead(double Z1, double p1, double v1,
-                                double Z2, double p2, double v2,
-                                double rho, double g) {
-        // H = [Z1 + p1/(rho*g) + v1^2/(2*g)] - [Z2 + p2/(rho*g) + v2^2/(2*g)]
-        return (Z1 + p1 / (rho * g) + (v1 * v1) / (2 * g))
-                - (Z2 + p2 / (rho * g) + (v2 * v2) / (2 * g));
+    public BigDecimal calculateHead(String Z1, String p1, String v1,
+                                    String Z2, String p2, String v2,
+                                    String rho, String g) {
+        BigDecimal bdZ1 = new BigDecimal(Z1);
+        BigDecimal bdp1 = new BigDecimal(p1);
+        BigDecimal bdv1 = new BigDecimal(v1);
+        BigDecimal bdZ2 = new BigDecimal(Z2);
+        BigDecimal bdp2 = new BigDecimal(p2);
+        BigDecimal bdv2 = new BigDecimal(v2);
+        BigDecimal bdrho = new BigDecimal(rho);
+        BigDecimal bdg = new BigDecimal(g);
+
+        // 计算 H = [Z1 + p1/(rho*g) + v1^2/(2*g)] - [Z2 + p2/(rho*g) + v2^2/(2*g)]
+        BigDecimal head1 = bdZ1.add(bdp1.divide(bdrho.multiply(bdg), 10, RoundingMode.HALF_UP))
+                .add(bdv1.pow(2).divide(bdg.multiply(new BigDecimal("2")), 10, RoundingMode.HALF_UP));
+
+        BigDecimal head2 = bdZ2.add(bdp2.divide(bdrho.multiply(bdg), 10, RoundingMode.HALF_UP))
+                .add(bdv2.pow(2).divide(bdg.multiply(new BigDecimal("2")), 10, RoundingMode.HALF_UP));
+
+        return head1.subtract(head2).setScale(10, RoundingMode.HALF_UP);
     }
 
     /**
      * 不带 rho 和 g 参数的重载方法，使用默认值：rho=1000 kg/m³, g=9.81 m/s²
      */
-    public double calculateHead(double Z1, double p1, double v1,
-                                double Z2, double p2, double v2) {
-        double rho = 1000.0;
-        double g = 9.81;
-        return calculateHead(Z1, p1, v1, Z2, p2, v2, rho, g);
+    public BigDecimal calculateHead(String Z1, String p1, String v1,
+                                    String Z2, String p2, String v2) {
+        return calculateHead(Z1, p1, v1, Z2, p2, v2, "1000", "9.81");
     }
 
     /**
@@ -67,11 +81,14 @@ public class HydroPowerPlantModel {
      * @param H 水头 (m)
      * @return  水电机组输出功率 (kW)
      */
-    public double calculatePower(double Q, double H) {
+    public BigDecimal calculatePower(String Q, String H) {
+        BigDecimal bdQ = new BigDecimal(Q);
+        BigDecimal bdH = new BigDecimal(H);
+
         // P_h = 9.81 * eta * Q * H
-        // (若想更完整体现 ρ*g，需写成 rho*g * Q * H / 1000)
-        // 这里以 9.81 代替 (rho*g/1000) 形式，结果单位为 kW
-        return 9.81 * this.eta * Q * H;
+        BigDecimal gravity = new BigDecimal("9.81");
+        return gravity.multiply(this.eta).multiply(bdQ).multiply(bdH).setScale(10, RoundingMode.HALF_UP);
     }
+
 
 }
