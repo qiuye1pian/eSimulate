@@ -1,7 +1,10 @@
 package org.optimizer;
 
+import lombok.Data;
+
 import java.util.Random;
 
+@Data
 public class InputData {
     private double[] windPowerHourly;
     private double[] pvPowerHourly;
@@ -14,26 +17,6 @@ public class InputData {
         this.pvPowerHourly = generatePVPowerData(24);
         this.loadCurve = generateLoadCurve(24);
         this.priceData = generatePriceData(24);
-    }
-
-    // 获取风电出力数据
-    public double[] getWindPowerHourly() {
-        return windPowerHourly;
-    }
-
-    // 获取光伏出力数据
-    public double[] getPVPowerHourly() {
-        return pvPowerHourly;
-    }
-
-    // 获取负载曲线
-    public double[] getLoadCurve() {
-        return loadCurve;
-    }
-
-    // 获取电价数据
-    public double[] getPriceData() {
-        return priceData;
     }
 
     // 生成风电出力数据

@@ -1,11 +1,14 @@
 package org.optimizer;
 
+import lombok.Setter;
+
 import java.util.Random;
 
 public class Particle {
     private double[] position;
     private double[] velocity;
     private double[] bestPosition;
+    @Setter
     private double bestValue;
 
     public Particle(int dimension, double min, double max) {
@@ -37,10 +40,6 @@ public class Particle {
 
     public double getBestValue() {
         return bestValue;
-    }
-
-    public void setBestValue(double value) {
-        bestValue = value;
     }
 
     public void updateBestPosition() {
