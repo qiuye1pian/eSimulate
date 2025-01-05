@@ -53,10 +53,5 @@ public class SolarPowerModel {
                 .setScale(10, RoundingMode.HALF_UP);
     }
 
-    public static void main(String[] args) {
-        SolarPowerModel model = new SolarPowerModel("5.0", "-0.004", "25", "1000");
 
-        BigDecimal powerOutput = model.calculatePower("30", "800");
-        System.out.println("光伏输出功率: " + powerOutput + " kW");
-    }
 }

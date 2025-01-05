@@ -1,0 +1,106 @@
+package org.core.pso;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.core.pso.model.PSOParameters;
+import org.core.pso.particle.Dimension;
+import org.core.pso.particle.Particle;
+import org.core.pso.particle.Position;
+import org.core.pso.particle.Velocity;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+@Getter
+@Setter
+public class PSO {
+    private PSOParameters params;
+    private List<Particle> particleList = new ArrayList<>();
+    private Position globalBestPosition;
+    private BigDecimal globalBestFitness;
+
+    public PSO(PSOParameters params) {
+        this.params = params;
+        this.globalBestPosition = new Position(new BigDecimal[params.getDimensionCount()]);
+        this.globalBestFitness = BigDecimal.valueOf(Double.MAX_VALUE);
+        initializeParticles();
+    }
+
+    public static void main(String[] args) {
+        List<Dimension> dimensionList = new ArrayList<>();
+        PSOParameters psoParameters = new PSOParameters(dimensionList, 50, 200, 0.5, 1.5, 1.5);
+        PSO pso = new PSO(psoParameters);
+        pso.optimize();
+    }
+
+    // 初始化粒子
+    private void initializeParticles() {
+        for (int i = 0; i < params.getParticleCount(); i++) {
+            particleList.add(new Particle(params.getDimensionList()));
+        }
+    }
+
+    // 适应度函数（目标函数示例：Sphere Function）
+    // TODO:这里要改成调用simulator
+    private BigDecimal evaluateFitness(Position position) {
+        BigDecimal fitness = BigDecimal.ZERO;
+        for (BigDecimal value : position.getCoordinates()) {
+            fitness = fitness.add(value.multiply(value));
+        }
+        return fitness.setScale(10, RoundingMode.HALF_UP);
+    }
+
+    // 更新速度和位置
+    private void updateVelocityAndPosition(Particle particle) {
+        Random random = new Random();
+        Velocity newVelocity = new Velocity(new BigDecimal[params.getDimensionCount()]);
+        Position newPosition = new Position(new BigDecimal[params.getDimensionCount()]);
+
+        for (int i = 0; i < params.getDimensionCount(); i++) {
+            BigDecimal r1 = BigDecimal.valueOf(random.nextDouble());
+            BigDecimal r2 = BigDecimal.valueOf(random.nextDouble());
+
+            newVelocity.setAtDimension(i,params.getInertiaWeight().multiply(particle.getVelocity().getComponents()[i])
+                    .add(params.getC1().multiply(r1).multiply(particle.getBestPosition().getCoordinates()[i].subtract(particle.getPosition().getCoordinates()[i])))
+                    .add(params.getC2().multiply(r2).multiply(globalBestPosition.getCoordinates()[i].subtract(particle.getPosition().getCoordinates()[i])))
+                    ,10, RoundingMode.HALF_UP);
+
+            newPosition.setAtDimension(i, particle.getPosition().getCoordinates()[i].add(newVelocity.getComponents()[i]),10, RoundingMode.HALF_UP);
+        }
+
+        particle.setVelocity(newVelocity);
+        particle.setPosition(newPosition);
+    }
+
+    // 主算法
+    public void optimize() {
+        for (int iter = 0; iter < params.getMaxIterations(); iter++) {
+            for (Particle particle : particleList) {
+                BigDecimal fitness = evaluateFitness(particle.getPosition().clone());
+                particle.setFitnessValue(fitness);
+
+                // 更新个体最优
+                if (fitness.compareTo(particle.getBestFitnessValue()) < 0) {
+                    particle.setBestFitnessValue(fitness);
+                    particle.setBestPosition(particle.getPosition().clone());
+                }
+
+                // 更新全局最优
+                if (fitness.compareTo(globalBestFitness) < 0) {
+                    globalBestFitness = fitness;
+                    globalBestPosition = particle.getPosition().clone();
+                }
+            }
+
+            // 更新粒子的速度和位置
+            for (Particle particle : particleList) {
+                updateVelocityAndPosition(particle);
+            }
+
+            System.out.println("Iteration " + iter + " - Best Fitness: " + globalBestFitness);
+        }
+    }
+}
