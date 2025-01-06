@@ -7,7 +7,7 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 
 @Getter
-public class Position implements Cloneable{
+public class Position implements Cloneable {
 
     private BigDecimal[] coordinates; // 粒子在各维度的坐标
 
@@ -43,7 +43,9 @@ public class Position implements Cloneable{
         coordinates[dimIndex] = newValue.setScale(scale, roundingMode);
     }
 
-
+    public BigDecimal getCoordinateByIndex(int i) {
+        return coordinates[i];
+    }
 
     /**
      * 判断是否相等（严格比较 BigDecimal，包括精度）

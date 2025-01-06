@@ -3,10 +3,7 @@ package org.core.pso;
 import lombok.Getter;
 import lombok.Setter;
 import org.core.pso.model.PSOParameters;
-import org.core.pso.particle.Dimension;
-import org.core.pso.particle.Particle;
-import org.core.pso.particle.Position;
-import org.core.pso.particle.Velocity;
+import org.core.pso.particle.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,6 +19,7 @@ public class PSO {
     private Position globalBestPosition;
     private BigDecimal globalBestFitness;
 
+
     public PSO(PSOParameters params) {
         this.params = params;
         this.globalBestPosition = new Position(new BigDecimal[params.getDimensionCount()]);
@@ -31,7 +29,8 @@ public class PSO {
 
     public static void main(String[] args) {
         List<Dimension> dimensionList = new ArrayList<>();
-        PSOParameters psoParameters = new PSOParameters(dimensionList, 50, 200, 0.5, 1.5, 1.5);
+        List<EnvironmentLoad> environmentLoadList = new ArrayList<>();
+        PSOParameters psoParameters = new PSOParameters(dimensionList, environmentLoadList, 50, 200, 0.5, 1.5, 1.5);
         PSO pso = new PSO(psoParameters);
         pso.optimize();
     }
@@ -60,15 +59,16 @@ public class PSO {
         Position newPosition = new Position(new BigDecimal[params.getDimensionCount()]);
 
         for (int i = 0; i < params.getDimensionCount(); i++) {
+
             BigDecimal r1 = BigDecimal.valueOf(random.nextDouble());
             BigDecimal r2 = BigDecimal.valueOf(random.nextDouble());
 
-            newVelocity.setAtDimension(i,params.getInertiaWeight().multiply(particle.getVelocity().getComponents()[i])
-                    .add(params.getC1().multiply(r1).multiply(particle.getBestPosition().getCoordinates()[i].subtract(particle.getPosition().getCoordinates()[i])))
-                    .add(params.getC2().multiply(r2).multiply(globalBestPosition.getCoordinates()[i].subtract(particle.getPosition().getCoordinates()[i])))
-                    ,10, RoundingMode.HALF_UP);
+            newVelocity.setAtDimension(i, (params.getInertiaWeight().multiply(particle.getVelocity().getVelocities()[i])
+                    .add(params.getC1().multiply(r1).multiply(particle.getCoordinateOfBestPosition(i).subtract(particle.getCoordinateOfCurrentPosition(i))))
+                    .add(params.getC2().multiply(r2).multiply(globalBestPosition.getCoordinateByIndex(i).subtract(particle.getCoordinateOfCurrentPosition(i)))))
+                    .setScale(10, RoundingMode.HALF_UP));
 
-            newPosition.setAtDimension(i, particle.getPosition().getCoordinates()[i].add(newVelocity.getComponents()[i]),10, RoundingMode.HALF_UP);
+            newPosition.setAtDimension(i, particle.getPosition().getCoordinates()[i].add(newVelocity.getVelocities()[i]), 10, RoundingMode.HALF_UP);
         }
 
         particle.setVelocity(newVelocity);

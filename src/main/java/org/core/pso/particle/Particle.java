@@ -25,6 +25,14 @@ public class Particle {
         initialize(dimension);
     }
 
+    public BigDecimal getCoordinateOfBestPosition(int i) {
+        return this.bestPosition.getCoordinates()[i];
+    }
+
+    public BigDecimal getCoordinateOfCurrentPosition(int i) {
+        return this.position.getCoordinates()[i];
+    }
+
     // 初始化粒子的位置和速度
     private void initialize(int dimension) {
         Random random = new Random();
