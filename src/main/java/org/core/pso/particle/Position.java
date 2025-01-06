@@ -3,49 +3,48 @@ package org.core.pso.particle;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class Position implements Cloneable {
 
-    private BigDecimal[] coordinates; // 粒子在各维度的坐标
+    /**
+     * 粒子在各维度的坐标
+     */
 
-    public Position(BigDecimal[] coordinates) {
-        this.coordinates = coordinates;
+    private final List<Coordinate> coordinateList;
+
+    public Position(List<Dimension> dimensionsList) {
+        coordinateList = dimensionsList.stream().map(Coordinate::new).collect(Collectors.toList());
     }
 
     /**
      * 获取坐标的维度数量
      */
     public int getDimensionCount() {
-        return coordinates.length;
+        return coordinateList.size();
     }
 
     /**
-     * 拷贝一个新的 Position
-     */
-    public Position copy() {
-        return new Position(Arrays.copyOf(coordinates, coordinates.length));
-    }
-
-    /**
-     * 在指定坐标维度上加一个值（可用于更新坐标）
-     */
-    public void addAtDimension(int dimIndex, BigDecimal valueToAdd) {
-        coordinates[dimIndex] = coordinates[dimIndex].add(valueToAdd);
-    }
-
-    /**
-     * 设置坐标在某维度的值并保留指定小数位
+     * 设置坐标在某维度的值
      */
     public void setAtDimension(int dimIndex, BigDecimal newValue) {
-        coordinates[dimIndex] = newValue;
+        coordinateList.get(dimIndex).setValue(newValue);
     }
 
+    /**
+     * 根据维度顺序获取维度值
+     *
+     * @param i 第i个维度
+     * @return 第i个维度的值
+     */
     public BigDecimal getCoordinateByIndex(int i) {
-        return coordinates[i];
+        return coordinateList.get(i).getValue();
     }
+
+
 
     /**
      * 判断是否相等（严格比较 BigDecimal，包括精度）
@@ -55,11 +54,11 @@ public class Position implements Cloneable {
         if (this == o) return true;
         if (!(o instanceof Position)) return false;
         Position that = (Position) o;
-        if (this.coordinates.length != that.coordinates.length) return false;
+        if (this.coordinateList.size() != that.coordinateList.size()) return false;
 
-        for (int i = 0; i < coordinates.length; i++) {
+        for (int i = 0; i < coordinateList.size(); i++) {
             // BigDecimal 的 equals 是严格比较，包括小数位
-            if (!this.coordinates[i].equals(that.coordinates[i])) {
+            if (!this.coordinateList.get(i).equals(that.coordinateList.get(i))) {
                 return false;
             }
         }
@@ -71,7 +70,7 @@ public class Position implements Cloneable {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(coordinates);
+        return Arrays.hashCode(coordinateList.toArray());
     }
 
 
@@ -81,12 +80,22 @@ public class Position implements Cloneable {
     @Override
     public Position clone() {
         try {
+            // 创建浅拷贝
             Position cloned = (Position) super.clone();
-            // 深拷贝 coordinates 数组
-            cloned.coordinates = Arrays.copyOf(this.coordinates, this.coordinates.length);
+            // 深拷贝 coordinateList
+            List<Coordinate> clonedCoordinateList = this.coordinateList.stream()
+                    .map(Coordinate::clone) // 调用 Coordinate 的 clone 方法
+                    .collect(Collectors.toList());
+            // 设置拷贝后的坐标列表
+            cloned.coordinateList.clear();
+            cloned.coordinateList.addAll(clonedCoordinateList);
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError("Cloning not supported", e);
         }
+    }
+
+    public List<BigDecimal> getCoordinateValueList() {
+        return this.coordinateList.stream().map(Coordinate::getValue).collect(Collectors.toList());
     }
 }

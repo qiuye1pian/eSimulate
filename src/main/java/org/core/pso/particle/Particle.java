@@ -24,23 +24,26 @@ public class Particle {
 
     public Particle(List<Dimension> dimensionsList) {
         int dimension = dimensionsList.size();
-        position = new Position(new BigDecimal[dimension]);
+
+        position = new Position(dimensionsList);
+
         velocity = new Velocity(new BigDecimal[dimension]);
 
-        bestPosition = new Position(new BigDecimal[dimension]);
+        bestPosition = position.clone();
 
-        fitnessValue = BigDecimal.valueOf(Double.MAX_VALUE); // 初始化为极大值
+        // 初始化为极大值
+        fitnessValue = BigDecimal.valueOf(Double.MAX_VALUE);
         bestFitnessValue = BigDecimal.valueOf(Double.MAX_VALUE);
 
         initialize(dimension);
     }
 
     public BigDecimal getCoordinateOfBestPosition(int i) {
-        return this.bestPosition.getCoordinates()[i];
+        return this.bestPosition.getCoordinateByIndex(i);
     }
 
     public BigDecimal getCoordinateOfCurrentPosition(int i) {
-        return this.position.getCoordinates()[i];
+        return this.position.getCoordinateByIndex(i);
     }
 
     public BigDecimal getVelocity(int i) {
@@ -59,11 +62,6 @@ public class Particle {
     public Position getCurrentPositionClone() {
         return this.position.clone();
     }
-
-    public void updateParticleBest(BigDecimal fitness) {
-
-    }
-
 
     public void updateFitnessValue(BigDecimal fitness) {
 

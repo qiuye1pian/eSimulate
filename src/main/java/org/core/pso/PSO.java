@@ -22,7 +22,7 @@ public class PSO {
 
     public PSO(PSOParameters params) {
         this.params = params;
-        this.globalBestPosition = new Position(new BigDecimal[params.getDimensionCount()]);
+        this.globalBestPosition = new Position(params.getDimensionList());
         this.globalBestFitness = BigDecimal.valueOf(Double.MAX_VALUE);
         initializeParticles();
     }
@@ -46,7 +46,7 @@ public class PSO {
     // TODO:这里要改成调用simulator
     private BigDecimal evaluateFitness(Position position) {
         BigDecimal fitness = BigDecimal.ZERO;
-        for (BigDecimal value : position.getCoordinates()) {
+        for (BigDecimal value : position.getCoordinateValueList()) {
             fitness = fitness.add(value.multiply(value));
         }
         return fitness.setScale(10, RoundingMode.HALF_UP);
@@ -54,14 +54,15 @@ public class PSO {
 
     // 更新速度和位置
     public void updateVelocityAndPosition(Particle particle) {
+
         Random random = new Random();
         Velocity newVelocity = new Velocity(new BigDecimal[params.getDimensionCount()]);
-        Position newPosition = new Position(new BigDecimal[params.getDimensionCount()]);
+        Position newPosition = particle.getCurrentPositionClone();
 
         for (int i = 0; i < params.getDimensionCount(); i++) {
 
-            BigDecimal r1 = BigDecimal.valueOf(random.nextDouble());
-            BigDecimal r2 = BigDecimal.valueOf(random.nextDouble());
+            BigDecimal r1 = BigDecimal.valueOf(random.nextInt());
+            BigDecimal r2 = BigDecimal.valueOf(random.nextInt());
 
             newVelocity.setAtDimension(i, (params.getInertiaWeight().multiply(particle.getVelocity(i))
                     .add(params.getC1().multiply(r1).multiply(particle.getCoordinateOfBestPosition(i).subtract(particle.getCoordinateOfCurrentPosition(i))))

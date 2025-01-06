@@ -4,14 +4,13 @@ package org.core.pso.particle;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Arrays;
 
 
 @Getter
-public class Velocity {
+public class Velocity implements Cloneable {
 
-    private final BigDecimal[] velocities; // 粒子在各维度的速度
+    private BigDecimal[] velocities; // 粒子在各维度的速度
 
     public Velocity(BigDecimal[] velocities) {
         this.velocities = velocities;
@@ -51,5 +50,20 @@ public class Velocity {
     @Override
     public int hashCode() {
         return Arrays.hashCode(velocities);
+    }
+
+    /**
+     * 深拷贝 Clone 方法
+     */
+    @Override
+    public Velocity clone() {
+        try {
+            Velocity cloned = (Velocity) super.clone();
+            // 深拷贝 velocities 数组
+            cloned.velocities = Arrays.copyOf(this.velocities, this.velocities.length);
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError("Cloning not supported", e);
+        }
     }
 }
