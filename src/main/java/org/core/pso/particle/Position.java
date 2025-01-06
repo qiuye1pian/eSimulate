@@ -39,8 +39,8 @@ public class Position implements Cloneable {
     /**
      * 设置坐标在某维度的值并保留指定小数位
      */
-    public void setAtDimension(int dimIndex, BigDecimal newValue, int scale, RoundingMode roundingMode) {
-        coordinates[dimIndex] = newValue.setScale(scale, roundingMode);
+    public void setAtDimension(int dimIndex, BigDecimal newValue) {
+        coordinates[dimIndex] = newValue;
     }
 
     public BigDecimal getCoordinateByIndex(int i) {

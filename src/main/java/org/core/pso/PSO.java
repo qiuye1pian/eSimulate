@@ -53,7 +53,7 @@ public class PSO {
     }
 
     // 更新速度和位置
-    private void updateVelocityAndPosition(Particle particle) {
+    public void updateVelocityAndPosition(Particle particle) {
         Random random = new Random();
         Velocity newVelocity = new Velocity(new BigDecimal[params.getDimensionCount()]);
         Position newPosition = new Position(new BigDecimal[params.getDimensionCount()]);
@@ -63,12 +63,13 @@ public class PSO {
             BigDecimal r1 = BigDecimal.valueOf(random.nextDouble());
             BigDecimal r2 = BigDecimal.valueOf(random.nextDouble());
 
-            newVelocity.setAtDimension(i, (params.getInertiaWeight().multiply(particle.getVelocity().getVelocities()[i])
+            newVelocity.setAtDimension(i, (params.getInertiaWeight().multiply(particle.getVelocity(i))
                     .add(params.getC1().multiply(r1).multiply(particle.getCoordinateOfBestPosition(i).subtract(particle.getCoordinateOfCurrentPosition(i))))
                     .add(params.getC2().multiply(r2).multiply(globalBestPosition.getCoordinateByIndex(i).subtract(particle.getCoordinateOfCurrentPosition(i)))))
                     .setScale(10, RoundingMode.HALF_UP));
 
-            newPosition.setAtDimension(i, particle.getPosition().getCoordinates()[i].add(newVelocity.getVelocities()[i]), 10, RoundingMode.HALF_UP);
+            newPosition.setAtDimension(i,
+                    particle.getCoordinateOfCurrentPosition(i).add(newVelocity.getVelocities()[i]).setScale( 10, RoundingMode.HALF_UP));
         }
 
         particle.setVelocity(newVelocity);
@@ -79,19 +80,13 @@ public class PSO {
     public void optimize() {
         for (int iter = 0; iter < params.getMaxIterations(); iter++) {
             for (Particle particle : particleList) {
-                BigDecimal fitness = evaluateFitness(particle.getPosition().clone());
-                particle.setFitnessValue(fitness);
-
-                // 更新个体最优
-                if (fitness.compareTo(particle.getBestFitnessValue()) < 0) {
-                    particle.setBestFitnessValue(fitness);
-                    particle.setBestPosition(particle.getPosition().clone());
-                }
+                // 调用仿真
+                particle.updateFitnessValue( evaluateFitness(particle.getCurrentPositionClone()) );
 
                 // 更新全局最优
-                if (fitness.compareTo(globalBestFitness) < 0) {
-                    globalBestFitness = fitness;
-                    globalBestPosition = particle.getPosition().clone();
+                if (particle.getFitnessValue().compareTo(this.globalBestFitness) < 0) {
+                    this.globalBestFitness = particle.getFitnessValue();
+                    this.globalBestPosition = particle.getCurrentPositionClone();
                 }
             }
 
