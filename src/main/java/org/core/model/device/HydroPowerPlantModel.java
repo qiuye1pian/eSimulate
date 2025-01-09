@@ -1,4 +1,4 @@
-package org.core.model;
+package org.core.model.device;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

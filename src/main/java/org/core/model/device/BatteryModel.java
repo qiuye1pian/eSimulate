@@ -1,4 +1,4 @@
-package org.core.model;
+package org.core.model.device;
 
 import lombok.Data;
 
