@@ -1,13 +1,27 @@
 package org.core.model.device;
 
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * 光热电站模型类
+ * 用于计算光热电站吸收的热功率。
+ */
+@Data
 public class ThermalPowerModel {
 
-    // 光热转换效率
+    // 常量：用于将 W 转换为 MW
+    private static final BigDecimal MW_CONVERSION_FACTOR = new BigDecimal("1000000");
+
+    // 光热转换效率 (η_SF)
     private final BigDecimal etaSF;
-    // CSP 电站镜场面积 (m²)
+
+    // CSP 电站镜场面积 (S_SF, 单位: m²)
     private final BigDecimal SSF;
 
     /**
@@ -22,65 +36,27 @@ public class ThermalPowerModel {
     }
 
     /**
-     * 静态方法：计算燃气锅炉的供热功率 (kW) 数组。
+     * 计算 t 时段集热装置吸收的热功率 (MW)。
      * <p>
-     * 公式：H_GB_t[i] = heatLoadCurve[i] - solarThermal[i]
-     * 若结果小于 0，则取 0 (表示需求已经被太阳能覆盖)
+     * 公式：P_th_solar(t) = η_SF * S_SF * D_t / 1e6
      *
-     * @param heatLoadCurveKw      系统热负荷需求曲线 (kW)，长度 N
-     * @param solarThermalSupplyKw 太阳能热源供热曲线 (kW)，长度 N
-     * @return 长度 N 的锅炉出力数组 (kW)
-     */
-    public static BigDecimal[] calculateHeatPower(BigDecimal[] heatLoadCurveKw, BigDecimal[] solarThermalSupplyKw) {
-        if (heatLoadCurveKw.length != solarThermalSupplyKw.length) {
-            throw new IllegalArgumentException("数组长度不一致！");
-        }
-
-        int n = heatLoadCurveKw.length;
-        BigDecimal[] H_GB_t = new BigDecimal[n];
-        for (int i = 0; i < n; i++) {
-            BigDecimal diff = heatLoadCurveKw[i].subtract(solarThermalSupplyKw[i]);
-            H_GB_t[i] = diff.max(BigDecimal.ZERO);
-        }
-        return H_GB_t;
-    }
-
-    /**
-     * 静态方法：计算在调度周期内消耗天然气的成本。
-     * <p>
-     * E_GB_t[i] = H_GB_t[i] / eta_GB
-     * F_GB = sum( C_CH4 * E_GB_t[i] * delta_t ), i=1..N
-     *
-     * @param H_GB_t  燃气锅炉的供热功率曲线 (kW)，长度 N
-     * @param eta_GB  燃气锅炉的燃烧效率 (0~1)
-     * @param C_CH4   天然气价格 (元/kWh 或任意货币/kWh)˚
-     * @param delta_t 时间步长 (小时)
-     * @return 在此周期内消耗天然气的总成本
-     */
-    public static BigDecimal calculateGasCost(BigDecimal[] H_GB_t, BigDecimal eta_GB, BigDecimal C_CH4, BigDecimal delta_t) {
-        BigDecimal totalCost = BigDecimal.ZERO;
-        for (BigDecimal power : H_GB_t) {
-            BigDecimal E_GB = power.divide(eta_GB, 10, RoundingMode.HALF_UP); // 锅炉需要的燃气输入 (kWh)
-            totalCost = totalCost.add(C_CH4.multiply(E_GB).multiply(delta_t));
-        }
-        return totalCost;
-    }
-
-    /**
-     * 计算 t 时段集热装置吸收的热功率 (kW)。
-     * <p>
-     * P_t_th_solar = eta_SF * S_SF * D_t / 1e3
-     * 其中:
-     * - D_t: 太阳光在时段 t 的平均直接辐射量(DNI, W/m²)
-     * - 最终返回值单位: kW
-     *
-     * @param D_t 太阳光在时段 t 的平均直接辐射量 (W/m²)
-     * @return 光热电站吸收的热功率 (kW)
+     * @param D_t 太阳光在时段 t 的平均直接辐射量 (DNI, 单位: W/m²)
+     * @return t 时段光热电站吸收的热功率 (单位: MW)
      */
     public BigDecimal calculateThermalPower(BigDecimal D_t) {
-        // 将 W 转成 kW，因此除以 1e3
-        return etaSF.multiply(SSF).multiply(D_t).divide(new BigDecimal("1000"), 10, RoundingMode.HALF_UP);
+        // 将公式中的结果转换为 MW，因此需要除以 1e6
+        return etaSF.multiply(SSF).multiply(D_t).divide(MW_CONVERSION_FACTOR, 10, RoundingMode.HALF_UP);
     }
 
+    /**
+     * 批量计算多个时段的光热电站吸收的热功率 (MW)。
+     *
+     * @param D_t_List 太阳光在各时段的平均直接辐射量列表 (单位: W/m²)
+     * @return 每个时段对应的光热电站吸收的热功率列表 (单位: MW)
+     */
+    public List<BigDecimal> calculateThermalPower(List<BigDecimal> D_t_List) {
+        return D_t_List.stream().map(this::calculateThermalPower).collect(Collectors.toList());
+    }
 
 }
+
