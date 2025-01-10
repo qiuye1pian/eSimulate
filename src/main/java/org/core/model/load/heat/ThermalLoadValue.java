@@ -4,7 +4,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -21,10 +23,10 @@ public class ThermalLoadValue {
     private ThermalLoadScheme thermalLoadScheme;
 
     @Column(name = "datetime", nullable = false)
-    private Timestamp datetime;
+    private LocalDateTime datetime;
 
     @Column(name = "load_value", nullable = false)
-    private Double loadValue;
+    private BigDecimal loadValue;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;

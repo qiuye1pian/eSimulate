@@ -9,6 +9,8 @@ public class GasBoilerModel {
     // 燃气锅炉的燃烧效率 (η_GB)
     private final BigDecimal etaGB;
 
+    private List<BigDecimal> gasBoilerOutputList;
+
     /**
      * 构造函数：初始化燃气锅炉参数
      *

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -21,7 +22,7 @@ public class LoadValue {
     private LoadScheme loadScheme;
 
     @Column(name = "datetime", nullable = false)
-    private Timestamp datetime;
+    private LocalDateTime datetime;
 
     @Column(name = "load_value", nullable = false)
     private Double loadValue;

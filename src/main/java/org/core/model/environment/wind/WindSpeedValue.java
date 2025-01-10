@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -20,7 +21,7 @@ public class WindSpeedValue {
     private WindSpeedScheme windSpeedScheme;
 
     @Column(name = "datetime", nullable = false)
-    private Timestamp datetime;
+    private LocalDateTime datetime;
 
     @Column(name = "wind_speed", nullable = false)
     private Double windSpeed;
