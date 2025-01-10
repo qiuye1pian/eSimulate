@@ -2,6 +2,7 @@ package org.core.model.device;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GasBoilerModel {
@@ -9,6 +10,7 @@ public class GasBoilerModel {
     // 燃气锅炉的燃烧效率 (η_GB)
     private final BigDecimal etaGB;
 
+    // 燃气锅炉出力 (kW)
     private List<BigDecimal> gasBoilerOutputList;
 
     /**
@@ -18,17 +20,6 @@ public class GasBoilerModel {
      */
     public GasBoilerModel(String etaGB) {
         this.etaGB = new BigDecimal(etaGB);
-    }
-
-    /**
-     * 计算燃气锅炉的供热功率 H_(GB,t)。
-     *
-     * @param P_heat     热负荷功率 (kW)
-     * @param P_th_solar 光热电站的出力 (kW)
-     * @return 燃气锅炉的供热功率 (kW)，若结果 < 0 则输出 0
-     */
-    public BigDecimal calculateHeatPower(BigDecimal P_heat, BigDecimal P_th_solar) {
-        return P_heat.subtract(P_th_solar).max(BigDecimal.ZERO);
     }
 
     /**
@@ -56,15 +47,26 @@ public class GasBoilerModel {
      */
     public List<BigDecimal> calculateHeatPowers(List<BigDecimal> P_heat_list, List<BigDecimal> P_th_solar_list) {
         if (P_heat_list.size() != P_th_solar_list.size()) {
-            throw new IllegalArgumentException("热负荷功率列表和光热电站出力列表长度必须一致！");
+            throw new IllegalArgumentException("热负荷数据和光热出力数据长度必须一致！");
         }
 
-        List<BigDecimal> H_GB_list = new java.util.ArrayList<>();
+        List<BigDecimal> deficitList = new ArrayList<>();
         for (int i = 0; i < P_heat_list.size(); i++) {
-            H_GB_list.add(calculateHeatPower(P_heat_list.get(i), P_th_solar_list.get(i)));
+            // 计算差额负荷 (热负荷 - 光热出力) 多余
+            deficitList.add(P_heat_list.get(i).subtract(P_th_solar_list.get(i)).max(BigDecimal.ZERO));
         }
-
-        return H_GB_list;
+        gasBoilerOutputList = deficitList;
+        return new ArrayList<>(deficitList);
     }
+
+    /**
+     * 获取燃气锅炉出力 (kW)
+     *
+     * @return thermalPowerList
+     */
+    public List<BigDecimal> gasBoilerOutputList() {
+        return new ArrayList<>(gasBoilerOutputList);
+    }
+
 
 }

@@ -26,42 +26,20 @@ public class Simulator {
 
         // 1. 计算光热电站出力 (MW 转换为 kW)
         List<BigDecimal> thermalPowerList = thermalModel.calculateThermalPowerList(irradianceData);
-        // 2. 计算差额负荷 (热负荷 - 光热出力)
-        List<BigDecimal> deficitList = calculateDeficit(heatLoadData.getThermalLoadData(), thermalPowerList);
 
-        // 3. 计算燃气锅炉出力
-        List<BigDecimal> gasBoilerOutputList = new ArrayList<>();
-        for (BigDecimal deficit : deficitList) {
-            gasBoilerOutputList.add(gasBoilerModel.calculateHeatPower(deficit, BigDecimal.ZERO));
-        }
+        // 2. 计算燃气锅炉出力
+        gasBoilerModel.calculateHeatPowers(heatLoadData.getThermalLoadData(), thermalPowerList);
+
+        // 储能暂时先放一放
+
+        // 3.
 
         // 4. 生成热平衡结果
-        HeatBalanceResult heatBalanceResult = new HeatBalanceResult(
-                thermalModel, gasBoilerModel, thermalPowerList, gasBoilerOutputList
-        );
+        HeatBalanceResult heatBalanceResult = new HeatBalanceResult(thermalModel, gasBoilerModel);
 
         // 5. 返回模拟结果
         return new SimulateResult(heatBalanceResult);
     }
 
-    /**
-     * 计算差额负荷 (热负荷 - 光热出力)
-     *
-     * @param heatLoadData    热负荷需求数据 (kW)
-     * @param thermalPowerList 光热电站出力 (kW)
-     * @return 差额负荷列表 (kW)
-     */
-    private List<BigDecimal> calculateDeficit(List<BigDecimal> heatLoadData, List<BigDecimal> thermalPowerList) {
-        if (heatLoadData.size() != thermalPowerList.size()) {
-            throw new IllegalArgumentException("热负荷数据和光热出力数据长度必须一致！");
-        }
-
-        List<BigDecimal> deficitList = new ArrayList<>();
-        for (int i = 0; i < heatLoadData.size(); i++) {
-            BigDecimal deficit = heatLoadData.get(i).subtract(thermalPowerList.get(i)).max(BigDecimal.ZERO);
-            deficitList.add(deficit);
-        }
-        return deficitList;
-    }
 }
 

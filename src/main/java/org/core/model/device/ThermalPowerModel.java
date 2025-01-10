@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.core.model.environment.sunlight.IrradianceData;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
