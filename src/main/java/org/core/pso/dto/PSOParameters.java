@@ -1,4 +1,4 @@
-package org.core.pso.model;
+package org.core.pso.dto;
 
 
 import lombok.Data;

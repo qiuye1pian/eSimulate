@@ -1,9 +1,7 @@
-package org.core.pso.model;
+package org.core.pso.dto;
 
 import lombok.Getter;
 import org.core.pso.particle.Dimension;
-
-import java.math.BigDecimal;
 
 import java.math.BigDecimal;
 

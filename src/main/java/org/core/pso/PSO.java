@@ -2,7 +2,7 @@ package org.core.pso;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.core.pso.model.PSOParameters;
+import org.core.pso.dto.PSOParameters;
 import org.core.pso.particle.*;
 
 import java.math.BigDecimal;
