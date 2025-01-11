@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "load_values")
-public class LoadValue {
+@Table(name = "electric_load_values")
+public class ElectricLoadValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,7 @@ public class LoadValue {
 
     @ManyToOne
     @JoinColumn(name = "scheme_id", nullable = false)
-    private LoadScheme loadScheme;
+    private ElectricLoadScheme electricLoadScheme;
 
     @Column(name = "datetime", nullable = false)
     private LocalDateTime datetime;

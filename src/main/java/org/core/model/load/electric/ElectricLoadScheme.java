@@ -2,20 +2,16 @@ package org.core.model.load.electric;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.core.pso.simulator.TimeSeriesValue;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "load_scheme")
-public class LoadScheme implements ElectricLoadData {
+@Table(name = "electric_load_scheme")
+public class ElectricLoadScheme implements ElectricLoadData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +27,11 @@ public class LoadScheme implements ElectricLoadData {
     private Timestamp updatedAt;
 
     @OneToMany(mappedBy = "loadScheme", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LoadValue> loadValues;
+    private List<ElectricLoadValue> electricLoadValues;
 
     @Override
     public int getDataLength() {
-        return loadValues.size();
+        return electricLoadValues.size();
     }
 
 
