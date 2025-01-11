@@ -1,8 +1,9 @@
 package org.core.pso.simulator;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface Producer {
 
-    void produce(List<TimeSeriesValue> timeSeriesValueList);
+    BigDecimal produce(List<EnvironmentValue> environmentValueList);
 }

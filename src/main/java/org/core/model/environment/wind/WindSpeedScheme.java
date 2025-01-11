@@ -2,6 +2,9 @@ package org.core.model.environment.wind;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.core.model.load.heat.ThermalLoadValue;
+import org.core.pso.simulator.EnvironmentValue;
+import org.core.pso.simulator.TimeSeriesValue;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -32,16 +35,17 @@ public class WindSpeedScheme implements WindSpeedData {
     @OneToMany(mappedBy = "windSpeedScheme", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WindSpeedValue> windSpeedValues;
 
-    public List<BigDecimal> getData(Integer timeIndex) {
-        // 按 datetime 排序后提取 irradiance 值
-        return windSpeedValues.stream()
-                .sorted(Comparator.comparing(WindSpeedValue::getDatetime))
-                .map(WindSpeedValue::getWindSpeed)
-                .collect(Collectors.toList());
-    }
-
     @Override
     public int getDataLength() {
         return windSpeedValues.size();
+    }
+
+    @Override
+    public EnvironmentValue getEnvironmentValueList(Integer timeIndex) {
+        // 按 datetime 排序后提取 irradiance 值
+        return windSpeedValues.stream()
+                .sorted(Comparator.comparing(WindSpeedValue::getDatetime))
+                .map(WindSpeedValue::getValue)
+                .collect(Collectors.toList());
     }
 }

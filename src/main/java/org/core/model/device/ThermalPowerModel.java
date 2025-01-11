@@ -2,8 +2,9 @@ package org.core.model.device;
 
 import lombok.Getter;
 import org.core.model.environment.sunlight.IrradianceData;
+import org.core.model.environment.sunlight.SunlightIrradianceValue;
+import org.core.pso.simulator.EnvironmentValue;
 import org.core.pso.simulator.Producer;
-import org.core.pso.simulator.TimeSeriesValue;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -14,17 +15,20 @@ import java.util.stream.Collectors;
 @Getter
 public class ThermalPowerModel implements Producer {
 
-    // 光热转换效率 (η_SF)
-    private final BigDecimal etaSF;
-    // CSP 电站镜场面积 (S_SF, 单位: m²)
-    private final BigDecimal SSF;
-    // 模型数量
-    private final int modelCount;
-    // 每小时光热电站出力列表 (单位: kW)
-    private List<BigDecimal> thermalPowerList;
-
     // 常量：用于将 W 转换为 kW
     private static final BigDecimal KW_CONVERSION_FACTOR = new BigDecimal("1000");
+
+    // 光热转换效率 (η_SF)
+    private final BigDecimal etaSF;
+
+    // CSP 电站镜场面积 (S_SF, 单位: m²)
+    private final BigDecimal SSF;
+
+    // 模型数量
+    private final int modelCount;
+
+    // 每小时光热电站出力列表 (单位: kW)
+    private final List<BigDecimal> thermalPowerList;
 
     /**
      * 构造函数：初始化光热电站参数
@@ -38,20 +42,6 @@ public class ThermalPowerModel implements Producer {
         this.SSF = new BigDecimal(SSF);
         this.modelCount = modelCount;
         this.thermalPowerList = new ArrayList<>();
-    }
-
-    /**
-     * 批量计算光热电站的吸收热功率列表 (kW)，并保存到类内成员。
-     *
-     * @param irradianceData 实现了 IrradianceData 接口的光照数据源
-     * @return 光热电站出力列表 (单位: kW)
-     */
-    public List<BigDecimal> calculateThermalPowerList(IrradianceData irradianceData) {
-        // 清空之前的计算结果
-        thermalPowerList = irradianceData.getIrradianceData().stream()
-                .map(this::calculateThermalPower) // 调用单点计算方法
-                .collect(Collectors.toList());
-        return new ArrayList<>(thermalPowerList); // 返回计算结果
     }
 
     /**
@@ -78,7 +68,15 @@ public class ThermalPowerModel implements Producer {
     }
 
     @Override
-    public void produce(List<TimeSeriesValue> timeSeriesValueList) {
+    public BigDecimal produce(List<EnvironmentValue> environmentValueList) {
+        BigDecimal output = environmentValueList.stream()
+                .filter(x -> x instanceof SunlightIrradianceValue)
+                .map(EnvironmentValue::getValue)
+                .map(this::calculateThermalPower)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
 
+        this.thermalPowerList.add(output);
+        return output;
     }
 }

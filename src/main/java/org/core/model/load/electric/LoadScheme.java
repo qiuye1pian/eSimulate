@@ -2,6 +2,7 @@ package org.core.model.load.electric;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.core.pso.simulator.TimeSeriesValue;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -33,15 +34,9 @@ public class LoadScheme implements ElectricLoadData {
     private List<LoadValue> loadValues;
 
     @Override
-    public List<BigDecimal> getElectricLoadData() {
-        return loadValues.stream()
-                .sorted(Comparator.comparing(LoadValue::getDatetime))
-                .map(LoadValue::getLoadValue)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public int getDataLength() {
         return loadValues.size();
     }
+
+
 }

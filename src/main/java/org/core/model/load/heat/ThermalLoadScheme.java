@@ -2,6 +2,7 @@ package org.core.model.load.heat;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.core.pso.simulator.TimeSeriesValue;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -33,16 +34,8 @@ public class ThermalLoadScheme implements ThermalLoadData {
     private List<ThermalLoadValue> thermalLoadValues;
 
     @Override
-    public List<BigDecimal> getThermalLoadData() {
-        // 按 datetime 排序后提取 irradiance 值
-        return thermalLoadValues.stream()
-                .sorted(Comparator.comparing(ThermalLoadValue::getDatetime))
-                .map(ThermalLoadValue::getLoadValue)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public int getDataLength() {
         return thermalLoadValues.size();
     }
+
 }

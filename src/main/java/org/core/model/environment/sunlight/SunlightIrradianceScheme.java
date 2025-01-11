@@ -2,6 +2,8 @@ package org.core.model.environment.sunlight;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.core.pso.simulator.EnvironmentValue;
+import org.core.pso.simulator.TimeSeriesValue;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -32,6 +34,10 @@ public class SunlightIrradianceScheme implements IrradianceData {
     @OneToMany(mappedBy = "sunlightIrradianceScheme", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SunlightIrradianceValue> sunlightIrradianceValues;
 
+    public SunlightIrradianceScheme(List<SunlightIrradianceValue> values) {
+        this.sunlightIrradianceValues = values;
+    }
+
     @Override
     public List<BigDecimal> getIrradianceData() {
         // 按 datetime 排序后提取 irradiance 值
@@ -41,12 +47,13 @@ public class SunlightIrradianceScheme implements IrradianceData {
                 .collect(Collectors.toList());
     }
 
-    public SunlightIrradianceScheme(List<SunlightIrradianceValue> values) {
-        this.sunlightIrradianceValues = values;
-    }
-
     @Override
     public int getDataLength() {
         return sunlightIrradianceValues.size();
+    }
+
+    @Override
+    public EnvironmentValue getEnvironmentValueList(Integer timeIndex) {
+        return sunlightIrradianceValues.get(timeIndex);
     }
 }
