@@ -1,5 +1,8 @@
 package org.core.pso.simulator;
 
-public class Producer {
+import java.util.List;
 
+public interface Producer {
+
+    void produce(List<TimeSeriesValue> timeSeriesValueList);
 }

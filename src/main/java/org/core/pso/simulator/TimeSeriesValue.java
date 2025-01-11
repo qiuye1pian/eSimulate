@@ -1,5 +1,4 @@
 package org.core.pso.simulator;
 
-public interface Provider {
-
+public interface TimeSeriesValue {
 }

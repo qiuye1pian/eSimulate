@@ -1,8 +1,9 @@
 package org.core.model.environment.sunlight;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.core.pso.simulator.EnvironmentValue;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "sunlight_irradiance_values")
-public class SunlightIrradianceValue {
+public class SunlightIrradianceValue implements EnvironmentValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +35,11 @@ public class SunlightIrradianceValue {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-
     public SunlightIrradianceValue(LocalDateTime dateTime, BigDecimal irradiance) {
+    }
+
+    @Override
+    public BigDecimal getValue() {
+        return irradiance;
     }
 }

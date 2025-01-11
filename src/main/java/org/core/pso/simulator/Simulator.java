@@ -24,6 +24,12 @@ public class Simulator {
         int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
 
         for (int timeIndex = 0; timeIndex < timeLength; timeIndex++) {
+            final int finalTimeIndex = timeIndex;
+            List<TimeSeriesValue> timeSeriesValueList = environmentList.stream()
+                    .map(x -> x.getTimeSeriesValue(finalTimeIndex))
+                    .collect(Collectors.toList());
+            producerList.forEach(x->x.produce(timeSeriesValueList));
+
 //            producerList.forEach(x->x.produce(environmentList,timeIndex,));
         }
 

@@ -2,14 +2,17 @@ package org.core.model.device;
 
 import lombok.Getter;
 import org.core.model.environment.sunlight.IrradianceData;
+import org.core.pso.simulator.Producer;
+import org.core.pso.simulator.TimeSeriesValue;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
-public class ThermalPowerModel {
+public class ThermalPowerModel implements Producer {
 
     // 光热转换效率 (η_SF)
     private final BigDecimal etaSF;
@@ -70,7 +73,12 @@ public class ThermalPowerModel {
      */
     private BigDecimal calculateThermalPower(BigDecimal D_t) {
         return etaSF.multiply(SSF).multiply(D_t)
-                .divide(KW_CONVERSION_FACTOR, 10, BigDecimal.ROUND_HALF_UP)
+                .divide(KW_CONVERSION_FACTOR, 10, RoundingMode.HALF_UP)
                 .multiply(new BigDecimal(modelCount));
+    }
+
+    @Override
+    public void produce(List<TimeSeriesValue> timeSeriesValueList) {
+
     }
 }
