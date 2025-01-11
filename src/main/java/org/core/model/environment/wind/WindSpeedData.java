@@ -1,10 +1,7 @@
 package org.core.model.environment.wind;
 
-import org.core.pso.simulator.Environments;
+import org.core.pso.simulator.EnvironmentData;
 
-import java.math.BigDecimal;
-import java.util.List;
+public interface WindSpeedData extends EnvironmentData {
 
-public interface WindSpeedData extends Environments {
-    List<BigDecimal> getWindSpeedData();
 }

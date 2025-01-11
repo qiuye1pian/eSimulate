@@ -32,8 +32,7 @@ public class WindSpeedScheme implements WindSpeedData {
     @OneToMany(mappedBy = "windSpeedScheme", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WindSpeedValue> windSpeedValues;
 
-    @Override
-    public List<BigDecimal> getWindSpeedData() {
+    public List<BigDecimal> getData(Integer timeIndex) {
         // 按 datetime 排序后提取 irradiance 值
         return windSpeedValues.stream()
                 .sorted(Comparator.comparing(WindSpeedValue::getDatetime))

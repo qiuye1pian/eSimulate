@@ -1,12 +1,12 @@
 package org.core.model.environment.sunlight;
 
-import org.core.pso.simulator.Environments;
+import org.core.pso.simulator.EnvironmentData;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 
-public interface IrradianceData extends Environments {
+public interface IrradianceData extends EnvironmentData {
     /**
      * 获取光照强度数据列表
      *

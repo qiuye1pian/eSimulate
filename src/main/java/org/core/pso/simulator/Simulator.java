@@ -9,10 +9,44 @@ import org.core.pso.simulator.result.SimulateResult;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Simulator {
 
+
+    public static SimulateResult simulate(List<LoadData> loadList,
+                                          List<EnvironmentData> environmentList,
+                                          List<Producer> producerList,
+                                          List<Storage> storageList,
+                                          List<Provider> providerList) {
+
+        int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
+
+        for (int timeIndex = 0; timeIndex < timeLength; timeIndex++) {
+//            producerList.forEach(x->x.produce(environmentList,timeIndex,));
+        }
+
+
+        return null;
+    }
+
+    @SafeVarargs
+    private static Integer validateDataLengthAndGetDataLength(List<? extends TimeSeriesData>... dataLists) {
+
+        final List<Integer> distinct = Stream.of(dataLists)
+                .flatMap(List::stream)
+                .map(TimeSeriesData::getDataLength)
+                .distinct()
+                .collect(Collectors.toList());
+
+        boolean isLengthMismatch = distinct.size() > 1;
+
+        if (isLengthMismatch) {
+            throw new RuntimeException("环境数据、负荷数据长度不一致");
+        }
+        return distinct.stream().findAny().orElse(-1);
+    }
 
     /**
      * 模拟光热电站和燃气锅炉的运行
@@ -38,33 +72,6 @@ public class Simulator {
 
         // 5. 返回模拟结果
         return new SimulateResult(heatBalanceResult);
-    }
-
-
-    public static SimulateResult simulate(List<LoadData> loadList,
-                                          List<Environments> environmentList,
-                                          List<Producer> producerList,
-                                          List<Storage> storageList,
-                                          List<Provider> providerList) {
-
-        validateDataLength(loadList, environmentList);
-
-
-
-        return null;
-    }
-
-    @SafeVarargs
-    private static void validateDataLength(List<? extends TimeSeriesData>... dataLists) {
-        boolean isLengthMismatch = Stream.of(dataLists)
-                .flatMap(List::stream)
-                .map(TimeSeriesData::getDataLength)
-                .distinct()
-                .count() > 1;
-
-        if (isLengthMismatch) {
-            throw new RuntimeException("环境数据、负荷数据长度不一致");
-        }
     }
 }
 

@@ -2,6 +2,7 @@ package org.core.model.environment.wind;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.core.pso.simulator.EnvironmentValue;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "wind_speed_values")
-public class WindSpeedValue {
+public class WindSpeedValue implements EnvironmentValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,4 +34,9 @@ public class WindSpeedValue {
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
+
+    @Override
+    public BigDecimal getValue() {
+        return windSpeed;
+    }
 }

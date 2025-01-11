@@ -1,4 +1,4 @@
 package org.core.pso.simulator;
 
-public interface LoadData extends TimeSeriesData{
+public interface LoadData extends TimeSeriesData {
 }
