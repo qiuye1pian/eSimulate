@@ -2,15 +2,19 @@ package org.core.model.environment.wind;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
 @Entity
 @Table(name = "wind_speed_scheme")
-public class WindSpeedScheme {
+public class WindSpeedScheme implements WindSpeedData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,4 +31,18 @@ public class WindSpeedScheme {
 
     @OneToMany(mappedBy = "windSpeedScheme", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WindSpeedValue> windSpeedValues;
+
+    @Override
+    public List<BigDecimal> getWindSpeedData() {
+        // 按 datetime 排序后提取 irradiance 值
+        return windSpeedValues.stream()
+                .sorted(Comparator.comparing(WindSpeedValue::getDatetime))
+                .map(WindSpeedValue::getWindSpeed)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public int getDataLength() {
+        return windSpeedValues.size();
+    }
 }

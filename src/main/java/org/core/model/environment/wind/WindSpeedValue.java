@@ -2,7 +2,9 @@ package org.core.model.environment.wind;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -24,7 +26,7 @@ public class WindSpeedValue {
     private LocalDateTime datetime;
 
     @Column(name = "wind_speed", nullable = false)
-    private Double windSpeed;
+    private BigDecimal windSpeed;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;

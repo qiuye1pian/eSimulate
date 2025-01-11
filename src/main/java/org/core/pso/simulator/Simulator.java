@@ -8,10 +8,12 @@ import org.core.pso.simulator.result.HeatBalanceResult;
 import org.core.pso.simulator.result.SimulateResult;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Simulator {
+
+
     /**
      * 模拟光热电站和燃气锅炉的运行
      *
@@ -30,9 +32,6 @@ public class Simulator {
         // 2. 计算燃气锅炉出力
         gasBoilerModel.calculateHeatPowers(heatLoadData.getThermalLoadData(), thermalPowerList);
 
-        // 储能暂时先放一放
-
-        // 3.
 
         // 4. 生成热平衡结果
         HeatBalanceResult heatBalanceResult = new HeatBalanceResult(thermalModel, gasBoilerModel);
@@ -41,5 +40,31 @@ public class Simulator {
         return new SimulateResult(heatBalanceResult);
     }
 
+
+    public static SimulateResult simulate(List<LoadData> loadList,
+                                          List<Environments> environmentList,
+                                          List<Producer> producerList,
+                                          List<Storage> storageList,
+                                          List<Provider> providerList) {
+
+        validateDataLength(loadList, environmentList);
+
+
+
+        return null;
+    }
+
+    @SafeVarargs
+    private static void validateDataLength(List<? extends TimeSeriesData>... dataLists) {
+        boolean isLengthMismatch = Stream.of(dataLists)
+                .flatMap(List::stream)
+                .map(TimeSeriesData::getDataLength)
+                .distinct()
+                .count() > 1;
+
+        if (isLengthMismatch) {
+            throw new RuntimeException("环境数据、负荷数据长度不一致");
+        }
+    }
 }
 

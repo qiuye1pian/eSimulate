@@ -2,12 +2,10 @@ package org.core.model.load.heat;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.core.model.environment.sunlight.SunlightIrradianceValue;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +14,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Entity
 @Table(name = "thermal_load_scheme")
-public class ThermalLoadScheme implements ThermalLoadData{
+public class ThermalLoadScheme implements ThermalLoadData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,5 +39,10 @@ public class ThermalLoadScheme implements ThermalLoadData{
                 .sorted(Comparator.comparing(ThermalLoadValue::getDatetime))
                 .map(ThermalLoadValue::getLoadValue)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public int getDataLength() {
+        return thermalLoadValues.size();
     }
 }

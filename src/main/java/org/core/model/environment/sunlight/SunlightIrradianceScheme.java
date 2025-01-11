@@ -45,4 +45,8 @@ public class SunlightIrradianceScheme implements IrradianceData {
         this.sunlightIrradianceValues = values;
     }
 
+    @Override
+    public int getDataLength() {
+        return sunlightIrradianceValues.size();
+    }
 }
