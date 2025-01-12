@@ -66,7 +66,7 @@ public class ThermalPowerModel implements Producer {
     }
 
     @Override
-    public BigDecimal produce(List<EnvironmentValue> environmentValueList) {
+    public Result produce(List<EnvironmentValue> environmentValueList) {
         BigDecimal output = environmentValueList.stream()
                 .filter(x -> x instanceof SunlightIrradianceValue)
                 .map(EnvironmentValue::getValue)

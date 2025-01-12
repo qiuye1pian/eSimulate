@@ -36,6 +36,8 @@ public class Simulator {
                     .map(x -> x.produce(environmentListAtAMount))
                     .collect(Collectors.toList());
 
+
+
         }
 
 
