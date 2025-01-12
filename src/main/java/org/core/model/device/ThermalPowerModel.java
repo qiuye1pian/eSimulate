@@ -1,16 +1,14 @@
 package org.core.model.device;
 
 import lombok.Getter;
-import org.core.model.environment.sunlight.IrradianceData;
 import org.core.model.environment.sunlight.SunlightIrradianceValue;
-import org.core.pso.simulator.EnvironmentValue;
-import org.core.pso.simulator.Producer;
+import org.core.pso.simulator.facade.environment.EnvironmentValue;
+import org.core.pso.simulator.facade.Producer;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 public class ThermalPowerModel implements Producer {

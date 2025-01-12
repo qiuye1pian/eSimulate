@@ -2,6 +2,7 @@ package org.core.model.load.heat;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "thermal_load_values")
-public class ThermalLoadValue {
+public class ThermalLoadValue implements LoadValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

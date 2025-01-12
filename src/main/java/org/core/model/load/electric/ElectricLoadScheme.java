@@ -2,6 +2,7 @@ package org.core.model.load.electric;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -35,4 +36,8 @@ public class ElectricLoadScheme implements ElectricLoadData {
     }
 
 
+    @Override
+    public LoadValue getLoadValue(Integer timeIndex) {
+        return null;
+    }
 }

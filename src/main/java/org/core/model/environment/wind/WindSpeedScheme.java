@@ -2,12 +2,9 @@ package org.core.model.environment.wind;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.core.model.load.heat.ThermalLoadValue;
-import org.core.pso.simulator.EnvironmentValue;
-import org.core.pso.simulator.TimeSeriesValue;
+import org.core.pso.simulator.facade.environment.EnvironmentValue;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
@@ -41,7 +38,7 @@ public class WindSpeedScheme implements WindSpeedData {
     }
 
     @Override
-    public EnvironmentValue getEnvironmentValueList(Integer timeIndex) {
+    public EnvironmentValue getEnvironmentValue(Integer timeIndex) {
         // 按 datetime 排序后提取 irradiance 值
         return windSpeedValues.stream()
                 .sorted(Comparator.comparing(WindSpeedValue::getDatetime))

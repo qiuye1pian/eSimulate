@@ -2,14 +2,11 @@ package org.core.model.load.heat;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.core.pso.simulator.TimeSeriesValue;
+import org.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -38,4 +35,8 @@ public class ThermalLoadScheme implements ThermalLoadData {
         return thermalLoadValues.size();
     }
 
+    @Override
+    public LoadValue getLoadValue(Integer timeIndex) {
+        return null;
+    }
 }

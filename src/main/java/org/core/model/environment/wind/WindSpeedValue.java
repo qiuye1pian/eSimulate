@@ -2,7 +2,7 @@ package org.core.model.environment.wind;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.core.pso.simulator.EnvironmentValue;
+import org.core.pso.simulator.facade.environment.EnvironmentValue;
 
 import javax.persistence.*;
 import java.math.BigDecimal;

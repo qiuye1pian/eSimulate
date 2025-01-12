@@ -1,10 +1,12 @@
 package org.core.pso.simulator;
 
-import org.core.model.device.GasBoilerModel;
-import org.core.model.device.ThermalPowerModel;
-import org.core.model.environment.sunlight.IrradianceData;
-import org.core.model.load.heat.ThermalLoadData;
-import org.core.pso.simulator.result.HeatBalanceResult;
+import org.core.pso.simulator.facade.base.TimeSeriesData;
+import org.core.pso.simulator.facade.environment.EnvironmentData;
+import org.core.pso.simulator.facade.environment.EnvironmentValue;
+import org.core.pso.simulator.facade.load.LoadData;
+import org.core.pso.simulator.facade.Producer;
+import org.core.pso.simulator.facade.Provider;
+import org.core.pso.simulator.facade.Storage;
 import org.core.pso.simulator.result.SimulateResult;
 
 import java.math.BigDecimal;
@@ -27,7 +29,7 @@ public class Simulator {
             final Integer finalTimeIndex = timeIndex;
 
             List<EnvironmentValue> environmentListAtAMount = environmentList.stream()
-                    .map(x -> x.getEnvironmentValueList(finalTimeIndex))
+                    .map(x -> x.getEnvironmentValue(finalTimeIndex))
                     .collect(Collectors.toList());
 
             List<BigDecimal> produceList = producerList.stream()

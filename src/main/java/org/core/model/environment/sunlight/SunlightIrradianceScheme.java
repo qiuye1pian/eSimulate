@@ -2,8 +2,7 @@ package org.core.model.environment.sunlight;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.core.pso.simulator.EnvironmentValue;
-import org.core.pso.simulator.TimeSeriesValue;
+import org.core.pso.simulator.facade.environment.EnvironmentValue;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -53,7 +52,7 @@ public class SunlightIrradianceScheme implements IrradianceData {
     }
 
     @Override
-    public EnvironmentValue getEnvironmentValueList(Integer timeIndex) {
+    public EnvironmentValue getEnvironmentValue(Integer timeIndex) {
         return sunlightIrradianceValues.get(timeIndex);
     }
 }
