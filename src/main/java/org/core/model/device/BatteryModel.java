@@ -134,6 +134,8 @@ public class BatteryModel implements Storage {
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        return null;
+        //TODO:这里需要补充计算
+        //应该是根据 electricEnergyDifference，进行充/放电，并且加上电量衰减，更新电量余额，最后返回充/放电的能量
+        return new ElectricEnergy(BigDecimal.ZERO);
     }
 }
