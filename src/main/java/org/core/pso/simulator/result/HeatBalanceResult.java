@@ -17,9 +17,6 @@ public class HeatBalanceResult {
         this.gasBoilerModel = gasBoilerModel;
     }
 
-    public List<BigDecimal> getThermalPowerList() {
-       return thermalPowerModel.getThermalPowerList();
-    }
 
     public List<BigDecimal> gasBoilerOutputList(){
         return gasBoilerModel.gasBoilerOutputList();

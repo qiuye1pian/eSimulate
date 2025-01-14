@@ -2,8 +2,10 @@ package org.core.model.device;
 
 import lombok.Getter;
 import org.core.model.environment.sunlight.SunlightIrradianceValue;
+import org.core.model.result.energy.ThermalEnergy;
 import org.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.core.pso.simulator.facade.Producer;
+import org.core.pso.simulator.facade.result.energy.Energy;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,7 +28,7 @@ public class ThermalPowerModel implements Producer {
     private final int modelCount;
 
     // 每小时光热电站出力列表 (单位: kW)
-    private final List<BigDecimal> thermalPowerList;
+    private final List<ThermalEnergy> thermalEnergyList;
 
     /**
      * 构造函数：初始化光热电站参数
@@ -39,16 +41,7 @@ public class ThermalPowerModel implements Producer {
         this.etaSF = new BigDecimal(etaSF);
         this.SSF = new BigDecimal(SSF);
         this.modelCount = modelCount;
-        this.thermalPowerList = new ArrayList<>();
-    }
-
-    /**
-     * 获取光热电站的出力列表 (kW)
-     *
-     * @return thermalPowerList
-     */
-    public List<BigDecimal> getThermalPowerList() {
-        return new ArrayList<>(thermalPowerList);
+        this.thermalEnergyList = new ArrayList<>();
     }
 
     /**
@@ -66,7 +59,8 @@ public class ThermalPowerModel implements Producer {
     }
 
     @Override
-    public Result produce(List<EnvironmentValue> environmentValueList) {
+    public Energy produce(List<EnvironmentValue> environmentValueList) {
+
         BigDecimal output = environmentValueList.stream()
                 .filter(x -> x instanceof SunlightIrradianceValue)
                 .map(EnvironmentValue::getValue)
@@ -74,7 +68,10 @@ public class ThermalPowerModel implements Producer {
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        this.thermalPowerList.add(output);
-        return output;
+        ThermalEnergy thermalEnergy = new ThermalEnergy(output);
+
+        this.thermalEnergyList.add(thermalEnergy);
+
+        return thermalEnergy;
     }
 }
