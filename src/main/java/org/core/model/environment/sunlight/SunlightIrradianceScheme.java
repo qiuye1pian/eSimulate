@@ -38,15 +38,6 @@ public class SunlightIrradianceScheme implements IrradianceData {
     }
 
     @Override
-    public List<BigDecimal> getIrradianceData() {
-        // 按 datetime 排序后提取 irradiance 值
-        return sunlightIrradianceValues.stream()
-                .sorted(Comparator.comparing(SunlightIrradianceValue::getDatetime))
-                .map(SunlightIrradianceValue::getIrradiance)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public int getDataLength() {
         return sunlightIrradianceValues.size();
     }

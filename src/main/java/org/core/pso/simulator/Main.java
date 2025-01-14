@@ -25,10 +25,9 @@ public class Main {
         ThermalPowerModel thermalModel = new ThermalPowerModel("0.75", "50000", 2);
 
         // 计算热功率
-        List<BigDecimal> thermalPowerList = thermalModel.calculateThermalPowerList(scheme);
+
 
         // 输出结果
-        System.out.println("光热电站出力 (kW):");
-        thermalPowerList.forEach(System.out::println);
+
     }
 }

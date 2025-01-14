@@ -48,7 +48,7 @@ public class ElectricLoadValue implements LoadValue {
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        // 用当前负荷减去之前产出的电能
-        return new ElectricEnergy(this.loadValue.subtract(electricEnergyProduced));
+        // 用之前产出的电能 减去 当前负荷
+        return new ElectricEnergy(electricEnergyProduced.subtract(this.loadValue));
     }
 }

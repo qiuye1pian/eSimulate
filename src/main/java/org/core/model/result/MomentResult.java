@@ -1,22 +1,22 @@
 package org.core.model.result;
 
-import org.core.pso.simulator.facade.result.ResultFacade;
-import org.core.pso.simulator.facade.result.carbon.Carbon;
-import org.core.pso.simulator.facade.result.energy.Electricity;
+import org.core.pso.simulator.facade.result.MomentResultFacade;
 import org.core.pso.simulator.facade.result.energy.Energy;
 
-//TODO:要考虑是否用得上
-public class MomentResult implements ResultFacade {
+import java.math.BigDecimal;
+import java.util.List;
 
-    Electricity electricity;
 
-    @Override
-    public Energy getEnergy() {
-        return null;
+public class MomentResult implements MomentResultFacade {
+
+    List<Energy> momentFinalEnergy;
+
+    public MomentResult(List<Energy> afterProvideList) {
+        this.momentFinalEnergy = afterProvideList;
     }
 
     @Override
-    public Carbon getCarbon() {
-        return null;
+    public Boolean isUnqualified() {
+        return momentFinalEnergy.stream().anyMatch(x -> x.getValue().compareTo(BigDecimal.ZERO) < 0);
     }
 }

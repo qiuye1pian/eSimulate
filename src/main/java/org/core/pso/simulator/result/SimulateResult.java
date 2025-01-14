@@ -6,11 +6,16 @@ import lombok.Getter;
 @Getter
 public class SimulateResult {
 
-    private final HeatBalanceResult heatBalanceResult;
+    String message;
 
-    public SimulateResult(HeatBalanceResult heatBalanceResult) {
-        this.heatBalanceResult = heatBalanceResult;
+    SimulateResultType resultType;
+
+    private SimulateResult(String message, SimulateResultType resultType) {
+        this.message = message;
+        this.resultType = resultType;
     }
 
-
+    public static SimulateResult fail(String message) {
+        return new SimulateResult(message, SimulateResultType.FAILED);
+    }
 }

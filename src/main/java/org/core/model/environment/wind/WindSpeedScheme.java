@@ -39,10 +39,14 @@ public class WindSpeedScheme implements WindSpeedData {
 
     @Override
     public EnvironmentValue getEnvironmentValue(Integer timeIndex) {
-        // 按 datetime 排序后提取 irradiance 值
+        if (timeIndex < 0 || timeIndex >= windSpeedValues.size()) {
+            throw new IndexOutOfBoundsException("timeIndex 超出范围: " + timeIndex);
+        }
+
+        // 按 datetime 排序后返回第 timeIndex 个元素的 value
         return windSpeedValues.stream()
                 .sorted(Comparator.comparing(WindSpeedValue::getDatetime))
-                .map(WindSpeedValue::getValue)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+                .get(timeIndex);
     }
 }

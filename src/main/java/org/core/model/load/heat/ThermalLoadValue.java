@@ -46,7 +46,7 @@ public class ThermalLoadValue implements LoadValue {
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        // 用当前负荷减去之前产出的热量
-        return new ThermalEnergy(this.loadValue.subtract(thermalEnergyProduced));
+        // 用之前产出的热量 减去 当前负荷
+        return new ThermalEnergy(thermalEnergyProduced.subtract(this.loadValue));
     }
 }
