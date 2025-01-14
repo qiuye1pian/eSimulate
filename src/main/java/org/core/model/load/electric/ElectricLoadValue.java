@@ -3,9 +3,10 @@ package org.core.model.load.electric;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.core.model.result.energy.ElectricEnergy;
-import org.core.model.result.energy.ThermalEnergy;
 import org.core.pso.simulator.facade.load.LoadValue;
 import org.core.pso.simulator.facade.result.energy.Energy;
+import org.jetbrains.annotations.TestOnly;
+
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -41,7 +42,6 @@ public class ElectricLoadValue implements LoadValue {
 
     @Override
     public Energy calculateDifference(List<Energy> produceList) {
-
         BigDecimal electricEnergyProduced = produceList.stream()
                 .filter(x -> x instanceof ElectricEnergy)
                 .map(Energy::getValue)
@@ -50,5 +50,11 @@ public class ElectricLoadValue implements LoadValue {
 
         // 用之前产出的电能 减去 当前负荷
         return new ElectricEnergy(electricEnergyProduced.subtract(this.loadValue));
+    }
+
+    @TestOnly
+    public ElectricLoadValue(LocalDateTime datetime, BigDecimal loadValue) {
+        this.datetime = datetime;
+        this.loadValue = loadValue;
     }
 }

@@ -3,6 +3,7 @@ package org.core.model.environment.sunlight;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.core.pso.simulator.facade.environment.EnvironmentValue;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -35,7 +36,10 @@ public class SunlightIrradianceValue implements EnvironmentValue {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @TestOnly
     public SunlightIrradianceValue(LocalDateTime dateTime, BigDecimal irradiance) {
+        this.datetime = dateTime;
+        this.irradiance = irradiance;
     }
 
     @Override
