@@ -2,6 +2,7 @@ package org.core.model.load.electric;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.NotImplementedException;
 import org.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
@@ -35,9 +36,8 @@ public class ElectricLoadScheme implements ElectricLoadData {
         return electricLoadValues.size();
     }
 
-
     @Override
     public LoadValue getLoadValue(Integer timeIndex) {
-        return null;
+        return electricLoadValues.get(timeIndex);
     }
 }

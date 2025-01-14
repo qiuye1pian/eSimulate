@@ -5,7 +5,6 @@ import org.core.pso.simulator.facade.result.energy.Electricity;
 
 import java.math.BigDecimal;
 
-
 @Getter
 public class ElectricEnergy implements Electricity {
 

@@ -37,6 +37,6 @@ public class ThermalLoadScheme implements ThermalLoadData {
 
     @Override
     public LoadValue getLoadValue(Integer timeIndex) {
-        return null;
+        return thermalLoadValues.get(timeIndex);
     }
 }

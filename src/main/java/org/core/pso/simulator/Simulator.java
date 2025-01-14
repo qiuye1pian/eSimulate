@@ -1,17 +1,16 @@
 package org.core.pso.simulator;
 
+import org.core.pso.simulator.facade.Producer;
+import org.core.pso.simulator.facade.Provider;
+import org.core.pso.simulator.facade.Storage;
 import org.core.pso.simulator.facade.base.TimeSeriesData;
 import org.core.pso.simulator.facade.constraint.Constraint;
 import org.core.pso.simulator.facade.environment.EnvironmentData;
 import org.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.core.pso.simulator.facade.load.LoadData;
-import org.core.pso.simulator.facade.Producer;
-import org.core.pso.simulator.facade.Provider;
-import org.core.pso.simulator.facade.Storage;
 import org.core.pso.simulator.facade.result.energy.Energy;
 import org.core.pso.simulator.result.SimulateResult;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,7 +23,7 @@ public class Simulator {
                                           List<Producer> producerList,
                                           List<Storage> storageList,
                                           List<Provider> providerList,
-                                          List<Constraint>  constraintList) {
+                                          List<Constraint> constraintList) {
 
         int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
 
@@ -44,8 +43,8 @@ public class Simulator {
 
             //用负荷数据减去已生产的能源，获得能源 冗余/缺口 数据
             List<Energy> differenceList = loadList.stream()
-                    .map(x->x.getLoadValue(currentTimeIndex))
-                    .map(x->x.calculateDifference(produceList))
+                    .map(x -> x.getLoadValue(currentTimeIndex))
+                    .map(x -> x.calculateDifference(produceList))
                     .collect(Collectors.toList());
 
 

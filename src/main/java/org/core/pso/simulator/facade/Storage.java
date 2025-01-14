@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface Storage {
 
-    Energy storage(List<Energy> produceList);
+    Energy storage(List<Energy> differenceList);
 
 }

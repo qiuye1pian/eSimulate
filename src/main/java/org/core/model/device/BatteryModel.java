@@ -1,28 +1,38 @@
 package org.core.model.device;
 
 import lombok.Data;
+import org.core.model.result.energy.ElectricEnergy;
+import org.core.pso.simulator.facade.Storage;
+import org.core.pso.simulator.facade.result.energy.Energy;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 /**
  * Java 版蓄电池储能模型
  */
 @Data
-public class BatteryModel {
+public class BatteryModel implements Storage {
 
     // 蓄电池总容量 (Wh)
     private final BigDecimal C_t;
+
     // SOC 最小值 (0~1)
     private final BigDecimal SOC_min;
+
     // SOC 最大值 (0~1)
     private final BigDecimal SOC_max;
+
     // 自放电损失率 (无量纲)
     private final BigDecimal mu;
+
     // 充电效率 (0~1)
     private final BigDecimal eta_hch;
+
     // 放电效率 (0~1)
     private final BigDecimal eta_hdis;
+
     // 当前储电量 (Wh)
     private BigDecimal E_ESS_t;
 
@@ -63,7 +73,7 @@ public class BatteryModel {
      * @param P_ESS_in_t  充电功率 (W)
      * @param P_ESS_dis_t 放电功率 (W)
      * @param delta_t     时间段长度 (小时)
-     * @return            返回当前 Battery 对象，便于链式调用
+     * @return 返回当前 Battery 对象，便于链式调用
      */
     public BatteryModel updateSOC(String P_ESS_in_t, String P_ESS_dis_t, String delta_t) {
         BigDecimal P_in = new BigDecimal(P_ESS_in_t);
@@ -115,4 +125,15 @@ public class BatteryModel {
     }
 
 
+    @Override
+    public Energy storage(List<Energy> differenceList) {
+
+        BigDecimal electricEnergyDifference = differenceList.stream()
+                .filter(x -> x instanceof ElectricEnergy)
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+
+        return null;
+    }
 }
