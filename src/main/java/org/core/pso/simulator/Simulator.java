@@ -47,23 +47,23 @@ public class Simulator {
                     .map(x -> x.calculateDifference(produceList))
                     .collect(Collectors.toList());
 
-
             //计算经过储能调整后的 冗余/缺口 数据
             List<Energy> afterStorageEnergyList = storageList.stream()
                     .map(x -> x.storage(differenceList))
                     .collect(Collectors.toList());
 
             //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
-            List<Energy> provideList = providerList.stream()
+            List<Energy> afterProvideList = providerList.stream()
                     .map(x -> x.provide(afterStorageEnergyList))
                     .collect(Collectors.toList());
 
-            //校验仿真约束
+
 
 
         }
 
-
+        //校验仿真约束
+        //是否100%满足负荷
         return null;
     }
 

@@ -41,6 +41,7 @@ public class ElectricLoadValue implements LoadValue {
 
     @Override
     public Energy calculateDifference(List<Energy> produceList) {
+
         BigDecimal electricEnergyProduced = produceList.stream()
                 .filter(x -> x instanceof ElectricEnergy)
                 .map(Energy::getValue)

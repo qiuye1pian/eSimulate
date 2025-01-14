@@ -125,17 +125,22 @@ public class BatteryModel implements Storage {
     }
 
 
+    /**
+     * 电池根据传入的能源 冗余/缺口 中的电力能源数据数据计算充放电
+     * @param differenceList 能源 冗余/缺口 数据
+     * @return 经过储能调整后的 冗余/缺口 数据
+     */
     @Override
     public Energy storage(List<Energy> differenceList) {
-
         BigDecimal electricEnergyDifference = differenceList.stream()
                 .filter(x -> x instanceof ElectricEnergy)
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        //TODO:这里需要补充计算
-        //应该是根据 electricEnergyDifference，进行充/放电，并且加上电量衰减，更新电量余额，最后返回充/放电的能量
+        //TODO: 这里需要补充计算
+        // 应该是根据 electricEnergyDifference，进行充/放电 （要加上差电池数量的计算），并且加上电量衰减，更新电池电量余额，
+        // 最后返回充/放电的能量之后 剩余的缺口
         return new ElectricEnergy(BigDecimal.ZERO);
     }
 }

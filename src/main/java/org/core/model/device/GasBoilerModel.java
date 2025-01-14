@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class GasBoilerModel implements Provider {
 
@@ -54,12 +53,20 @@ public class GasBoilerModel implements Provider {
 
 
     @Override
-    public Energy provide(List<Energy> afterStorageEnergy) {
+    public Energy provide(List<Energy> afterStorageEnergyList) {
 
-        List<Object> collect = afterStorageEnergy.stream()
-                .map(x -> )
-                .collect(Collectors.toList());
+        //能量缺口
+        BigDecimal afterStorageThermalEnergy = afterStorageEnergyList.stream()
+                .filter(x -> x instanceof ThermalEnergy)
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
 
-        return new ThermalEnergy(BigDecimal.ONE);
+        // 如果热能还有缺口
+        if (afterStorageThermalEnergy.compareTo(BigDecimal.ZERO) > 0) {
+            return new ThermalEnergy(afterStorageThermalEnergy);
+        }
+
+        return new ThermalEnergy(BigDecimal.ZERO);
     }
 }

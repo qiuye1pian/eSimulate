@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface Provider {
 
-    Energy provide(List<Energy> afterStorageEnergy);
+    Energy provide(List<Energy> afterStorageEnergyList);
 }
