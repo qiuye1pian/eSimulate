@@ -67,6 +67,10 @@ public class GasBoilerModel implements Provider {
             return new ThermalEnergy(afterStorageThermalEnergy);
         }
 
-        return new ThermalEnergy(BigDecimal.ZERO);
+        ThermalEnergy thermalEnergy = new ThermalEnergy(BigDecimal.ZERO);
+
+        gasBoilerOutputList.add(thermalEnergy);
+
+        return thermalEnergy;
     }
 }

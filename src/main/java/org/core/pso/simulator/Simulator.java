@@ -74,6 +74,15 @@ public class Simulator {
         return distinct.stream().findAny().orElse(-1);
     }
 
+    /**
+     * @param loadList
+     * @param environmentList
+     * @param producerList
+     * @param storageList
+     * @param providerList
+     * @param constraintList
+     * @return
+     */
     public SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList, List<Producer> producerList, List<Storage> storageList, List<Provider> providerList, List<Constraint> constraintList) {
 
         //验证负荷长度和环境长度是否一致，如果一致则返回他们的长度
@@ -87,9 +96,9 @@ public class Simulator {
 
         //校验仿真约束
         //校验是否 100% 满足负荷
-        if (momentResultList.stream().anyMatch(MomentResultFacade::isUnqualified))
-
+        if (momentResultList.stream().anyMatch(MomentResultFacade::isUnqualified)) {
             return SimulateResult.fail("不能满足负荷");
+        }
 
         return null;
     }
