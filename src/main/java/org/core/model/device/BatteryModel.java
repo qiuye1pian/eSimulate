@@ -6,7 +6,6 @@ import org.core.pso.simulator.facade.Storage;
 import org.core.pso.simulator.facade.result.energy.Energy;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -67,80 +66,31 @@ public class BatteryModel implements Storage {
         this.E_ESS_t = this.C_t.multiply(this.SOC_min);
     }
 
-    /**
-     * 更新蓄电池储电量与SOC
-     *
-     * @param P_ESS_in_t  充电功率 (W)
-     * @param P_ESS_dis_t 放电功率 (W)
-     * @param delta_t     时间段长度 (小时)
-     * @return 返回当前 Battery 对象，便于链式调用
-     */
-    public BatteryModel updateSOC(String P_ESS_in_t, String P_ESS_dis_t, String delta_t) {
-        BigDecimal P_in = new BigDecimal(P_ESS_in_t);
-        BigDecimal P_out = new BigDecimal(P_ESS_dis_t);
-        BigDecimal dt = new BigDecimal(delta_t);
-
-        if (dt.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("时段长度 delta_t 必须大于 0");
-        }
-
-        // 上一时刻储电量
-        BigDecimal E_ESS_prev = this.E_ESS_t;
-
-        // 新的储电量计算
-        BigDecimal E_ESS_new = E_ESS_prev
-                .multiply(BigDecimal.ONE.subtract(mu))  // 自放电损失
-                .add(P_in.multiply(eta_hch).subtract(P_out.divide(eta_hdis, 10, RoundingMode.HALF_UP)).multiply(dt));
-
-        // 限制在 [C_t * SOC_min, C_t * SOC_max] 范围内
-        BigDecimal minCapacity = C_t.multiply(SOC_min);
-        BigDecimal maxCapacity = C_t.multiply(SOC_max);
-
-        if (E_ESS_new.compareTo(maxCapacity) > 0) {
-            E_ESS_new = maxCapacity;
-        } else if (E_ESS_new.compareTo(minCapacity) < 0) {
-            E_ESS_new = minCapacity;
-        }
-
-        this.E_ESS_t = E_ESS_new;
-        return this;
-    }
-
-    /**
-     * 获取当前储电量 (Wh)
-     *
-     * @return 当前储电量 (Wh)
-     */
-    public BigDecimal getEnergyCapacity() {
-        return this.E_ESS_t;
-    }
-
-    /**
-     * 获取当前SOC (0~1)
-     *
-     * @return 当前SOC (0~1)
-     */
-    public BigDecimal getSOC() {
-        return this.E_ESS_t.divide(this.C_t, 10, RoundingMode.HALF_UP);
-    }
-
 
     /**
      * 电池根据传入的能源 冗余/缺口 中的电力能源数据数据计算充放电
+     *
      * @param differenceList 能源 冗余/缺口 数据
      * @return 经过储能调整后的 冗余/缺口 数据
      */
     @Override
     public Energy storage(List<Energy> differenceList) {
-        BigDecimal electricEnergyDifference = differenceList.stream()
-                .filter(x -> x instanceof ElectricEnergy)
-                .map(Energy::getValue)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
 
-        //TODO: 这里需要补充计算
-        // 应该是根据 electricEnergyDifference，进行充/放电 （要加上差电池数量的计算），并且加上电量衰减，更新电池电量余额，
-        // 最后返回充/放电的能量之后 剩余的缺口
+        // 计算 输入的电能冗余/缺口 final BigDecimal electricEnergyDifference
+        // 计算 自然放电的量 = 自放电损失率 (无量纲)mu * 蓄电池总容量 (Wh) C_t
+        // 先计算自然放电： 当前储电量 = 当前储电量 - 自然放电的量
+
+        // 判断放电保护
+        //  如果 (当前储电量 < (SOC_min * C_t)) 且 (输入的电能冗余/缺口 < 0)
+        //      则返回 输入的电能冗余/缺口
+
+        // 充电放电：当前储电量 = 当前储电量 + 输入的电能冗余/缺口
+
+        // 判断过充保护
+        // 如果  当前储电量 > (SOC_max * C_t)
+        //      计算 能量冗余 = 当前储电量 - (SOC_max * C_t);
+        //      当前储电量 = SOC_max * C_t;
+        //      则返回 能量冗余
         return new ElectricEnergy(BigDecimal.ZERO);
     }
 }
