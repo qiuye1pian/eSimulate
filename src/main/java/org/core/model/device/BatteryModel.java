@@ -6,6 +6,7 @@ import org.core.pso.simulator.facade.Storage;
 import org.core.pso.simulator.facade.result.energy.Energy;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -75,22 +76,59 @@ public class BatteryModel implements Storage {
      */
     @Override
     public Energy storage(List<Energy> differenceList) {
+        // 1. 计算输入的电能冗余/缺口
+        BigDecimal electricEnergyDifference = differenceList.stream()
+                .filter(x -> x instanceof ElectricEnergy)
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
 
-        // 计算 输入的电能冗余/缺口 final BigDecimal electricEnergyDifference
-        // 计算 自然放电的量 = 自放电损失率 (无量纲)mu * 蓄电池总容量 (Wh) C_t
-        // 先计算自然放电： 当前储电量 = 当前储电量 - 自然放电的量
+        // 2. 计算自然放电并更新储电量
+        BigDecimal naturalDischarge = this.mu.multiply(this.E_ESS_t); // 自然放电损失
+        this.E_ESS_t = this.E_ESS_t.subtract(naturalDischarge);
 
-        // 判断放电保护
-        //  如果 (当前储电量 < (SOC_min * C_t)) 且 (输入的电能冗余/缺口 < 0)
-        //      则返回 输入的电能冗余/缺口
+        // 3. 处理充放电逻辑
+        this.E_ESS_t = adjustEnergyByDifference(this.E_ESS_t, electricEnergyDifference);
 
-        // 充电放电：当前储电量 = 当前储电量 + 输入的电能冗余/缺口
+        // 4. 检查过充和过放保护
+        return enforceCapacityBounds();
+    }
 
-        // 判断过充保护
-        // 如果  当前储电量 > (SOC_max * C_t)
-        //      计算 能量冗余 = 当前储电量 - (SOC_max * C_t);
-        //      当前储电量 = SOC_max * C_t;
-        //      则返回 能量冗余
-        return new ElectricEnergy(BigDecimal.ZERO);
+    /**
+     * 根据电能差值调整储电量（充放电逻辑）
+     */
+    private BigDecimal adjustEnergyByDifference(BigDecimal currentEnergy, BigDecimal energyDifference) {
+        if (energyDifference.compareTo(BigDecimal.ZERO) > 0) {
+            // 充电逻辑
+            BigDecimal chargeEnergy = energyDifference.multiply(this.eta_hch); // 考虑充电效率
+            return currentEnergy.add(chargeEnergy);
+        }
+
+        if (energyDifference.compareTo(BigDecimal.ZERO) < 0) {
+            // 放电逻辑
+            BigDecimal dischargeEnergy = energyDifference.abs().divide(this.eta_hdis, 10, RoundingMode.HALF_UP); // 考虑放电效率
+            return currentEnergy.subtract(dischargeEnergy);
+        }
+        return currentEnergy; // 没有差值，不调整
+    }
+
+    /**
+     * 检查过充和过放保护，并返回多余或不足的能量
+     */
+    private Energy enforceCapacityBounds() {
+        BigDecimal minCapacity = this.C_t.multiply(this.SOC_min);
+        BigDecimal maxCapacity = this.C_t.multiply(this.SOC_max);
+
+        if (this.E_ESS_t.compareTo(maxCapacity) > 0) {
+            BigDecimal surplusEnergy = this.E_ESS_t.subtract(maxCapacity);
+            this.E_ESS_t = maxCapacity; // 限制储电量到最大容量
+            return new ElectricEnergy(surplusEnergy); // 返回多余能量
+        }
+        if (this.E_ESS_t.compareTo(minCapacity) < 0) {
+            BigDecimal deficitEnergy = this.E_ESS_t.subtract(minCapacity);
+            this.E_ESS_t = minCapacity; // 限制储电量到最小容量
+            return new ElectricEnergy(deficitEnergy); // 返回未满足的缺口
+        }
+        return new ElectricEnergy(BigDecimal.ZERO); // 没有多余或缺口
     }
 }
