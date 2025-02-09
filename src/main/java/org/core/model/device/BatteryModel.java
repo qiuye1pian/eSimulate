@@ -4,9 +4,9 @@ import lombok.Data;
 import org.core.model.result.energy.ElectricEnergy;
 import org.core.pso.simulator.facade.Storage;
 import org.core.pso.simulator.facade.result.energy.Energy;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,6 +76,9 @@ public class BatteryModel implements Storage {
 
     /**
      * 电池根据传入的能源 冗余/缺口 中的电力能源数据数据计算充放电
+     * 该方法用于计算和更新电能存储系统的电量，处理充电和放电逻辑。
+     * 首先计算输入的电能冗余或缺口，然后考虑自然放电损失并更新储电量。
+     * 根据剩余的电能差值，决定是否进行充电或放电，并相应地更新储电量。最后返回剩余的电能差值。
      *
      * @param differenceList 能源 冗余/缺口 数据
      * @return 经过储能调整后的 冗余/缺口 数据
@@ -92,52 +95,41 @@ public class BatteryModel implements Storage {
 
         // 2. 计算自然放电并更新储电量
         // 自然放电损失
-        this.E_ESS_t = this.E_ESS_t.subtract(this.E_ESS_t.multiply(this.mu).getValue());
+        BigDecimal naturalDischarge = this.E_ESS_t.multiply(this.mu).getValue();
+        this.E_ESS_t = this.E_ESS_t.subtract(naturalDischarge);
 
-        // 3. 处理充放电逻辑
-        this.E_ESS_t = adjustEnergyByDifference(this.E_ESS_t, electricEnergyDifference);
+        // 3. 充放电逻辑处理
+        BigDecimal remainingDifference = updateElectricEnergy(electricEnergyDifference);
 
-        this.E_ESS_LIST.add(E_ESS_t);
-
-        // 4. 检查过充和过放保护
-        return enforceCapacityBounds();
+        // 4. 返回剩余的电能差值
+        return new ElectricEnergy(remainingDifference);
     }
 
     /**
-     * 根据电能差值调整储电量（充放电逻辑）
+     * 用于更新电能储存系统的电能状态。
+     * 首先计算可用的充电容量，并根据剩余差值和充电效率确定实际充电量，更新储电量。
+     * 接着，如果剩余差值为负，则计算可用的放电容量，并确定实际放电量，更新储电量。
+     * 。
+     * @param electricEnergyDifference 电能差值
+     * @return 最后返回剩余的电能差值
      */
-    private ElectricEnergy adjustEnergyByDifference(ElectricEnergy currentEnergy, ElectricEnergy energyDifference) {
-        if (energyDifference.getValue().compareTo(BigDecimal.ZERO) > 0) {
-            // 充电逻辑
-            ElectricEnergy chargeEnergy = energyDifference.multiply(this.eta_hch); // 考虑充电效率 TODO:这里要改，充放电效率应该是具体的功率值
-            return currentEnergy.add(chargeEnergy);
-        }
-
-        if (energyDifference.getValue().compareTo(BigDecimal.ZERO) < 0) {
-            // 放电逻辑
-            BigDecimal dischargeEnergy = energyDifference.getValue().abs().divide(this.eta_hdis, 10, RoundingMode.HALF_UP); // 考虑放电效率
-            return currentEnergy.subtract(dischargeEnergy);
-        }
-        return currentEnergy; // 没有差值，不调整
+private @NotNull BigDecimal updateElectricEnergy(ElectricEnergy electricEnergyDifference) {
+    BigDecimal remainingDifference = electricEnergyDifference.getValue(); // 剩余差值
+    if (remainingDifference.compareTo(BigDecimal.ZERO) > 0) {
+        // 3.1 充电逻辑
+        BigDecimal maxChargeCapacity = this.C_t.multiply(this.SOC_max).subtract(this.E_ESS_t).getValue(); // 可用充电容量
+        BigDecimal actualCharge = remainingDifference.min(this.eta_hch).min(maxChargeCapacity); // 实际充电量
+        this.E_ESS_t = this.E_ESS_t.add(actualCharge); // 更新储电量
+        remainingDifference = remainingDifference.subtract(actualCharge); // 剩余冗余
     }
-
-    /**
-     * 检查过充和过放保护，并返回多余或不足的能量
-     */
-    private Energy enforceCapacityBounds() {
-        ElectricEnergy minCapacity = this.C_t.multiply(this.SOC_min);
-        ElectricEnergy maxCapacity = this.C_t.multiply(this.SOC_max);
-
-        if (this.E_ESS_t.getValue().compareTo(maxCapacity.getValue()) > 0) {
-            ElectricEnergy surplusEnergy = this.E_ESS_t.subtract(maxCapacity.getValue());
-            this.E_ESS_t = maxCapacity; // 限制储电量到最大容量
-            return surplusEnergy; // 返回多余能量
-        }
-        if (this.E_ESS_t.getValue().compareTo(minCapacity.getValue()) < 0) {
-            ElectricEnergy deficitEnergy = this.E_ESS_t.subtract(minCapacity.getValue());
-            this.E_ESS_t = minCapacity; // 限制储电量到最小容量
-            return deficitEnergy; // 返回未满足的缺口
-        }
-        return new ElectricEnergy(BigDecimal.ZERO); // 没有多余或缺口
+    if (remainingDifference.compareTo(BigDecimal.ZERO) < 0) {
+        // 3.2 放电逻辑
+        BigDecimal maxDischargeCapacity = this.E_ESS_t.subtract(this.C_t.multiply(this.SOC_min)).getValue(); // 可用放电容量
+        BigDecimal actualDischarge = remainingDifference.abs().min(this.eta_hdis).min(maxDischargeCapacity); // 实际放电量
+        this.E_ESS_t = this.E_ESS_t.subtract(actualDischarge); // 更新储电量
+        remainingDifference = remainingDifference.add(actualDischarge); // 剩余缺口
     }
+    return remainingDifference;
+}
+
 }
