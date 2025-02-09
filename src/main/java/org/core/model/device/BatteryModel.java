@@ -28,10 +28,10 @@ public class BatteryModel implements Storage {
     // 自放电损失率 (无量纲)
     private final BigDecimal mu;
 
-    // 充电效率 (kW)
+    // 最大充电功率 (W)
     private final BigDecimal eta_hch;
 
-    // 放电效率 (kW)
+    // 最大放电功率 (W)
     private final BigDecimal eta_hdis;
 
     // 当前储电量 (Wh)
