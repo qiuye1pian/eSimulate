@@ -38,10 +38,11 @@ public class Simulator {
         //将环境数据扔给模型，各模型根据环境数据，生产能源
         // 返回的是不同能量的产出值
         // 列表里根据仿真参与的模型，结果可能混合了电能和热能
-        List<Energy> produceList = producerList.stream().map(x -> x.produce(environmentListAtAMount)).collect(Collectors.toList());
+        List<Energy> produceList = producerList.stream()
+                .map(x -> x.produce(environmentListAtAMount))
+                .collect(Collectors.toList());
 
         //用负荷数据减去已生产的能源，电能和热能分开计算的，获得能源 冗余/缺口 数据
-
         List<Energy> differenceList = loadList.stream()
                 // 当前时刻的负荷
                 .map(x -> x.getLoadValue(currentTimeIndex))
@@ -56,11 +57,12 @@ public class Simulator {
                 //热能和电能分开计算
                 .map(x -> x.storage(differenceList))
                 //通过储能计算后，各能源的 冗余/缺口
-                //
                 .collect(Collectors.toList());
 
         //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
-        List<Energy> afterProvideList = providerList.stream().map(x -> x.provide(afterStorageEnergyList)).collect(Collectors.toList());
+        List<Energy> afterProvideList = providerList.stream()
+                .map(x -> x.provide(afterStorageEnergyList))
+                .collect(Collectors.toList());
 
         return new MomentResult(afterProvideList);
     }

@@ -27,7 +27,7 @@ public class ThermalPowerModel implements Producer {
     // 模型数量
     private final int modelCount;
 
-    // 每小时光热电站出力列表 (单位: kWh)
+    // 每小时光热电站出力列表 (单位: kW)
     private final List<ThermalEnergy> thermalEnergyList;
 
     /**
