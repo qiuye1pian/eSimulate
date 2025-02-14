@@ -1,7 +1,6 @@
 package org.core.pso.simulator;
 
 import org.core.model.result.MomentResult;
-import org.core.model.result.indication.CarbonEmission;
 import org.core.model.result.indication.calculator.CarbonEmissionCalculator;
 import org.core.model.result.indication.calculator.RenewableEnergyShareCalculator;
 import org.core.pso.simulator.facade.Producer;

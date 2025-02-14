@@ -1,5 +1,6 @@
 package org.core.model.device;
 
+import lombok.Data;
 import org.core.model.result.energy.ThermalEnergy;
 import org.core.pso.simulator.facade.Provider;
 import org.core.pso.simulator.facade.result.energy.Energy;
@@ -10,6 +11,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class GasBoilerModel implements Provider {
 
     // 燃气锅炉的燃烧效率 (η_GB)
@@ -26,7 +28,6 @@ public class GasBoilerModel implements Provider {
 
     // 燃气消耗量(m³)
     private final List<BigDecimal> gasConsumptionList;
-
 
     /**
      * 构造函数：初始化燃气锅炉参数
@@ -52,14 +53,15 @@ public class GasBoilerModel implements Provider {
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-
         return getThermalEnergy(afterStorageThermalEnergy);
     }
 
     /**
+     * 该方法根据传入的热能值计算能量差，并生成相应的热能对象和气体消耗量。
+     * 然后将这些值添加到气体锅炉输出列表和气体消耗列表中。
      *
-     * @param afterStorageThermalEnergy
-     * @return
+     * @param afterStorageThermalEnergy 储存后的热能值
+     * @return 计算得到的热能对象
      */
     private @NotNull ThermalEnergy getThermalEnergy(BigDecimal afterStorageThermalEnergy) {
         BigDecimal energyGapValue = getEnergyGapValue(afterStorageThermalEnergy);

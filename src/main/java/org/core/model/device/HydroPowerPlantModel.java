@@ -1,14 +1,20 @@
 package org.core.model.device;
 
+import org.core.model.result.energy.ElectricEnergy;
+import org.core.pso.simulator.facade.Producer;
+import org.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.core.pso.simulator.facade.result.carbon.CarbonEmitter;
+import org.core.pso.simulator.facade.result.energy.Energy;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 小水电机组功率计算 (Java 版)
  */
-public class HydroPowerPlantModel implements CarbonEmitter {
+public class HydroPowerPlantModel implements Producer, CarbonEmitter {
 
     // 水轮机效率
     private final BigDecimal eta1;
@@ -22,6 +28,8 @@ public class HydroPowerPlantModel implements CarbonEmitter {
     // 总效率 = eta1 * eta2 * eta3
     private final BigDecimal eta;
 
+    private final List<ElectricEnergy> electricEnergyList;
+
     /**
      * 构造函数
      *
@@ -34,6 +42,7 @@ public class HydroPowerPlantModel implements CarbonEmitter {
         this.eta2 = new BigDecimal(eta2);
         this.eta3 = new BigDecimal(eta3);
         this.eta = this.eta1.multiply(this.eta2).multiply(this.eta3).setScale(10, RoundingMode.HALF_UP);
+        this.electricEnergyList = new ArrayList<>();
     }
 
     /**
@@ -52,6 +61,7 @@ public class HydroPowerPlantModel implements CarbonEmitter {
     public BigDecimal calculateHead(String Z1, String p1, String v1,
                                     String Z2, String p2, String v2,
                                     String rho, String g) {
+
         BigDecimal bdZ1 = new BigDecimal(Z1);
         BigDecimal bdp1 = new BigDecimal(p1);
         BigDecimal bdv1 = new BigDecimal(v1);
@@ -98,6 +108,34 @@ public class HydroPowerPlantModel implements CarbonEmitter {
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
+        return null;
+    }
+
+    @Override
+    public Energy produce(List<EnvironmentValue> environmentValueList) {
+        // 1. 提取环境变量中的流量 Q 和水头 H
+        BigDecimal Q = environmentValueList.stream()
+                .filter(env -> env instanceof WaterSpeed )
+                .map(EnvironmentValue::getValue)
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal H =  BigDecimal.ZERO;
+        //todo:计算H
+                //calculateHead(this.,"")
+
+        // 2. 计算水电机组输出功率 (kW)
+        BigDecimal power = calculatePower(Q.toString(), H.toString());
+
+        // 3. 将计算出的电能存入历史记录
+        ElectricEnergy generatedEnergy = new ElectricEnergy(power);
+        this.electricEnergyList.add(generatedEnergy);
+
+        // 4. 返回当前时间点的发电量
+        return generatedEnergy;
+    }
+    @Override
+    public BigDecimal getTotalEnergy() {
         return null;
     }
 }
