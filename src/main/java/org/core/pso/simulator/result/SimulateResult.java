@@ -18,4 +18,9 @@ public class SimulateResult {
     public static SimulateResult fail(String message) {
         return new SimulateResult(message, SimulateResultType.FAILED);
     }
+
+
+    public static SimulateResult success() {
+        return new SimulateResult("", SimulateResultType.SUCCESS);
+    }
 }

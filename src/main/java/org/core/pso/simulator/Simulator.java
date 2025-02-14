@@ -1,6 +1,9 @@
 package org.core.pso.simulator;
 
 import org.core.model.result.MomentResult;
+import org.core.model.result.indication.CarbonEmission;
+import org.core.model.result.indication.calculator.CarbonEmissionCalculator;
+import org.core.model.result.indication.calculator.RenewableEnergyShareCalculator;
 import org.core.pso.simulator.facade.Producer;
 import org.core.pso.simulator.facade.Provider;
 import org.core.pso.simulator.facade.Storage;
@@ -11,6 +14,7 @@ import org.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.core.pso.simulator.facade.load.LoadData;
 import org.core.pso.simulator.facade.result.MomentResultFacade;
 import org.core.pso.simulator.facade.result.energy.Energy;
+import org.core.pso.simulator.facade.result.indication.Indication;
 import org.core.pso.simulator.result.SimulateResult;
 
 import java.util.ArrayList;
@@ -75,15 +79,17 @@ public class Simulator {
     }
 
     /**
-     * @param loadList
-     * @param environmentList
-     * @param producerList
-     * @param storageList
-     * @param providerList
-     * @param constraintList
-     * @return
+     * @param loadList        负荷
+     * @param environmentList 环境数据
+     * @param producerList    生产者
+     * @param storageList     储能
+     * @param providerList    供应商
+     * @param constraintList  约束
+     * @return 仿真结果
      */
-    public SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList, List<Producer> producerList, List<Storage> storageList, List<Provider> providerList, List<Constraint> constraintList) {
+    public SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList,
+                                   List<Producer> producerList, List<Storage> storageList,
+                                   List<Provider> providerList, List<Constraint> constraintList) {
 
         //验证负荷长度和环境长度是否一致，如果一致则返回他们的长度
         int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
@@ -94,15 +100,25 @@ public class Simulator {
                         calculateAMoment(loadList, environmentList, producerList, storageList, providerList, timeIndex))
                 .collect(Collectors.toList());
 
+        //计算指标
+        // 例如
+
         //校验仿真约束
         //校验是否 100% 满足负荷
         if (momentResultList.stream().anyMatch(MomentResultFacade::isUnqualified)) {
             return SimulateResult.fail("不能满足负荷");
         }
 
-        return null;
-    }
 
+        Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
+        Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
+
+
+        //TODO:需要整理
+        return SimulateResult.success();
+
+
+    }
 
 }
 

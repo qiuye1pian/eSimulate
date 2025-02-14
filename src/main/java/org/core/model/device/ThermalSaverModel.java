@@ -21,4 +21,9 @@ public class ThermalSaverModel implements Storage {
         //目前没有设计储热模型
         return new ThermalEnergy(thermalEnergyDifference);
     }
+
+    @Override
+    public BigDecimal calculateCarbonEmissions() {
+        return BigDecimal.ZERO;
+    }
 }

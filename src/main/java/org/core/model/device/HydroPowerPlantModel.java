@@ -1,19 +1,24 @@
 package org.core.model.device;
 
+import org.core.pso.simulator.facade.result.carbon.CarbonEmitter;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
  * 小水电机组功率计算 (Java 版)
  */
-public class HydroPowerPlantModel {
+public class HydroPowerPlantModel implements CarbonEmitter {
 
     // 水轮机效率
     private final BigDecimal eta1;
+
     // 发电机效率
     private final BigDecimal eta2;
+
     // 机组传动效率
     private final BigDecimal eta3;
+
     // 总效率 = eta1 * eta2 * eta3
     private final BigDecimal eta;
 
@@ -42,7 +47,7 @@ public class HydroPowerPlantModel {
      * @param v2  水轮机入口处过水断面平均流速 (m/s)
      * @param rho 水的密度 (kg/m³)，缺省可设为 1000.0
      * @param g   重力加速度 (m/s²)，缺省可设为 9.81
-     * @return    水头 (m)
+     * @return 水头 (m)
      */
     public BigDecimal calculateHead(String Z1, String p1, String v1,
                                     String Z2, String p2, String v2,
@@ -79,7 +84,7 @@ public class HydroPowerPlantModel {
      *
      * @param Q 流量 (m³/s)
      * @param H 水头 (m)
-     * @return  水电机组输出功率 (kW)
+     * @return 水电机组输出功率 (kW)
      */
     public BigDecimal calculatePower(String Q, String H) {
         BigDecimal bdQ = new BigDecimal(Q);
@@ -91,4 +96,8 @@ public class HydroPowerPlantModel {
     }
 
 
+    @Override
+    public BigDecimal calculateCarbonEmissions() {
+        return null;
+    }
 }

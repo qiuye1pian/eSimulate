@@ -1,19 +1,27 @@
 package org.core.model.device;
 
+import org.core.pso.simulator.facade.Producer;
+import org.core.pso.simulator.facade.environment.EnvironmentValue;
+import org.core.pso.simulator.facade.result.energy.Energy;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 /**
  * 光伏出力计算 (Java 版)
  */
-public class SolarPowerModel {
+public class SolarPowerModel implements Producer {
 
     // 光伏系统额定功率 (kW)
     private final BigDecimal P_pvN;
+
     // 光伏组件温度系数 (1/℃)，通常为负值
     private final BigDecimal t_e;
+
     // 参考温度 (℃)
     private final BigDecimal T_ref;
+
     // 参考辐照度 (W/m²)
     private final BigDecimal G_ref;
 
@@ -54,4 +62,21 @@ public class SolarPowerModel {
     }
 
 
+    @Override
+    public Energy produce(List<EnvironmentValue> environmentValueList) {
+        //TODO:
+        return null;
+    }
+
+    @Override
+    public BigDecimal getTotalEnergy() {
+        //TODO:
+        return null;
+    }
+
+    @Override
+    public BigDecimal calculateCarbonEmissions() {
+        //TODO:
+        return null;
+    }
 }

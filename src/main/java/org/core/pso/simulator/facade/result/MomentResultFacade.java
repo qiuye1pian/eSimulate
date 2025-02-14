@@ -5,4 +5,5 @@ public interface MomentResultFacade {
 
 
     Boolean isUnqualified();
+
 }

@@ -6,6 +6,7 @@ import org.core.pso.simulator.facade.result.energy.Energy;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +16,7 @@ public class GasBoilerModel implements Provider {
     private final BigDecimal etaGB;
 
     // 燃气锅炉出力 (kW)
-    private List<Energy> gasBoilerOutputList;
+    private final List<Energy> gasBoilerOutputList;
 
     /**
      * 构造函数：初始化燃气锅炉参数
@@ -24,6 +25,7 @@ public class GasBoilerModel implements Provider {
      */
     public GasBoilerModel(String etaGB) {
         this.etaGB = new BigDecimal(etaGB);
+        this.gasBoilerOutputList = new ArrayList<>();
     }
 
     /**
@@ -72,5 +74,18 @@ public class GasBoilerModel implements Provider {
         gasBoilerOutputList.add(thermalEnergy);
 
         return thermalEnergy;
+    }
+
+    @Override
+    public BigDecimal getTotalEnergy() {
+        return gasBoilerOutputList.stream().map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+    }
+
+    @Override
+    public BigDecimal calculateCarbonEmissions() {
+        //TODO:计算碳排放
+        return getTotalEnergy().multiply(new BigDecimal("0.222"));
     }
 }

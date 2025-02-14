@@ -34,11 +34,11 @@ public class BatteryModel implements Storage {
     // 最大放电功率 (W)
     private final BigDecimal eta_hdis;
 
+    // 每个时刻电池的剩余电量 (Wh)
+    private final List<ElectricEnergy> E_ESS_LIST;
+
     // 当前储电量 (Wh)
     private ElectricEnergy E_ESS_t;
-
-    // 每个时刻电池的剩余电量 (Wh)
-    private List<ElectricEnergy> E_ESS_LIST;
 
     /**
      * 构造函数
@@ -133,4 +133,8 @@ public class BatteryModel implements Storage {
         return remainingDifference;
     }
 
+    @Override
+    public BigDecimal calculateCarbonEmissions() {
+        return BigDecimal.ZERO;
+    }
 }

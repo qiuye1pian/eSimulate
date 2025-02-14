@@ -3,8 +3,8 @@ package org.core.model.device;
 import lombok.Getter;
 import org.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.core.model.result.energy.ThermalEnergy;
-import org.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.core.pso.simulator.facade.Producer;
+import org.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.core.pso.simulator.facade.result.energy.Energy;
 
 import java.math.BigDecimal;
@@ -27,7 +27,7 @@ public class ThermalPowerModel implements Producer {
     // 模型数量
     private final int modelCount;
 
-    // 每小时光热电站出力列表 (单位: kW)
+    // 每小时光热电站出力列表 (单位: kWh)
     private final List<ThermalEnergy> thermalEnergyList;
 
     /**
@@ -73,5 +73,18 @@ public class ThermalPowerModel implements Producer {
         this.thermalEnergyList.add(thermalEnergy);
 
         return thermalEnergy;
+    }
+
+    @Override
+    public BigDecimal getTotalEnergy() {
+        return thermalEnergyList.stream()
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+    }
+
+    @Override
+    public BigDecimal calculateCarbonEmissions() {
+        return BigDecimal.ZERO;
     }
 }
