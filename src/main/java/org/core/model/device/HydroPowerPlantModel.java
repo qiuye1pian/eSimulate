@@ -1,5 +1,6 @@
 package org.core.model.device;
 
+import lombok.Getter;
 import org.core.model.environment.water.WaterSpeedData;
 import org.core.model.result.energy.ElectricEnergy;
 import org.core.pso.simulator.facade.Producer;
@@ -15,6 +16,7 @@ import java.util.List;
 /**
  * 小水电机组功率计算 (Java 版)
  */
+@Getter
 public class HydroPowerPlantModel implements Producer, CarbonEmitter {
 
     // 水轮机效率
@@ -121,9 +123,9 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
 
-        BigDecimal H =  BigDecimal.ZERO;
+        BigDecimal H = BigDecimal.ZERO;
         //todo:计算H
-                //calculateHead(this.,"")
+        //calculateHead(this.,"")
 
         // 2. 计算水电机组输出功率 (kW)
         BigDecimal power = calculatePower(Q.toString(), H.toString());
@@ -135,6 +137,7 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
         // 4. 返回当前时间点的发电量
         return generatedEnergy;
     }
+
     @Override
     public BigDecimal getTotalEnergy() {
         return null;
