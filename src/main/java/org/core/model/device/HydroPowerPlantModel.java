@@ -1,5 +1,6 @@
 package org.core.model.device;
 
+import org.core.model.environment.water.WaterSpeedData;
 import org.core.model.result.energy.ElectricEnergy;
 import org.core.pso.simulator.facade.Producer;
 import org.core.pso.simulator.facade.environment.EnvironmentValue;
@@ -115,7 +116,7 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
     public Energy produce(List<EnvironmentValue> environmentValueList) {
         // 1. 提取环境变量中的流量 Q 和水头 H
         BigDecimal Q = environmentValueList.stream()
-                .filter(env -> env instanceof WaterSpeed )
+                .filter(env -> env instanceof WaterSpeedData)
                 .map(EnvironmentValue::getValue)
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
