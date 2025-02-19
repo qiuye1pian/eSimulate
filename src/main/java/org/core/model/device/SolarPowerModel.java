@@ -1,16 +1,22 @@
 package org.core.model.device;
 
+import lombok.Data;
+import org.core.model.environment.sunlight.SunlightIrradianceValue;
+import org.core.model.environment.temperature.TemperatureValue;
+import org.core.model.result.energy.ElectricEnergy;
 import org.core.pso.simulator.facade.Producer;
 import org.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.core.pso.simulator.facade.result.energy.Energy;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 光伏出力计算 (Java 版)
  */
+@Data
 public class SolarPowerModel implements Producer {
 
     // 光伏系统额定功率 (kW)
@@ -25,6 +31,9 @@ public class SolarPowerModel implements Producer {
     // 参考辐照度 (W/m²)
     private final BigDecimal G_ref;
 
+    // 每个时刻所法的电量 (kWh)
+    private final List<ElectricEnergy> electricEnergyList;
+
     /**
      * 构造函数，初始化光伏系统参数
      *
@@ -38,45 +47,63 @@ public class SolarPowerModel implements Producer {
         this.t_e = new BigDecimal(t_e);
         this.T_ref = new BigDecimal(T_ref);
         this.G_ref = new BigDecimal(G_ref);
+        this.electricEnergyList = new ArrayList<>();
     }
 
     /**
-     * 计算光伏系统在温度 T_e (℃) 和辐照度 G_T (W/m²) 下的输出功率 (kW)
+     * 计算 t 时刻光伏电站的出力 P_pv(t)
      *
-     * @param T_e 当前组件温度 (℃)
-     * @param G_T 当前辐照度 (W/m²)
-     * @return 光伏输出功率 (kW)
+     * @param currentTemperature 实际环境温度 (°C)
+     * @param currentIrradiance  t 时刻的太阳辐照强度 (W/m²)
+     * @return 计算得到的光伏输出功率 (kW)
      */
-    public BigDecimal calculatePower(String T_e, String G_T) {
-        BigDecimal currentTemperature = new BigDecimal(T_e);
-        BigDecimal currentIrradiance = new BigDecimal(G_T);
+    private Energy calculatePower(BigDecimal currentTemperature, BigDecimal currentIrradiance) {
 
-        // 计算公式: P = P_pvN * (1 + t_e * (T_e - T_ref)) * (G_T / G_ref)
+        // 计算温度影响部分: (1 + t_e * (T_e - T_ref))
         BigDecimal temperatureEffect = t_e.multiply(currentTemperature.subtract(T_ref));
+        BigDecimal temperatureFactor = BigDecimal.ONE.add(temperatureEffect);
+
+        // 计算辐照度比例: (G_T / G_ref)
         BigDecimal irradianceRatio = currentIrradiance.divide(G_ref, 10, RoundingMode.HALF_UP);
 
-        return P_pvN
-                .multiply(BigDecimal.ONE.add(temperatureEffect))
+        // 计算最终光伏出力
+        return new ElectricEnergy(P_pvN
+                .multiply(temperatureFactor)
                 .multiply(irradianceRatio)
-                .setScale(10, RoundingMode.HALF_UP);
+                .setScale(10, RoundingMode.HALF_UP));
     }
-
 
     @Override
     public Energy produce(List<EnvironmentValue> environmentValueList) {
-        //TODO:
-        return null;
+        BigDecimal sunlight = environmentValueList.stream()
+                .filter(x -> x instanceof SunlightIrradianceValue)
+                .map(EnvironmentValue::getValue)
+                .findAny()
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal temperature = environmentValueList.stream()
+                .filter(x -> x instanceof TemperatureValue)
+                .map(EnvironmentValue::getValue)
+                .findAny()
+                .orElse(BigDecimal.ZERO);
+
+        Energy energy = calculatePower(temperature, sunlight);
+        this.electricEnergyList.add((ElectricEnergy) energy);
+        return energy;
     }
 
     @Override
     public BigDecimal getTotalEnergy() {
-        //TODO:
-        return null;
+        return electricEnergyList.stream()
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
     }
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
-        //TODO:
-        return null;
+        return BigDecimal.ZERO;
     }
+
+
 }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Java 版蓄电池储能模型
+ * 蓄电池储能模型
  */
 @Data
 public class BatteryModel implements Storage {
