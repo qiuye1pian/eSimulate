@@ -42,6 +42,17 @@ public class GasBoilerModel implements Provider {
         this.gasConsumptionList = new ArrayList<>();
     }
 
+    private static @NotNull BigDecimal getEnergyGapValue(BigDecimal afterStorageThermalEnergy) {
+        if (afterStorageThermalEnergy.compareTo(BigDecimal.ZERO) >= 0) {
+            // 如果热能有冗余则散逸掉
+            return BigDecimal.ZERO;
+        }
+
+        // 如果热能有缺口，则烧燃气补充能量
+        return afterStorageThermalEnergy.abs();
+
+    }
+
     // 该方法提供能量，根据存储后的能量列表计算热能缺口，如果热能有冗余则返回零热能；
     // 如果热能有缺口，则通过燃气补充能量，并计算相应的燃气消耗。
     @Override
@@ -70,18 +81,6 @@ public class GasBoilerModel implements Provider {
         this.gasBoilerOutputList.add(energyGap);
         this.gasConsumptionList.add(gasConsumption);
         return energyGap;
-    }
-
-    private static @NotNull BigDecimal getEnergyGapValue(BigDecimal afterStorageThermalEnergy) {
-        BigDecimal energyGapValue;
-        if (afterStorageThermalEnergy.compareTo(BigDecimal.ZERO) >= 0) {
-            // 如果热能有冗余则散逸掉
-            energyGapValue = BigDecimal.ZERO;
-        } else {
-            // 如果热能有缺口，则烧燃气补充能量
-            energyGapValue = afterStorageThermalEnergy.abs();
-        }
-        return energyGapValue;
     }
 
     /**
