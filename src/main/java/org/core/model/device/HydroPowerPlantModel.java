@@ -55,6 +55,9 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
     // 重力加速度g
     private final BigDecimal g;
 
+    // 碳排放因子 (kg CO₂ / m³)
+    private final BigDecimal emissionFactor;
+
     private final List<ElectricEnergy> electricEnergyList;
 
     /**
@@ -67,7 +70,7 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
     public HydroPowerPlantModel(BigDecimal eta1, BigDecimal eta2, BigDecimal eta3,
                                 BigDecimal z1, BigDecimal p1, BigDecimal v1,
                                 BigDecimal z2, BigDecimal p2, BigDecimal v2,
-                                BigDecimal pg, BigDecimal g) {
+                                BigDecimal pg, BigDecimal g, BigDecimal emissionFactor) {
         this.eta1 = eta1;
         this.eta2 = eta2;
         this.eta3 = eta3;
@@ -82,11 +85,14 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
         this.pg = pg;
         this.g = g;
 
+        this.emissionFactor = emissionFactor;
+
         this.electricEnergyList = new ArrayList<>();
     }
 
     /**
      * 计算水头 H
+     *
      * @return 水头 (m)
      */
     public BigDecimal calculateHead() {
@@ -112,7 +118,7 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
                         this.v2.pow(2).divide(this.g.multiply(new BigDecimal("2")), 10, RoundingMode.HALF_UP)
                 );
 
-                // H1 - H2
+        // H1 - H2
         return head1.subtract(head2).setScale(10, RoundingMode.HALF_UP);
     }
 
@@ -162,6 +168,10 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
-        return null;
+        return electricEnergyList.stream()
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO)
+                .multiply(emissionFactor);
     }
 }
