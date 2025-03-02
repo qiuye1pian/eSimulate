@@ -31,6 +31,30 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
     // 总效率 = eta1 * eta2 * eta3
     private final BigDecimal eta;
 
+    // 上游水面相对于参考面的位能 (m)
+    private final BigDecimal z1;
+
+    // 水轮机入口处相对于参考面的位能 (m)
+    private final BigDecimal z2;
+
+    // 过水断面平均流速 v1
+    private final BigDecimal v1;
+
+    // 过水断面平均流速 v2
+    private final BigDecimal v2;
+
+    // 水密度 ρ1
+    private final BigDecimal p1;
+
+    // 水密度 ρ2
+    private final BigDecimal p2;
+
+    // ρg
+    private final BigDecimal pg;
+
+    // 重力加速度g
+    private final BigDecimal g;
+
     private final List<ElectricEnergy> electricEnergyList;
 
     /**
@@ -40,56 +64,56 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
      * @param eta2 发电机效率
      * @param eta3 机组传动效率
      */
-    public HydroPowerPlantModel(String eta1, String eta2, String eta3) {
-        this.eta1 = new BigDecimal(eta1);
-        this.eta2 = new BigDecimal(eta2);
-        this.eta3 = new BigDecimal(eta3);
+    public HydroPowerPlantModel(BigDecimal eta1, BigDecimal eta2, BigDecimal eta3,
+                                BigDecimal z1, BigDecimal p1, BigDecimal v1,
+                                BigDecimal z2, BigDecimal p2, BigDecimal v2,
+                                BigDecimal pg, BigDecimal g) {
+        this.eta1 = eta1;
+        this.eta2 = eta2;
+        this.eta3 = eta3;
         this.eta = this.eta1.multiply(this.eta2).multiply(this.eta3).setScale(10, RoundingMode.HALF_UP);
+
+        this.z1 = z1;
+        this.p1 = p1;
+        this.v1 = v1;
+        this.z2 = z2;
+        this.p2 = p2;
+        this.v2 = v2;
+        this.pg = pg;
+        this.g = g;
+
         this.electricEnergyList = new ArrayList<>();
     }
 
     /**
      * 计算水头 H
-     *
-     * @param Z1  上游水面相对于参考面的位能 (m)
-     * @param p1  上游水面压力 (Pa)
-     * @param v1  上游水面过水断面平均流速 (m/s)
-     * @param Z2  水轮机入口处相对于参考面的位能 (m)
-     * @param p2  水轮机入口处压力 (Pa)
-     * @param v2  水轮机入口处过水断面平均流速 (m/s)
-     * @param rho 水的密度 (kg/m³)，缺省可设为 1000.0
-     * @param g   重力加速度 (m/s²)，缺省可设为 9.81
      * @return 水头 (m)
      */
-    public BigDecimal calculateHead(String Z1, String p1, String v1,
-                                    String Z2, String p2, String v2,
-                                    String rho, String g) {
-
-        BigDecimal bdZ1 = new BigDecimal(Z1);
-        BigDecimal bdp1 = new BigDecimal(p1);
-        BigDecimal bdv1 = new BigDecimal(v1);
-        BigDecimal bdZ2 = new BigDecimal(Z2);
-        BigDecimal bdp2 = new BigDecimal(p2);
-        BigDecimal bdv2 = new BigDecimal(v2);
-        BigDecimal bdrho = new BigDecimal(rho);
-        BigDecimal bdg = new BigDecimal(g);
+    public BigDecimal calculateHead() {
 
         // 计算 H = [Z1 + p1/(rho*g) + v1^2/(2*g)] - [Z2 + p2/(rho*g) + v2^2/(2*g)]
-        BigDecimal head1 = bdZ1.add(bdp1.divide(bdrho.multiply(bdg), 10, RoundingMode.HALF_UP))
-                .add(bdv1.pow(2).divide(bdg.multiply(new BigDecimal("2")), 10, RoundingMode.HALF_UP));
+        BigDecimal head1 =
+                // Z1
+                this.z1.add(
+                        // p1/(rho*g)
+                        this.p1.divide(this.pg.multiply(this.g), 10, RoundingMode.HALF_UP)
+                ).add(
+                        // v1^2/(2*g)
+                        this.v1.pow(2).divide(this.g.multiply(new BigDecimal("2")), 10, RoundingMode.HALF_UP)
+                );
 
-        BigDecimal head2 = bdZ2.add(bdp2.divide(bdrho.multiply(bdg), 10, RoundingMode.HALF_UP))
-                .add(bdv2.pow(2).divide(bdg.multiply(new BigDecimal("2")), 10, RoundingMode.HALF_UP));
+        BigDecimal head2 =
+                // Z2
+                this.z2.add(
+                        // p2/(rho*g)
+                        this.p2.divide(this.pg.multiply(this.g), 10, RoundingMode.HALF_UP)
+                ).add(
+                        // v2^2/(2*g)
+                        this.v2.pow(2).divide(this.g.multiply(new BigDecimal("2")), 10, RoundingMode.HALF_UP)
+                );
 
+                // H1 - H2
         return head1.subtract(head2).setScale(10, RoundingMode.HALF_UP);
-    }
-
-    /**
-     * 不带 rho 和 g 参数的重载方法，使用默认值：rho=1000 kg/m³, g=9.81 m/s²
-     */
-    public BigDecimal calculateHead(String Z1, String p1, String v1,
-                                    String Z2, String p2, String v2) {
-        return calculateHead(Z1, p1, v1, Z2, p2, v2, "1000", "9.81");
     }
 
     /**
@@ -99,19 +123,11 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
      * @param H 水头 (m)
      * @return 水电机组输出功率 (kW)
      */
-    public BigDecimal calculatePower(String Q, String H) {
-        BigDecimal bdQ = new BigDecimal(Q);
-        BigDecimal bdH = new BigDecimal(H);
+    public BigDecimal calculatePower(BigDecimal Q, BigDecimal H) {
 
         // P_h = 9.81 * eta * Q * H
         BigDecimal gravity = new BigDecimal("9.81");
-        return gravity.multiply(this.eta).multiply(bdQ).multiply(bdH).setScale(10, RoundingMode.HALF_UP);
-    }
-
-
-    @Override
-    public BigDecimal calculateCarbonEmissions() {
-        return null;
+        return gravity.multiply(this.eta).multiply(Q).multiply(H).setScale(10, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -123,12 +139,10 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
 
-        BigDecimal H = BigDecimal.ZERO;
-        //todo:计算H
-        //calculateHead(this.,"")
+        BigDecimal H = calculateHead();
 
         // 2. 计算水电机组输出功率 (kW)
-        BigDecimal power = calculatePower(Q.toString(), H.toString());
+        BigDecimal power = calculatePower(Q, H);
 
         // 3. 将计算出的电能存入历史记录
         ElectricEnergy generatedEnergy = new ElectricEnergy(power);
@@ -140,6 +154,14 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
 
     @Override
     public BigDecimal getTotalEnergy() {
+        return electricEnergyList.stream()
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+    }
+
+    @Override
+    public BigDecimal calculateCarbonEmissions() {
         return null;
     }
 }
