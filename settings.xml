@@ -1,0 +1,63 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <!-- 镜像仓库（阿里云公共 Maven 仓库） -->
+    <mirrors>
+        <mirror>
+            <id>aliyun-central</id>
+            <mirrorOf>central</mirrorOf>
+            <name>Aliyun Maven Repository</name>
+            <url>https://maven.aliyun.com/repository/central</url>
+        </mirror>
+        <mirror>
+            <id>aliyunmaven</id>
+            <mirrorOf>*</mirrorOf>
+            <name>阿里云公共仓库</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+        </mirror>
+    </mirrors>
+
+    <!-- 认证信息（用于私有 Maven 仓库） -->
+<!--    <servers>-->
+<!--        <server>-->
+<!--            <id>aliyun-private</id>-->
+<!--            <username>qiuye1pian</username>-->
+<!--            <password>your-aliyun-password</password>-->
+<!--        </server>-->
+<!--    </servers>-->
+
+    <!-- 配置私有仓库 -->
+    <profiles>
+        <profile>
+            <id>aliyun-maven</id>
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>aliyun-private</id>
+                    <url>https://packages.aliyun.com/maven/repository/your-repo-id</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+
+    <activeProfiles>
+        <activeProfile>aliyun-maven</activeProfile>
+    </activeProfiles>
+
+</settings>
