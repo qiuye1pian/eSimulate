@@ -1,7 +1,7 @@
 package org.core.pso.simulator;
 
-import org.core.model.environment.sunlight.SunlightIrradianceValue;
-import org.core.model.load.electric.ElectricLoadValue;
+import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
+import org.esimulate.core.model.load.electric.ElectricLoadValue;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

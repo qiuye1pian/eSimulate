@@ -1,7 +1,8 @@
 package org.core.model.result;
 
-import org.core.model.result.energy.ElectricEnergy;
-import org.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.model.result.MomentResult;
+import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
