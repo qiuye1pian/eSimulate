@@ -34,10 +34,16 @@ public class Velocity implements Cloneable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Velocity)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Velocity)) {
+            return false;
+        }
         Velocity that = (Velocity) o;
-        if (this.velocities.length != that.velocities.length) return false;
+        if (this.velocities.length != that.velocities.length) {
+            return false;
+        }
 
         for (int i = 0; i < velocities.length; i++) {
             if (!this.velocities[i].equals(that.velocities[i])) {

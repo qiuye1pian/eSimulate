@@ -45,16 +45,21 @@ public class Position implements Cloneable {
     }
 
 
-
     /**
      * 判断是否相等（严格比较 BigDecimal，包括精度）
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Position)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Position)) {
+            return false;
+        }
         Position that = (Position) o;
-        if (this.coordinateList.size() != that.coordinateList.size()) return false;
+        if (this.coordinateList.size() != that.coordinateList.size()) {
+            return false;
+        }
 
         for (int i = 0; i < coordinateList.size(); i++) {
             // BigDecimal 的 equals 是严格比较，包括小数位
