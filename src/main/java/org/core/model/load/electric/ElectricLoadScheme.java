@@ -2,7 +2,6 @@ package org.core.model.load.electric;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 import org.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
