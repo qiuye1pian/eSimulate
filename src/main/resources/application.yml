@@ -5,20 +5,18 @@ server:
 
 spring:
   application:
-    name: myapp  # 应用名称
-
+    name: eSimulate  # 应用名称
   datasource:
-    url: jdbc:mysql://your-rds-instance.mysql.rds.aliyuncs.com:3306/mydb?useSSL=false&serverTimezone=UTC
-    username: root
-    password: yourpassword
+    url: jdbc:mysql://47.113.180.169:3306/eSimulate?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    username: simulator
+    password: simulatorPassword
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      maximum-pool-size: 10  # 连接池最大连接数
-      minimum-idle: 2  # 最小空闲连接数
-      idle-timeout: 600000  # 连接最大空闲时间（毫秒）
+      maximum-pool-size: 10 # 连接池最大连接数
+      minimum-idle: 3 # 最小空闲连接数
+      idle-timeout: 30000   # 连接最大空闲时间（毫秒）
       max-lifetime: 1800000  # 连接最大生命周期（毫秒）
-      connection-timeout: 30000  # 连接超时时间（毫秒）
-
+      connection-timeout: 30000 # 连接超时时间（毫秒）
   jpa:
     hibernate:
       ddl-auto: update  # 自动更新数据库表结构（生产环境推荐 none）
