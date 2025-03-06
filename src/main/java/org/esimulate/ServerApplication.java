@@ -14,9 +14,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class ServerApplication {
     public static void main(String[] args) {
-        log.info("Starting ServerApplication main");
+        log.info("Starting eSimulate ServerApplication");
         SpringApplication.run(ServerApplication.class, args);
-        log.info("ServerApplication started main");
-
+        log.info("ServerApplication started");
     }
 }
