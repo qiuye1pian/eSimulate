@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "water_speed_scheme")
+@Table(name = "temperature_scheme")
 public class TemperatureScheme implements TemperatureData {
 
     @Id
