@@ -27,7 +27,7 @@ public class ElectricLoadScheme implements ElectricLoadData {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "loadScheme", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "electricLoadScheme", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ElectricLoadValue> electricLoadValues;
 
     @Override
