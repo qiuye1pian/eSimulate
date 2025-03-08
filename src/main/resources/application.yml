@@ -2,7 +2,10 @@ server:
   port: 8080  # Spring Boot 服务器端口
   servlet:
     context-path: /api  # API 访问路径前缀，可选
-
+    encoding:
+      charset: 'UTF-8'
+      enabled: true
+      force: true
 spring:
   application:
     name: eSimulate  # 应用名称
@@ -35,7 +38,9 @@ logging:
     # com.example: DEBUG  # 指定包的日志级别
     org.springframework: WARN  # Spring 相关日志级别
     org.hibernate.SQL: DEBUG  # 显示 SQL 语句
-
+  charset:
+    file: 'UTF-8'
+    console: 'UTF-8'
 management:
   endpoints:
     web:
