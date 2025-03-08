@@ -6,6 +6,7 @@ import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -28,7 +29,7 @@ public class ElectricLoadScheme implements ElectricLoadData {
     private Timestamp updatedAt;
 
     @OneToMany(mappedBy = "electricLoadScheme", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ElectricLoadValue> electricLoadValues;
+    private List<ElectricLoadValue> electricLoadValues = new ArrayList<>();
 
     @Override
     public int getDataLength() {
@@ -39,4 +40,9 @@ public class ElectricLoadScheme implements ElectricLoadData {
     public LoadValue getLoadValue(Integer timeIndex) {
         return electricLoadValues.get(timeIndex);
     }
+
+    public void addValue(ElectricLoadValue loadValue) {
+        this.electricLoadValues.add(loadValue);
+    }
+
 }

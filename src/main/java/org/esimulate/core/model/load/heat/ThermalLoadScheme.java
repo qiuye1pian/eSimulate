@@ -6,6 +6,7 @@ import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -28,7 +29,7 @@ public class ThermalLoadScheme implements ThermalLoadData {
     private Timestamp updatedAt;
 
     @OneToMany(mappedBy = "thermalLoadScheme", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ThermalLoadValue> thermalLoadValues;
+    private List<ThermalLoadValue> thermalLoadValues = new ArrayList<>();
 
     @Override
     public int getDataLength() {
@@ -38,5 +39,9 @@ public class ThermalLoadScheme implements ThermalLoadData {
     @Override
     public LoadValue getLoadValue(Integer timeIndex) {
         return thermalLoadValues.get(timeIndex);
+    }
+
+    public void addValue(ThermalLoadValue loadValue) {
+        thermalLoadValues.add(loadValue);
     }
 }

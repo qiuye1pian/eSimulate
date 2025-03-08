@@ -25,6 +25,10 @@ spring:
       hibernate:
         format_sql: true  # 格式化 SQL 输出
 
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: UTC
+
 logging:
   config: classpath:log4j2.xml  # 指定 Log4j2 配置文件
   level:

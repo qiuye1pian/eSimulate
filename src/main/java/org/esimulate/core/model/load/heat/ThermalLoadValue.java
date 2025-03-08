@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -37,6 +38,14 @@ public class ThermalLoadValue implements LoadValue {
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
+
+    public ThermalLoadValue(ThermalLoadScheme thermalLoadScheme, LocalDateTime datetime, BigDecimal loadValue) {
+        this.thermalLoadScheme = thermalLoadScheme;
+        this.datetime = datetime;
+        this.loadValue = loadValue;
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
+    }
 
     @Override
     public Energy calculateDifference(List<Energy> produceList) {
