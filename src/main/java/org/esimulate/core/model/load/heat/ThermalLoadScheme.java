@@ -31,6 +31,12 @@ public class ThermalLoadScheme implements ThermalLoadData {
     @OneToMany(mappedBy = "thermalLoadScheme", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ThermalLoadValue> thermalLoadValues = new ArrayList<>();
 
+    public ThermalLoadScheme(String schemeName){
+        this.schemeName = schemeName;
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
+    }
+
     @Override
     public int getDataLength() {
         return thermalLoadValues.size();
