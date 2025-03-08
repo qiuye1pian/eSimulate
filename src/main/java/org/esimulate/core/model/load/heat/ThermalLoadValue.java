@@ -1,5 +1,6 @@
 package org.esimulate.core.model.load.heat;
 
+import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
@@ -23,6 +24,7 @@ public class ThermalLoadValue implements LoadValue {
     private Long id;
 
     @ManyToOne
+    @JSONField(serialize = false)
     @JoinColumn(name = "scheme_id", nullable = false)
     private ThermalLoadScheme thermalLoadScheme;
 

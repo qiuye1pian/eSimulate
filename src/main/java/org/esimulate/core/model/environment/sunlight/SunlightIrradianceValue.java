@@ -21,6 +21,7 @@ public class SunlightIrradianceValue implements EnvironmentValue {
     private Long id;
 
     @ManyToOne
+    @JSONField(serialize = false)
     @JoinColumn(name = "scheme_id", nullable = false)
     private SunlightIrradianceScheme sunlightIrradianceScheme;
 

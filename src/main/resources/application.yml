@@ -24,10 +24,9 @@ spring:
     properties:
       hibernate:
         format_sql: true  # 格式化 SQL 输出
-
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: UTC
+  mvc:
+    converters:
+      preferred-json-mapper: fastjson2  # 使用 Fastjson2
 
 logging:
   config: classpath:log4j2.xml  # 指定 Log4j2 配置文件

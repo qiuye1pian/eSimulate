@@ -25,6 +25,7 @@ public class ElectricLoadValue implements LoadValue {
     private Long id;
 
     @ManyToOne
+    @JSONField(serialize = false)
     @JoinColumn(name = "scheme_id", nullable = false)
     private ElectricLoadScheme electricLoadScheme;
 

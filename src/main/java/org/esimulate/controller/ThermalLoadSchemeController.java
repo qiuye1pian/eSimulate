@@ -1,6 +1,5 @@
 package org.esimulate.controller;
 
-
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.esimulate.core.model.load.heat.ThermalLoadValue;
 import org.esimulate.service.load.ThermalLoadSchemeService;

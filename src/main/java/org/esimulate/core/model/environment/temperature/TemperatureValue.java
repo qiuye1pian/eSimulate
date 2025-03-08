@@ -20,6 +20,7 @@ public class TemperatureValue implements EnvironmentValue {
     private Long id;
 
     @ManyToOne
+    @JSONField(serialize = false)
     @JoinColumn(name = "scheme_id", nullable = false)
     private TemperatureScheme temperatureScheme;
 
