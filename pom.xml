@@ -52,38 +52,66 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-json</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
+        <!-- ✅ FastJSON 2 及其 Spring Boot 兼容扩展 -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
-            <version>2.0.34</version>
+            <version>2.0.53</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2-extension-spring5</artifactId>
-            <version>2.0.34</version>
+            <version>2.0.53</version>
         </dependency>
 
+        <!-- ✅ 数据库驱动 -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.31</version>
         </dependency>
 
+        <!-- ✅ Java Bean Validation（Spring Boot 2.7 仍然使用 javax.validation） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- ✅ Lombok（建议改为 compileOnly 以适配 IntelliJ 和 Eclipse） -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <scope>compileOnly</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>0.2.0</version>
         </dependency>
 
+        <!-- ✅ Hibernate JPA Metamodel Generator（如果需要 JPA 静态元模型，建议加上） -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+            <version>5.6.15.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ✅ JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
 
+        <!-- ✅ JetBrains 注解 -->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
@@ -91,6 +119,7 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- ✅ Log4j2 SLF4J 适配 -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
@@ -111,7 +140,7 @@
     </dependencyManagement>
     <build>
         <plugins>
-            <!-- Spring Boot 打包插件 -->
+            <!-- ✅ Spring Boot 打包插件 -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
