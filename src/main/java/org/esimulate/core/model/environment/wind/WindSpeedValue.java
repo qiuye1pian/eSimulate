@@ -1,5 +1,6 @@
 package org.esimulate.core.model.environment.wind;
 
+import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
