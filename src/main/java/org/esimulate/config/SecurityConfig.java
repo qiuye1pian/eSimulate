@@ -28,7 +28,7 @@ public class SecurityConfig {
                 // 关闭 CSRF 保护（针对 API）
                 .csrf().disable().authorizeRequests()
                 // 允许公开访问
-                .antMatchers("/api/login", "/api/register").permitAll()
+                .antMatchers("/api/login", "/api/register","/api/thermal-load-schemes/test").permitAll()
                 // 其他请求需要认证
                 .anyRequest().authenticated().and()
                 // 禁用 Session 认证（如果只用 JWT）
