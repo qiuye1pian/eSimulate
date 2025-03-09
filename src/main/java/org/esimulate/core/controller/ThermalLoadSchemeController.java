@@ -1,8 +1,8 @@
-package org.esimulate.controller;
+package org.esimulate.core.controller;
 
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.esimulate.core.model.load.heat.ThermalLoadValue;
-import org.esimulate.service.load.ThermalLoadSchemeService;
+import org.esimulate.core.service.load.ThermalLoadSchemeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

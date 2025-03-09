@@ -1,4 +1,4 @@
-package org.esimulate.repository;
+package org.esimulate.core.repository;
 
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.springframework.data.jpa.repository.JpaRepository;

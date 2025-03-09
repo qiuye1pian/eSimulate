@@ -59,6 +59,11 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
         <!-- ✅ FastJSON 2 及其 Spring Boot 兼容扩展 -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
@@ -123,6 +128,12 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.12.3</version>
         </dependency>
 
     </dependencies>

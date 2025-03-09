@@ -1,8 +1,8 @@
-package org.esimulate.service.load;
+package org.esimulate.core.service.load;
 
 
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
-import org.esimulate.repository.ThermalLoadSchemeRepository;
+import org.esimulate.core.repository.ThermalLoadSchemeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
