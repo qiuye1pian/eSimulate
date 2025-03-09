@@ -1,5 +1,6 @@
 package org.esimulate.frame.controller;
 
+import lombok.extern.log4j.Log4j2;
 import org.esimulate.frame.model.User;
 import org.esimulate.frame.pojo.LoginDto;
 import org.esimulate.frame.service.UserService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Log4j2
 @RestController
 @RequestMapping("/usercenter")
 public class UserCenterController {
@@ -23,6 +25,7 @@ public class UserCenterController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginDto> login(@RequestBody User user) {
+        log.info("User login: {}", user);
         User loggedInUser = userService.login(user);
         if (loggedInUser != null) {
             // ✅ 成功，返回 200 OK
