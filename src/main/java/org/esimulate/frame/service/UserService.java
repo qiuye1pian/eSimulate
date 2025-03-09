@@ -1,14 +1,17 @@
 package org.esimulate.frame.service;
 
 
+import lombok.extern.log4j.Log4j2;
 import org.esimulate.frame.model.User;
 import org.esimulate.frame.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @Service
 public class UserService {
 
@@ -35,19 +38,21 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public User login(User user) {
+    public User login(String username, String password) {
         // 1️⃣ 通过 username 查询数据库中的用户
-        Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
+        Optional<User> foundUser = userRepository.findByUsername(username);
+
+        log.info("查找用户: {}, 结果为:{}", username, foundUser.isPresent());
 
         if (foundUser.isPresent()) {
             User existingUser = foundUser.get();
             // 2️⃣ 校验密码（MD5 转换 + 比对）
-            // 前端传来的 MD5 加密密码
-            String inputPassword = user.getPassword();
+
             // 数据库中的加密密码
             String storedPassword = existingUser.getPassword();
 
-            if (passwordEncoder.matches(inputPassword, storedPassword)) {
+            // 校验密码
+            if (passwordEncoder.matches(password, storedPassword)) {
                 return existingUser; // ✅ 登录成功，返回用户信息
             }
         }
