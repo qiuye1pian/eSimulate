@@ -34,7 +34,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated().and()
                         // 禁用 Session 认证（如果只用 JWT）
                         .sessionManagement().disable()
-                        // ❌ 禁用默认的 Spring Security 登录页面
+                        // ❌ 禁用默认的 Spring Security 登陆页面
                         .formLogin().disable();
          */
         http
@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .and()
                 .sessionManagement().disable()  // 禁用 Session 认证
                 .httpBasic().disable()  // 禁用 HTTP Basic 认证
-                .formLogin().disable();  // 禁用默认的 Spring Security 登录页面
+                .formLogin().disable();  // 禁用默认的 Spring Security 登陆页面
 
         return http.build();
     }

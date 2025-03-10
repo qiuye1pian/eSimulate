@@ -28,18 +28,18 @@ public class UserCenterController {
     private RSAUtils rsaUtils;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginDto> login(@RequestBody User user) {
+    public LoginDto login(@RequestBody User user) {
         String decryptedPassword = rsaUtils.decrypt(user.getPassword());
         user.setPassword(decryptedPassword);
 
         User loggedInUser = userService.login(user.getUsername(), user.getPassword());
+
         if (loggedInUser != null) {
             // ✅ 成功，返回 200 OK
-            LoginDto loginDto = new LoginDto(loggedInUser, JwtUtil.generateToken(loggedInUser.getUsername()));
-            return ResponseEntity.ok(loginDto);
+            return LoginDto.success(loggedInUser, JwtUtil.generateToken(loggedInUser.getUsername()));
         }
-        // ❌ 失败，返回 401 Unauthorized
-        return ResponseEntity.status(401).build();
+
+        return LoginDto.fail();
     }
 
     @PostMapping("/getPublicKey")

@@ -41,7 +41,7 @@ public class RSAUtils {
                 "\n-----END PUBLIC KEY-----";
     }
 
-    // 解密方法（登录时使用）
+    // 解密方法（登陆时使用）
     public String decrypt(String encryptedData) {
         try {
             Cipher cipher = Cipher.getInstance("RSA");

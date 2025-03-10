@@ -53,10 +53,10 @@ public class UserService {
 
             // 校验密码
             if (passwordEncoder.matches(password, storedPassword)) {
-                return existingUser; // ✅ 登录成功，返回用户信息
+                return existingUser; // ✅ 登陆成功，返回用户信息
             }
         }
-        // ❌ 登录失败
+        // ❌ 登陆失败
         return null;
     }
 }
