@@ -30,24 +30,33 @@
     </Appenders>
 
     <Loggers>
-        <!-- 设置全局日志级别 -->
-        <Root level="INFO">
+        <!-- ✅ 修改 ROOT 级别，控制台和日志文件都输出 DEBUG -->
+        <Root level="DEBUG">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="FileAppender"/>
         </Root>
 
-        <!-- 自定义包的日志级别 -->
-        <Logger name="com.example" level="DEBUG" additivity="false">
+        <!-- ✅ 修改包名，确保 `org.esimulate` 代码的日志能正确输出 -->
+        <Logger name="org.esimulate" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
             <AppenderRef ref="FileAppender"/>
         </Logger>
 
-        <!-- SQL 语句日志（可选，默认 WARN 级别） -->
+        <!-- ✅ 让 Spring Boot 相关日志也输出到控制台 -->
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileAppender"/>
+        </Logger>
+
+        <!-- ✅ 让 Hibernate SQL 日志同时输出到控制台和文件 -->
         <Logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
             <AppenderRef ref="FileAppender"/>
         </Logger>
 
-        <!-- Spring 相关日志（可选） -->
-        <Logger name="org.springframework" level="WARN" additivity="false">
+        <!-- ✅ 让 Hibernate SQL 参数日志也能显示 -->
+        <Logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+            <AppenderRef ref="Console"/>
             <AppenderRef ref="FileAppender"/>
         </Logger>
     </Loggers>
