@@ -1,6 +1,7 @@
 package org.esimulate.common;
 
 import lombok.Data;
+import org.springframework.data.domain.Page;
 
 @Data
 public class ApiResponse<T> {
@@ -36,10 +37,19 @@ public class ApiResponse<T> {
 
     // 失败返回
     public static <T> ApiResponse<T> error(int code, String message) {
-        return new ApiResponse<>(code, message, null,false);
+        return new ApiResponse<>(code, message, null, false);
     }
 
     public static <T> ApiResponse<T> error(String message) {
-        return new ApiResponse<>(500, message, null,false);
+        return new ApiResponse<>(500, message, null, false);
     }
+
+    // 分页返回
+    public static <T> ApiResponse<PaginationResponse<T>> page(Page<T> page) {
+        PaginationResponse<T> pagination = new PaginationResponse<>(
+                page.getContent(), page.getTotalElements(), page.getTotalPages(), page.getNumber()
+        );
+        return new ApiResponse<>(200, "成功", pagination, true);
+    }
+
 }

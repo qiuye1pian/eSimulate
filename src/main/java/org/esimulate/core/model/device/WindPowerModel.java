@@ -1,35 +1,63 @@
 package org.esimulate.core.model.device;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.wind.WindSpeedData;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 风力发电功率计算器
  */
+@Data
+@Entity
+@Table(name = "wind_power_model")
+@AllArgsConstructor
+@NoArgsConstructor
 public class WindPowerModel implements Producer {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String modelName;
+
     // 切入风速 (m/s)
-    private final BigDecimal v_in;
+    @Column(nullable = false)
+    private BigDecimal v_in;
 
     // 额定风速 (m/s)
-    private final BigDecimal v_n;
+    @Column(nullable = false)
+    private BigDecimal v_n;
 
     // 切出风速 (m/s)
-    private final BigDecimal v_out;
+    @Column(nullable = false)
+    private BigDecimal v_out;
 
     // 额定功率 (kW)
-    private final BigDecimal P_r;
+    @Column(nullable = false)
+    private BigDecimal P_r;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Timestamp createdAt;
+
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
 
     // 每个时刻所法的电量 (kWh)
-    private final List<ElectricEnergy> electricEnergyList;
+    @Transient
+    private List<ElectricEnergy> electricEnergyList;
 
     /**
      * 构造函数，初始化风机关键参数
@@ -59,19 +87,19 @@ public class WindPowerModel implements Producer {
             return new ElectricEnergy(BigDecimal.ZERO);
         }
         // 2. 切入风速 < v <= 额定风速 -> 二次插值计算输出
-        else if (v_speed.compareTo(v_in) > 0 && v_speed.compareTo(v_n) <= 0) {
+
+        if (v_speed.compareTo(v_in) > 0 && v_speed.compareTo(v_n) <= 0) {
             BigDecimal numerator = v_speed.pow(2).subtract(v_in.pow(2));
             BigDecimal denominator = v_n.pow(2).subtract(v_in.pow(2));
             return new ElectricEnergy(numerator.divide(denominator, 10, RoundingMode.HALF_UP).multiply(P_r));
         }
         // 3. 额定风速 < v <= 切出风速 -> 输出额定功率
-        else if (v_speed.compareTo(v_n) > 0 && v_speed.compareTo(v_out) <= 0) {
+        if (v_speed.compareTo(v_n) > 0 && v_speed.compareTo(v_out) <= 0) {
             return new ElectricEnergy(P_r);
         }
         // 4. 超过切出风速 -> 输出 0
-        else {
-            return new ElectricEnergy(BigDecimal.ZERO);
-        }
+        return new ElectricEnergy(BigDecimal.ZERO);
+
     }
 
 

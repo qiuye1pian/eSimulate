@@ -1,0 +1,9 @@
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update  # 自动更新数据库表结构（生产环境推荐 none）
+    show-sql: true  # 控制台打印 SQL 语句
+    properties:
+      hibernate:
+        format_sql: true  # 格式化 SQL 输出

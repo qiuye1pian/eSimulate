@@ -1,16 +1,52 @@
 package org.esimulate.core.controller.device;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.esimulate.core.model.device.WindPowerModel;
+import org.esimulate.core.pojo.WindPowerModelDto;
+import org.esimulate.core.pojo.WindPowerPageQuery;
+import org.esimulate.core.service.device.WindPowerService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/model/wind-power")
 public class WindPowerModelController {
 
-    @PostMapping("/get")
-    public String getWindPowerModel() {
-        return "Wind Power Model";
+    @Autowired
+    private WindPowerService windPowerService;
+
+
+    @PostMapping("/getListByPage")
+    public Page<WindPowerModel> findListByPage(@RequestBody WindPowerPageQuery pageQuery) {
+        return windPowerService.findListByPage(pageQuery);
+    }
+
+
+    /**
+     * 新增风力发电模型
+     *
+     * @param windPowerModel 传入 JSON 数据
+     * @return 返回新增的模型
+     */
+    @PostMapping("/add")
+    public WindPowerModel addWindPowerModel(@RequestBody WindPowerModelDto windPowerModel) {
+        return windPowerService.addWindPowerModel(windPowerModel);
+    }
+
+    /**
+     * 删除风力发电模型
+     *
+     * @param requestBody 前端传递的 JSON，包含 `id`
+     * @return 操作结果
+     */
+    @PostMapping("/delete/{id}")
+    public String deleteWindPowerModel(@RequestBody Map<String, Long> requestBody) {
+        windPowerService.deleteById(requestBody.get("id"));
+        return "风力发电模型删除成功";
     }
 }

@@ -2,6 +2,7 @@ package org.esimulate.common;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
@@ -33,6 +34,10 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
         // 如果返回值是异常，交给 `GlobalExceptionHandler` 处理
         if (body instanceof Exception) {
             return ApiResponse.error("服务器异常：" + ((Exception) body).getMessage());
+        }
+
+        if (body instanceof Page) {
+            return ApiResponse.page((Page<?>) body);
         }
 
         // 否则，封装为 ApiResponse
