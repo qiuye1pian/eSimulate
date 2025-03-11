@@ -57,23 +57,7 @@ public class WindPowerModel implements Producer {
 
     // 每个时刻所法的电量 (kWh)
     @Transient
-    private List<ElectricEnergy> electricEnergyList;
-
-    /**
-     * 构造函数，初始化风机关键参数
-     *
-     * @param v_in  切入风速 (m/s)
-     * @param v_n   额定风速 (m/s)
-     * @param v_out 切出风速 (m/s)
-     * @param P_r   额定功率 (kW)
-     */
-    public WindPowerModel(String v_in, String v_n, String v_out, String P_r) {
-        this.v_in = new BigDecimal(v_in);
-        this.v_n = new BigDecimal(v_n);
-        this.v_out = new BigDecimal(v_out);
-        this.P_r = new BigDecimal(P_r);
-        this.electricEnergyList = new ArrayList<>();
-    }
+    private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     /**
      * 计算给定风速下的风机出力

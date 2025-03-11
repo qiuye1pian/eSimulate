@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class WindPowerPageQuery extends ModelPageQuery {
+public class SolarPowerPageQuery extends ModelPageQuery {
 
 }

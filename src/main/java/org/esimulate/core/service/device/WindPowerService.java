@@ -21,14 +21,14 @@ public class WindPowerService {
 
     @Transactional(readOnly = true)
     public Page<WindPowerModel> findListByPage(WindPowerPageQuery pageQuery) {
-        return windPowerRepository.findByModelNameContaining(pageQuery.getWindPowerName(), pageQuery.toPageable());
+        return windPowerRepository.findByModelNameContaining(pageQuery.getModelName(), pageQuery.toPageable());
     }
 
     @Transactional
     public WindPowerModel addWindPowerModel(WindPowerModelDto windPowerModelDto) {
         Optional<WindPowerModel> existingModel = windPowerRepository.findByModelName(windPowerModelDto.getModelName());
         if (existingModel.isPresent()) {
-            throw new IllegalArgumentException("风力发电模型名称已存在: " + windPowerModelDto.getModelName());
+            throw new IllegalArgumentException("模型名称已存在: " + windPowerModelDto.getModelName());
         }
         WindPowerModel windPowerModel = new WindPowerModel();
         windPowerModel.setModelName(windPowerModelDto.getModelName());
@@ -48,7 +48,7 @@ public class WindPowerService {
     public void deleteById(Long id) {
         Optional<WindPowerModel> existingModel = windPowerRepository.findById(id);
         if (!existingModel.isPresent()) {
-            throw new IllegalArgumentException("风力发电模型不存在，ID: " + id);
+            throw new IllegalArgumentException("模型不存在，ID: " + id);
         }
         windPowerRepository.deleteById(id);
     }

@@ -1,6 +1,8 @@
 package org.esimulate.core.model.device;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.environment.temperature.TemperatureValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
@@ -8,8 +10,10 @@ import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,38 +21,44 @@ import java.util.List;
  * 光伏出力计算 (Java 版)
  */
 @Data
+@Entity
+@Table(name = "solar_power_model")
+@AllArgsConstructor
+@NoArgsConstructor
 public class SolarPowerModel implements Producer {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String modelName;
+
     // 光伏系统额定功率 (kW)
-    private final BigDecimal P_pvN;
+    @Column(nullable = false)
+    private BigDecimal P_pvN;
 
     // 光伏组件温度系数 (1/℃)，通常为负值
-    private final BigDecimal t_e;
+    @Column(nullable = false)
+    private BigDecimal t_e;
 
     // 参考温度 (℃)
-    private final BigDecimal T_ref;
+    @Column(nullable = false)
+    private BigDecimal T_ref;
 
     // 参考辐照度 (W/m²)
-    private final BigDecimal G_ref;
+    @Column(nullable = false)
+    private BigDecimal G_ref;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Timestamp createdAt;
+
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
 
     // 每个时刻所法的电量 (kWh)
-    private final List<ElectricEnergy> electricEnergyList;
-
-    /**
-     * 构造函数，初始化光伏系统参数
-     *
-     * @param P_pvN 光伏系统额定功率 (kW)
-     * @param t_e   温度系数 (1/℃)
-     * @param T_ref 参考温度 (℃)
-     * @param G_ref 参考辐照度 (W/m²)
-     */
-    public SolarPowerModel(String P_pvN, String t_e, String T_ref, String G_ref) {
-        this.P_pvN = new BigDecimal(P_pvN);
-        this.t_e = new BigDecimal(t_e);
-        this.T_ref = new BigDecimal(T_ref);
-        this.G_ref = new BigDecimal(G_ref);
-        this.electricEnergyList = new ArrayList<>();
-    }
+    @Transient
+    private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     /**
      * 计算 t 时刻光伏电站的出力 P_pv(t)
