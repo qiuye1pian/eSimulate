@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface WindPowerRepository extends JpaRepository<WindPowerModel, Long> {
 
-    Page<WindPowerModel> findByUsernameContaining(String username, Pageable pageable);
+    Page<WindPowerModel> findByModelNameContaining(String modelName, Pageable pageable);
 
     Optional<WindPowerModel> findByModelName(String modelName);
 

@@ -21,7 +21,7 @@ public class WindPowerService {
 
     @Transactional(readOnly = true)
     public Page<WindPowerModel> findListByPage(WindPowerPageQuery pageQuery) {
-        return windPowerRepository.findByUsernameContaining(pageQuery.getWindPowerName(), pageQuery.toPageable());
+        return windPowerRepository.findByModelNameContaining(pageQuery.getWindPowerName(), pageQuery.toPageable());
     }
 
     @Transactional
