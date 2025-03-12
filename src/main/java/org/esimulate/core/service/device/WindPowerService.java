@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.util.Optional;
 
 @Log4j2
@@ -44,6 +45,8 @@ public class WindPowerService {
         windPowerModel.setV_in(windPowerModelDto.getV_in());
         windPowerModel.setV_n(windPowerModelDto.getV_n());
         windPowerModel.setV_out(windPowerModelDto.getV_out());
+        windPowerModel.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        windPowerModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return windPowerRepository.save(windPowerModel);
     }
 

@@ -37,30 +37,4 @@ public class ThermalLoadSchemeController {
         return "deleted";
     }
 
-    @GetMapping("/test")
-    public Optional<ThermalLoadScheme> getSchemeByTest() {
-
-        ThermalLoadScheme thermalLoadScheme = new ThermalLoadScheme("测试热负荷");
-        ThermalLoadValue thermalLoadData1 = new ThermalLoadValue(thermalLoadScheme, LocalDateTime.parse("2024-03-09 14:00:00", FORMATTER), BigDecimal.valueOf(100));
-        ThermalLoadValue thermalLoadData2 = new ThermalLoadValue(thermalLoadScheme, LocalDateTime.parse("2024-03-09 13:00:00", FORMATTER), BigDecimal.valueOf(200));
-        thermalLoadScheme.addValue(thermalLoadData1);
-        thermalLoadScheme.addValue(thermalLoadData2);
-
-        return Optional.of(thermalLoadScheme);
-    }
-
-    @GetMapping("/testnull")
-    public Optional<ThermalLoadScheme> getSchemeByTest2() {
-        return Optional.empty();
-    }
-
-    @GetMapping("/teststring")
-    public String getSchemeByTest3() {
-        return "string value";
-    }
-
-    @GetMapping("/testtime")
-    public LocalDateTime getSchemeByTest4() {
-        return LocalDateTime.now();
-    }
 }

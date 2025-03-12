@@ -42,7 +42,7 @@ public abstract class PageQuery {
             throw new RuntimeException("page 和 size 必须为大于0的整数");
         }
         if (StringUtils.isNotEmpty(this.getSort()) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Order order = new Sort.Order(Sort.Direction.valueOf(this.getSortDirection()), this.getSort());
+            Sort.Order order = new Sort.Order(Sort.Direction.valueOf(this.getSortDirection().toUpperCase()), this.getSort());
             Sort sort = Sort.by(order);
             return PageRequest.of(this.getPage() - 1, this.getSize(), sort);
         }

@@ -1,5 +1,7 @@
 package org.esimulate.core.controller.device;
 
+import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.log4j.Log4j2;
 import org.esimulate.core.model.device.WindPowerModel;
 import org.esimulate.core.pojo.WindPowerModelDto;
 import org.esimulate.core.pojo.WindPowerPageQuery;
@@ -12,6 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/model/wind-power")
+@Log4j2
 public class WindPowerModelController {
 
     @Autowired
@@ -32,6 +35,7 @@ public class WindPowerModelController {
      */
     @PostMapping("/add")
     public WindPowerModel addWindPowerModel(@RequestBody WindPowerModelDto windPowerModel) {
+        log.info("新增风力发电模型：{}", JSONObject.toJSONString(windPowerModel));
         return windPowerService.addWindPowerModel(windPowerModel);
     }
 
