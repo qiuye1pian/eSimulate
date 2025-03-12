@@ -47,7 +47,10 @@ public class ApiResponse<T> {
     // 分页返回
     public static <T> ApiResponse<PaginationResponse<T>> page(Page<T> page) {
         PaginationResponse<T> pagination = new PaginationResponse<>(
-                page.getContent(), page.getTotalElements(), page.getTotalPages(), page.getNumber()
+                page.getContent(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.getNumber() + 1
         );
         return new ApiResponse<>(200, "成功", pagination, true);
     }
