@@ -2,16 +2,15 @@ package org.esimulate.core.service.device;
 
 import lombok.extern.log4j.Log4j2;
 import org.esimulate.core.model.device.SolarPowerModel;
-import org.esimulate.core.pojo.ModelPageQuery;
 import org.esimulate.core.pojo.SolarPowerModelDto;
 import org.esimulate.core.pojo.SolarPowerPageQuery;
-import org.esimulate.core.pojo.WindPowerPageQuery;
 import org.esimulate.core.repository.SolarPowerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.util.Optional;
 
 @Log4j2
@@ -23,6 +22,12 @@ public class SolarPowerService {
 
     @Transactional(readOnly = true)
     public Page<SolarPowerModel> findListByPage(SolarPowerPageQuery pageQuery) {
+        if (pageQuery.getModelName() == null || pageQuery.getModelName().trim().isEmpty()) {
+            // ✅ 当 `modelName` 为空时，查询所有数据，但分页
+            return solarPowerRepository.findAll(pageQuery.toPageable());
+        }
+
+        // ✅ 当 `modelName` 有值时，执行 `LIKE` 查询
         return solarPowerRepository.findByModelNameContaining(pageQuery.getModelName(), pageQuery.toPageable());
     }
 
@@ -38,13 +43,15 @@ public class SolarPowerService {
         solarPowerModel.setT_e(solarPowerModelDto.getT_e());
         solarPowerModel.setT_ref(solarPowerModelDto.getT_ref());
         solarPowerModel.setG_ref(solarPowerModelDto.getG_ref());
-
+        solarPowerModel.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        solarPowerModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return solarPowerRepository.save(solarPowerModel);
     }
 
 
     /**
      * 根据 ID 删除模型
+     *
      * @param id 模型 ID
      */
     @Transactional

@@ -35,7 +35,6 @@ public class WindPowerModelController {
      */
     @PostMapping("/add")
     public WindPowerModel addWindPowerModel(@RequestBody WindPowerModelDto windPowerModel) {
-        log.info("新增风力发电模型：{}", JSONObject.toJSONString(windPowerModel));
         return windPowerService.addWindPowerModel(windPowerModel);
     }
 
