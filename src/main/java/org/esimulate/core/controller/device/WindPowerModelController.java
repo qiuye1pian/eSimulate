@@ -6,10 +6,7 @@ import org.esimulate.core.pojo.WindPowerPageQuery;
 import org.esimulate.core.service.device.WindPowerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -49,4 +46,6 @@ public class WindPowerModelController {
         windPowerService.deleteById(requestBody.get("id"));
         return "风力发电模型删除成功";
     }
+
+
 }

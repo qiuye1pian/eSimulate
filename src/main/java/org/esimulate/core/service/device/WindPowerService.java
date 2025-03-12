@@ -21,8 +21,16 @@ public class WindPowerService {
 
     @Transactional(readOnly = true)
     public Page<WindPowerModel> findListByPage(WindPowerPageQuery pageQuery) {
+
+        if (pageQuery.getModelName() == null || pageQuery.getModelName().trim().isEmpty()) {
+            // ✅ 当 `modelName` 为空时，查询所有数据，但分页
+            return windPowerRepository.findAll(pageQuery.toPageable());
+        }
+
+        // ✅ 当 `modelName` 有值时，执行 `LIKE` 查询
         return windPowerRepository.findByModelNameContaining(pageQuery.getModelName(), pageQuery.toPageable());
     }
+
 
     @Transactional
     public WindPowerModel addWindPowerModel(WindPowerModelDto windPowerModelDto) {
