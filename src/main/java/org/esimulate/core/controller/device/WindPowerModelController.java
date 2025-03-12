@@ -45,7 +45,7 @@ public class WindPowerModelController {
      * @param requestBody 前端传递的 JSON，包含 `id`
      * @return 操作结果
      */
-    @PostMapping("/delete/{id}")
+    @PostMapping("/delete")
     public String deleteWindPowerModel(@RequestBody Map<String, Long> requestBody) {
         windPowerService.deleteById(requestBody.get("id"));
         return "风力发电模型删除成功";

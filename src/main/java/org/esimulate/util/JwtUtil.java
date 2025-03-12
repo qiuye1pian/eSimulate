@@ -7,7 +7,8 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String secret = "mySecretKey"; // 你可以使用环境变量存储密钥
+    // 你可以使用环境变量存储密钥
+    private final String secret = "mySecretKey";
 
     public String generateToken(String username) {
         // 1 天
