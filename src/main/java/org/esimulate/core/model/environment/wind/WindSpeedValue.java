@@ -37,6 +37,10 @@ public class WindSpeedValue implements EnvironmentValue {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    public WindSpeedValue(BigDecimal windSpeed) {
+        this.windSpeed = windSpeed;
+    }
+
     @Override
     public BigDecimal getValue() {
         return windSpeed;

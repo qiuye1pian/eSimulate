@@ -2,16 +2,25 @@ package org.esimulate.core.service.device;
 
 import lombok.extern.log4j.Log4j2;
 import org.esimulate.core.model.device.WindPowerModel;
+import org.esimulate.core.model.environment.wind.WindSpeedValue;
 import org.esimulate.core.pojo.WindPowerModelDto;
 import org.esimulate.core.pojo.WindPowerPageQuery;
+import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
+import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.repository.WindPowerRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -64,4 +73,20 @@ public class WindPowerService {
         windPowerRepository.deleteById(id);
     }
 
+    public static @NotNull List<BigDecimal> getWindPowerOutPutList(WindPowerModelDto windPowerModelDto, List<BigDecimal> windSpeedList) {
+
+        WindPowerModel model = new WindPowerModel();
+        model.setV_in(windPowerModelDto.getV_in());
+        model.setV_out(windPowerModelDto.getV_out());
+        model.setP_r(windPowerModelDto.getP_r());
+        model.setV_n(windPowerModelDto.getV_n());
+
+        return windSpeedList.stream()
+                .map(WindSpeedValue::new)
+                .map(x -> (EnvironmentValue) x)
+                .map(Collections::singletonList)
+                .map(model::produce)
+                .map(Energy::getValue)
+                .collect(Collectors.toList());
+    }
 }
