@@ -14,12 +14,17 @@ public class WindPowerChartDto {
 
     private XAxis xAxis;
 
+    private YAxis yAxis;
+
     private List<Series> series;
 
     public WindPowerChartDto(List<String> xAxisData, List<BigDecimal> seriesData) {
         this.xAxis = new XAxis(xAxisData);
         this.series = Collections.singletonList(new Series(seriesData));
+        BigDecimal max = seriesData.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+        this.yAxis = new YAxis(max.multiply(BigDecimal.valueOf(1.1)));
     }
+
 
     @Getter
     @Setter
@@ -28,6 +33,13 @@ public class WindPowerChartDto {
         private final String type = "category";
         private final boolean boundaryGap = false;
         private List<String> data;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class YAxis {
+        private final BigDecimal max;
     }
 
     @Getter
