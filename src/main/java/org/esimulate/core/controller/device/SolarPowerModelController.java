@@ -27,7 +27,7 @@ public class SolarPowerModelController {
 
 
     /**
-     * 新增风力发电模型
+     * 新增光伏发电模型
      *
      * @param solarPowerModel 传入 JSON 数据
      * @return 返回新增的模型
@@ -38,14 +38,14 @@ public class SolarPowerModelController {
     }
 
     /**
-     * 删除风力发电模型
+     * 删除光伏发电模型
      *
      * @param requestBody 前端传递的 JSON，包含 `id`
      * @return 操作结果
      */
-    @PostMapping("/delete/{id}")
-    public String deleteSolarPowerModel(@RequestBody Map<String, Long> requestBody) {
+    @PostMapping("/delete")
+    public String deleteWindPowerModel(@RequestBody Map<String, Long> requestBody) {
         solarPowerService.deleteById(requestBody.get("id"));
-        return "风力发电模型删除成功";
+        return "光伏发电模型删除成功";
     }
 }
