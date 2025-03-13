@@ -1,8 +1,10 @@
 package org.esimulate.core.service.load;
 
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
+import org.esimulate.core.model.load.heat.ThermalLoadValue;
 import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.pojo.ThermalLoadSchemeDto;
+import org.esimulate.core.pojo.ThermalLoadValueDto;
 import org.esimulate.core.repository.ThermalLoadSchemeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,7 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ThermalLoadSchemeService {
@@ -39,16 +44,22 @@ public class ThermalLoadSchemeService {
     }
 
     @Transactional
-    public ThermalLoadScheme updateThermalLoadScheme(ThermalLoadSchemeDto thermalLoadSchemeDto) {
-        Optional<ThermalLoadScheme> optionalThermalLoadScheme = thermalLoadSchemeRepository.findById(thermalLoadSchemeDto.getId());
-        if (optionalThermalLoadScheme.isPresent()) {
-            ThermalLoadScheme thermalLoadScheme = optionalThermalLoadScheme.get();
-            thermalLoadScheme.setSchemeName(thermalLoadSchemeDto.getName());
-            thermalLoadSchemeRepository.save(thermalLoadScheme);
-
-            return null;
+    public ThermalLoadScheme updateThermalLoadScheme(Long id, List<String> thermalLoadValueListString) {
+        Optional<ThermalLoadScheme> optionalThermalLoadScheme = thermalLoadSchemeRepository.findById(id);
+        if (!optionalThermalLoadScheme.isPresent()) {
+            throw new IllegalArgumentException("负荷不存在，ID: " + id);
         }
-        return null;
+
+        List<ThermalLoadValue> thermalLoadValueList = ThermalLoadValueDto
+                .convertByCsvContent(thermalLoadValueListString)
+                .stream()
+                .map(ThermalLoadValueDto::toThermalLoadValue)
+                .collect(Collectors.toList());
+
+        ThermalLoadScheme thermalLoadScheme = optionalThermalLoadScheme.get();
+        thermalLoadScheme.setThermalLoadValues(thermalLoadValueList);
+        thermalLoadScheme.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        return thermalLoadSchemeRepository.save(thermalLoadScheme);
     }
 
     @Transactional

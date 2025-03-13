@@ -14,6 +14,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @Log4j2
@@ -35,36 +38,38 @@ public class ThermalLoadSchemeController {
     }
 
     @PostMapping("/upload")
-    public String uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("id") Long id) {
+    public ThermalLoadScheme uploadFile(@RequestParam("id") Long id, @RequestParam("file") MultipartFile file) {
         // 1️⃣ 检查文件是否为空
         if (file.isEmpty()) {
-            return "上传失败：文件不能为空";
+            throw new IllegalArgumentException("上传失败：文件不能为空");
         }
 
         try {
             // 2️⃣ 解析文件内容
-            StringBuilder content = new StringBuilder();
+            List<String> lineList = new ArrayList<>();
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    content.append(line).append("\n");
+                    lineList.add(line);
                 }
             }
 
             // 3️⃣ 解析后的内容
-            String fileContent = content.toString();
-            log.debug("文件内容: \n{}", fileContent);
+            log.debug("文件内容共有{}行", lineList.size());
 
-            //TODO: 把文件内容解析，更新到值
-
-            // 4️⃣ 返回解析后的内容
-            return "文件解析成功";
+            // 4️⃣ 返回更新后的对象
+            return thermalLoadSchemeService.updateThermalLoadScheme(id, lineList);
 
         } catch (IOException ioException) {
             log.error("解析文件内容失败", ioException);
-            return "解析文件内容失败：" + ioException.getMessage();
+            throw new RuntimeException("解析文件内容失败", ioException);
         }
+    }
+
+    @PostMapping("/convert")
+    public String convert() {
+        return LocalDateTime.now().toString();
     }
 
 }
