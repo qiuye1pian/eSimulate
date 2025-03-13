@@ -12,7 +12,7 @@ public class ElectricEnergy implements Electricity {
     BigDecimal value;
 
     public ElectricEnergy(BigDecimal value) {
-        this.value = value;
+        this.value = value.setScale(2, RoundingMode.HALF_UP);
     }
 
     public ElectricEnergy subtract(BigDecimal param) {
@@ -37,12 +37,13 @@ public class ElectricEnergy implements Electricity {
         this.value = this.value.add(param);
         return new ElectricEnergy(this.value);
     }
+
     public ElectricEnergy add(ElectricEnergy param) {
         return add(param.getValue());
     }
 
     public ElectricEnergy divide(BigDecimal param) {
-        this.value = this.value.divide(param,2, RoundingMode.HALF_UP);
+        this.value = this.value.divide(param, 2, RoundingMode.HALF_UP);
         return new ElectricEnergy(this.value);
     }
 

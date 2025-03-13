@@ -2,6 +2,7 @@ package org.esimulate.core.model.device;
 
 import lombok.Getter;
 import org.esimulate.core.model.environment.water.WaterSpeedData;
+import org.esimulate.core.model.environment.water.WaterSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
@@ -140,7 +141,7 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
     public Energy produce(List<EnvironmentValue> environmentValueList) {
         // 1. 提取环境变量中的流量 Q 和水头 H
         BigDecimal Q = environmentValueList.stream()
-                .filter(env -> env instanceof WaterSpeedData)
+                .filter(env -> env instanceof WaterSpeedValue)
                 .map(EnvironmentValue::getValue)
                 .findFirst()
                 .orElse(BigDecimal.ZERO);

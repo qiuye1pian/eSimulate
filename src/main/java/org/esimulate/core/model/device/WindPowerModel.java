@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.wind.WindSpeedData;
+import org.esimulate.core.model.environment.wind.WindSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
@@ -90,7 +91,7 @@ public class WindPowerModel implements Producer {
     @Override
     public Energy produce(List<EnvironmentValue> environmentValueList) {
         BigDecimal windSpeed = environmentValueList.stream()
-                .filter(x -> x instanceof WindSpeedData)
+                .filter(x -> x instanceof WindSpeedValue)
                 .findAny()
                 .map(EnvironmentValue::getValue)
                 .orElse(BigDecimal.ZERO);

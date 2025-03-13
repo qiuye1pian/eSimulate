@@ -59,9 +59,9 @@ public class WindPowerModelController {
     @PostMapping("/show-graph")
     public WindPowerChartDto showGraph(@RequestBody WindPowerModelDto windPowerModelDto) {
 
-        // 计算风速最大值：向上取整 `vOut * 1.2`
+        // 计算风速最大值：向上取整 `vOut * 1.1`
         int maxWindSpeed = windPowerModelDto.getV_out()
-                .multiply(new BigDecimal("1.2"))
+                .multiply(new BigDecimal("1.1"))
                 .setScale(0, RoundingMode.CEILING)
                 .intValue();
 
