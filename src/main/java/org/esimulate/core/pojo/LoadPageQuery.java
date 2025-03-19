@@ -8,7 +8,7 @@ import org.esimulate.common.PageQuery;
 @NoArgsConstructor
 @Getter
 @Setter
-public abstract class LoadPageQuery extends PageQuery {
+public class LoadPageQuery extends PageQuery {
 
     private String schemeName;
 
