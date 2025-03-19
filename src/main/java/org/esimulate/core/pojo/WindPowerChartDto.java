@@ -34,6 +34,13 @@ public class WindPowerChartDto {
         private final String type = "category";
         private final boolean boundaryGap = false;
         private List<BigDecimal> data;
+        private final AxisLabel axisLabel = new AxisLabel();
+
+        @Getter
+        @Setter
+        public static class AxisLabel {
+            private final String formatter = "{value} m/s"; // ECharts 需要的格式
+        }
     }
 
     @Getter
