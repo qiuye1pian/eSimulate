@@ -71,13 +71,9 @@ public class WindPowerModelController {
             windSpeedList.add(new BigDecimal(i));
         }
 
-        List<String> windSpeedListStr = windSpeedList.stream()
-                .map(BigDecimal::toString)
-                .collect(Collectors.toList());
-
         List<BigDecimal> outPutList = WindPowerService.getWindPowerOutPutList(windPowerModelDto, windSpeedList);
 
-        return new WindPowerChartDto(windSpeedListStr, outPutList);
+        return new WindPowerChartDto(windSpeedList, outPutList);
     }
 
 }
