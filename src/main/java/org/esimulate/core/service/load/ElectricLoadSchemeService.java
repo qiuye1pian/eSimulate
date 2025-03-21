@@ -1,6 +1,9 @@
 package org.esimulate.core.service.load;
 
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
+import org.esimulate.core.model.load.electric.ElectricLoadValue;
+import org.esimulate.core.pojo.ElectricLoadSchemeDto;
+import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.repository.ElectricLoadSchemeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.stream.DoubleStream;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ElectricLoadSchemeService {
@@ -28,4 +34,37 @@ public class ElectricLoadSchemeService {
     }
 
 
+    @Transactional
+    public ElectricLoadScheme addElectricLoadScheme(ElectricLoadSchemeDto electricLoadSchemeDto) {
+        ElectricLoadScheme electricLoadScheme = new ElectricLoadScheme();
+        electricLoadScheme.setSchemeName(electricLoadSchemeDto.getName());
+        electricLoadScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        electricLoadScheme.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        electricLoadSchemeRepository.save(electricLoadScheme);
+        return electricLoadScheme;
+    }
+
+    @Transactional
+    public ElectricLoadScheme updateElectricLoadScheme(Long id, List<String> electricLoadValueListString) {
+        Optional<ElectricLoadScheme> optionalElectricLoadScheme = electricLoadSchemeRepository.findById(id);
+        if (!optionalElectricLoadScheme.isPresent()) {
+            throw new IllegalArgumentException("负荷不存在，ID: " + id);
+        }
+
+        List<ElectricLoadValue> electricLoadValueList = ElectricLoadValueDto
+                .convertByCsvContent(electricLoadValueListString)
+                .stream()
+                .map(ElectricLoadValueDto::toElectricLoadValue)
+                .collect(Collectors.toList());
+
+        ElectricLoadScheme ElectricLoadScheme = optionalElectricLoadScheme.get();
+        ElectricLoadScheme.setElectricLoadValues(electricLoadValueList);
+        ElectricLoadScheme.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        return electricLoadSchemeRepository.save(ElectricLoadScheme);
+    }
+
+    @Transactional
+    public void deleteElectricLoadScheme(Long id) {
+        electricLoadSchemeRepository.deleteById(id);
+    }
 }

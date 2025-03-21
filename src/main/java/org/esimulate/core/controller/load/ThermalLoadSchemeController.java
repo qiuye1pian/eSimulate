@@ -17,8 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-@RestController
 @Log4j2
+@RestController
 @RequestMapping("/load/thermal-load-schemes")
 public class ThermalLoadSchemeController {
 
