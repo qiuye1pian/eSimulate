@@ -48,14 +48,9 @@ public class WindPowerService {
         if (existingModel.isPresent()) {
             throw new IllegalArgumentException("模型名称已存在: " + windPowerModelDto.getModelName());
         }
-        WindPowerModel windPowerModel = new WindPowerModel();
-        windPowerModel.setModelName(windPowerModelDto.getModelName());
-        windPowerModel.setP_r(windPowerModelDto.getP_r());
-        windPowerModel.setV_in(windPowerModelDto.getV_in());
-        windPowerModel.setV_n(windPowerModelDto.getV_n());
-        windPowerModel.setV_out(windPowerModelDto.getV_out());
-        windPowerModel.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        windPowerModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+        WindPowerModel windPowerModel = new WindPowerModel(windPowerModelDto);
+
         return windPowerRepository.save(windPowerModel);
     }
 

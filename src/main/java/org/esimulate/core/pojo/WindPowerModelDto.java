@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 
 @Getter
@@ -30,4 +31,12 @@ public class WindPowerModelDto {
     // 额定功率 (kW)
     private BigDecimal P_r;
 
+    // 碳排放因子
+    private BigDecimal carbonEmissionFactor;
+
+    // 发电成本
+    private BigDecimal cost;
+
+    // 建设成本
+    private BigDecimal purchaseCost;
 }

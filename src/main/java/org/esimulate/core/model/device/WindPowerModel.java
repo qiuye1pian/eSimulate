@@ -3,9 +3,9 @@ package org.esimulate.core.model.device;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.esimulate.core.model.environment.wind.WindSpeedData;
 import org.esimulate.core.model.environment.wind.WindSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.pojo.WindPowerModelDto;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
@@ -50,6 +50,18 @@ public class WindPowerModel implements Producer {
     @Column(nullable = false)
     private BigDecimal P_r;
 
+    // 碳排放因子
+    @Column(nullable = false)
+    private BigDecimal carbonEmissionFactor;
+
+    // 发电成本
+    @Column(nullable = false)
+    private BigDecimal cost;
+
+    // 建设成本
+    @Column(nullable = false)
+    private BigDecimal purchaseCost;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
 
@@ -59,6 +71,18 @@ public class WindPowerModel implements Producer {
     // 每个时刻所法的电量 (kWh)
     @Transient
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
+
+    public WindPowerModel(WindPowerModelDto windPowerModelDto) {
+        this.modelName = windPowerModelDto.getModelName();
+        this.v_in = windPowerModelDto.getV_in();
+        this.v_n = windPowerModelDto.getV_n();
+        this.v_out = windPowerModelDto.getV_out();
+        this.P_r = windPowerModelDto.getP_r();
+        this.carbonEmissionFactor = windPowerModelDto.getCarbonEmissionFactor();
+        this.cost = windPowerModelDto.getCost();
+        this.purchaseCost = windPowerModelDto.getPurchaseCost();
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
 
     /**
      * 计算给定风速下的风机出力
@@ -72,7 +96,6 @@ public class WindPowerModel implements Producer {
             return new ElectricEnergy(BigDecimal.ZERO);
         }
         // 2. 切入风速 < v <= 额定风速 -> 二次插值计算输出
-
         if (v_speed.compareTo(v_in) > 0 && v_speed.compareTo(v_n) <= 0) {
             BigDecimal numerator = v_speed.pow(2).subtract(v_in.pow(2));
             BigDecimal denominator = v_n.pow(2).subtract(v_in.pow(2));
