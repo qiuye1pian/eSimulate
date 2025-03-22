@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ThermalLoadValueDtoTest {
 
@@ -42,4 +43,11 @@ class ThermalLoadValueDtoTest {
         assertEquals("2023-10-01 11:00:00", DateTimeUtil.format(thermalLoadValueDtoList.get(0).getTime()));
         assertEquals("2023-10-01 12:00:00", DateTimeUtil.format(thermalLoadValueDtoList.get(1).getTime()));
     }
+
+    @Test
+    public void testTitle() {
+        ThermalLoadValueDto thermalLoadValueDto = ThermalLoadValueDto.convertByCsvLine("日期,值");
+        assertNull(thermalLoadValueDto);
+    }
+
 }
