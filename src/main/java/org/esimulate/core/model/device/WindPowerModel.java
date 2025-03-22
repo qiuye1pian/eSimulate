@@ -68,7 +68,7 @@ public class WindPowerModel implements Producer {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    // 每个时刻所法的电量 (kWh)
+    // 每个时刻所发的电量 (kWh)
     @Transient
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
