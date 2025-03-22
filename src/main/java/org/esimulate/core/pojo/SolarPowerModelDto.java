@@ -31,5 +31,14 @@ public class SolarPowerModelDto {
     // 参考辐照度 (W/m²)
     private BigDecimal G_ref;
 
+    // 碳排放因子
+    private BigDecimal carbonEmissionFactor;
+
+    // 发电成本
+    private BigDecimal cost;
+
+    // 建设成本
+    private BigDecimal purchaseCost;
+
 
 }

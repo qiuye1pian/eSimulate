@@ -37,14 +37,8 @@ public class SolarPowerService {
         if (existingModel.isPresent()) {
             throw new IllegalArgumentException("模型名称已存在: " + solarPowerModelDto.getModelName());
         }
-        SolarPowerModel solarPowerModel = new SolarPowerModel();
-        solarPowerModel.setModelName(solarPowerModelDto.getModelName());
-        solarPowerModel.setP_pvN(solarPowerModelDto.getP_pvN());
-        solarPowerModel.setT_e(solarPowerModelDto.getT_e());
-        solarPowerModel.setT_ref(solarPowerModelDto.getT_ref());
-        solarPowerModel.setG_ref(solarPowerModelDto.getG_ref());
-        solarPowerModel.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        solarPowerModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        SolarPowerModel solarPowerModel = new SolarPowerModel(solarPowerModelDto);
+
         return solarPowerRepository.save(solarPowerModel);
     }
 

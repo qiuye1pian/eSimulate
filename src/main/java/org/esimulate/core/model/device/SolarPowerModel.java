@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.environment.temperature.TemperatureValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.pojo.SolarPowerModelDto;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
@@ -50,6 +51,18 @@ public class SolarPowerModel implements Producer {
     @Column(nullable = false)
     private BigDecimal G_ref;
 
+    // 碳排放因子
+    @Column(nullable = false)
+    private BigDecimal carbonEmissionFactor;
+
+    // 发电成本
+    @Column(nullable = false)
+    private BigDecimal cost;
+
+    // 建设成本
+    @Column(nullable = false)
+    private BigDecimal purchaseCost;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
 
@@ -59,6 +72,18 @@ public class SolarPowerModel implements Producer {
     // 每个时刻所发的电量 (kWh)
     @Transient
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
+
+    public SolarPowerModel(SolarPowerModelDto solarPowerModelDto) {
+        this.modelName = solarPowerModelDto.getModelName();
+        this.P_pvN = solarPowerModelDto.getP_pvN();
+        this.t_e = solarPowerModelDto.getT_e();
+        this.T_ref = solarPowerModelDto.getT_ref();
+        this.G_ref = solarPowerModelDto.getG_ref();
+        this.carbonEmissionFactor = solarPowerModelDto.getCarbonEmissionFactor();
+        this.cost = solarPowerModelDto.getCost();
+        this.purchaseCost = solarPowerModelDto.getPurchaseCost();
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
 
     /**
      * 计算 t 时刻光伏电站的出力 P_pv(t)
