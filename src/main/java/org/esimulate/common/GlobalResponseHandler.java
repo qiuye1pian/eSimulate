@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -17,16 +18,7 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
     public boolean supports(MethodParameter returnType, @NotNull Class<? extends HttpMessageConverter<?>> converterType) {
 
         // 1️⃣ 跳过已经是 ApiResponse 的
-        if (returnType.getParameterType().equals(ApiResponse.class)) {
-            return false;
-        }
-
-        // 2️⃣ 跳过文件下载的 byte[] 返回
-        if (returnType.getParameterType().equals(byte[].class)) {
-            return false;
-        }
-
-        return true;
+        return !returnType.getParameterType().equals(ApiResponse.class);
 
     }
 
@@ -49,6 +41,13 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 
         if (body instanceof Page) {
             return ApiResponse.page((Page<?>) body);
+        }
+
+        //下载文件的时候跳过封装
+        if (selectedContentType.includes(MediaType.APPLICATION_OCTET_STREAM) ||
+                selectedContentType.includes(MediaType.valueOf("text/csv")) ||
+                selectedContentType.includes(MediaType.APPLICATION_PDF)) {
+            return body;
         }
 
         // 否则，封装为 ApiResponse
