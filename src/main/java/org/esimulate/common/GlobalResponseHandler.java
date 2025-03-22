@@ -15,8 +15,19 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, @NotNull Class<? extends HttpMessageConverter<?>> converterType) {
-        // 过滤掉已经是 ApiResponse 类型的返回值（避免重复封装）
-        return !returnType.getParameterType().equals(ApiResponse.class);
+
+        // 1️⃣ 跳过已经是 ApiResponse 的
+        if (returnType.getParameterType().equals(ApiResponse.class)) {
+            return false;
+        }
+
+        // 2️⃣ 跳过文件下载的 byte[] 返回
+        if (returnType.getParameterType().equals(byte[].class)) {
+            return false;
+        }
+
+        return true;
+
     }
 
     @Override
