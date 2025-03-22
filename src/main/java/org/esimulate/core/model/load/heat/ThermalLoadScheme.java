@@ -2,6 +2,7 @@ package org.esimulate.core.model.load.heat;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
@@ -31,10 +32,16 @@ public class ThermalLoadScheme implements ThermalLoadData {
     @OneToMany(mappedBy = "thermalLoadScheme", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ThermalLoadValue> thermalLoadValues = new ArrayList<>();
 
-    public ThermalLoadScheme(String schemeName){
+    public ThermalLoadScheme(String schemeName) {
         this.schemeName = schemeName;
         this.createdAt = new Timestamp(System.currentTimeMillis());
-        this.updatedAt = new Timestamp(System.currentTimeMillis());
+    }
+
+    public ThermalLoadScheme(@NonNull String schemeName, List<ThermalLoadValue> thermalLoadValueList) {
+        this.schemeName = schemeName;
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+        this.thermalLoadValues = thermalLoadValueList;
+        thermalLoadValueList.forEach(x -> x.setThermalLoadScheme(this));
     }
 
     @Override

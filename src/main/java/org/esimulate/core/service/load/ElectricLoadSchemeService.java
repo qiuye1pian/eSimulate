@@ -2,7 +2,6 @@ package org.esimulate.core.service.load;
 
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.model.load.electric.ElectricLoadValue;
-import org.esimulate.core.pojo.ElectricLoadSchemeDto;
 import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.repository.ElectricLoadSchemeRepository;
@@ -35,11 +34,10 @@ public class ElectricLoadSchemeService {
 
 
     @Transactional
-    public ElectricLoadScheme addElectricLoadScheme(ElectricLoadSchemeDto electricLoadSchemeDto) {
+    public ElectricLoadScheme addElectricLoadScheme(String schemeName) {
         ElectricLoadScheme electricLoadScheme = new ElectricLoadScheme();
-        electricLoadScheme.setSchemeName(electricLoadSchemeDto.getName());
+        electricLoadScheme.setSchemeName(schemeName);
         electricLoadScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        electricLoadScheme.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         electricLoadSchemeRepository.save(electricLoadScheme);
         return electricLoadScheme;
     }
@@ -59,6 +57,7 @@ public class ElectricLoadSchemeService {
 
         ElectricLoadScheme ElectricLoadScheme = optionalElectricLoadScheme.get();
         ElectricLoadScheme.setElectricLoadValues(electricLoadValueList);
+        electricLoadValueList.forEach(x->x.setElectricLoadScheme(ElectricLoadScheme));
         ElectricLoadScheme.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return electricLoadSchemeRepository.save(ElectricLoadScheme);
     }
@@ -66,5 +65,16 @@ public class ElectricLoadSchemeService {
     @Transactional
     public void deleteElectricLoadScheme(Long id) {
         electricLoadSchemeRepository.deleteById(id);
+    }
+
+    @Transactional
+    public ElectricLoadScheme createScheme(String schemeName, List<String> lineList) {
+        List<ElectricLoadValue> electricLoadValueList = ElectricLoadValueDto
+                .convertByCsvContent(lineList)
+                .stream()
+                .map(ElectricLoadValueDto::toElectricLoadValue)
+                .collect(Collectors.toList());
+
+        return electricLoadSchemeRepository.save(new ElectricLoadScheme(schemeName, electricLoadValueList));
     }
 }

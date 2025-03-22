@@ -1,7 +1,10 @@
 package org.esimulate.core.service.load;
 
+import lombok.NonNull;
+import org.esimulate.core.model.load.electric.ElectricLoadValue;
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.esimulate.core.model.load.heat.ThermalLoadValue;
+import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.pojo.ThermalLoadSchemeDto;
 import org.esimulate.core.pojo.ThermalLoadValueDto;
@@ -12,8 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,6 +60,7 @@ public class ThermalLoadSchemeService {
 
         ThermalLoadScheme thermalLoadScheme = optionalThermalLoadScheme.get();
         thermalLoadScheme.setThermalLoadValues(thermalLoadValueList);
+        thermalLoadValueList.forEach(x -> x.setThermalLoadScheme(thermalLoadScheme));
         thermalLoadScheme.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return thermalLoadSchemeRepository.save(thermalLoadScheme);
     }
@@ -65,4 +69,16 @@ public class ThermalLoadSchemeService {
     public void deleteThermalLoadScheme(Long id) {
         thermalLoadSchemeRepository.deleteById(id);
     }
+
+    @Transactional
+    public ThermalLoadScheme createScheme(@NonNull String schemeName, List<String> lineList) {
+        List<ThermalLoadValue> thermalLoadValueList = ThermalLoadValueDto
+                .convertByCsvContent(lineList)
+                .stream()
+                .map(ThermalLoadValueDto::toThermalLoadValue)
+                .collect(Collectors.toList());
+
+        return thermalLoadSchemeRepository.save(new ThermalLoadScheme(schemeName, thermalLoadValueList));
+    }
+
 }

@@ -31,6 +31,13 @@ public class ElectricLoadScheme implements ElectricLoadData {
     @OneToMany(mappedBy = "electricLoadScheme", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ElectricLoadValue> electricLoadValues = new ArrayList<>();
 
+    public ElectricLoadScheme(String schemeName, List<ElectricLoadValue> electricLoadValueList) {
+        this.schemeName = schemeName;
+        this.electricLoadValues = electricLoadValueList;
+        this.electricLoadValues.forEach(electricLoadValue -> electricLoadValue.setElectricLoadScheme(this));
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
+
     @Override
     public int getDataLength() {
         return electricLoadValues.size();

@@ -1,6 +1,8 @@
 package org.esimulate.core.controller.load;
 
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.pojo.ThermalLoadSchemeDto;
@@ -32,6 +34,7 @@ public class ThermalLoadSchemeController {
     }
 
     @PostMapping("/add")
+    @Deprecated
     public ThermalLoadScheme addThermalLoadScheme(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
         return thermalLoadSchemeService.addThermalLoadScheme(thermalLoadSchemeDto);
     }
@@ -67,4 +70,32 @@ public class ThermalLoadSchemeController {
     }
 
 
+    @PostMapping("/uploadScheme")
+    public ThermalLoadScheme uploadScheme(@RequestParam("schemeName") @NonNull String schemeName,
+                                          @RequestParam("file") MultipartFile file) {
+
+        // 检查文件是否为空
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("上传失败：文件不能为空");
+        }
+
+        try {
+            // 解析文件内容
+            List<String> lineList = new ArrayList<>();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    lineList.add(line);
+                }
+            }
+
+            // 返回更新后的对象
+            return thermalLoadSchemeService.createScheme(schemeName, lineList);
+
+        } catch (IOException ioException) {
+            log.error("解析文件内容失败", ioException);
+            throw new RuntimeException("解析文件内容失败", ioException);
+        }
+    }
 }
