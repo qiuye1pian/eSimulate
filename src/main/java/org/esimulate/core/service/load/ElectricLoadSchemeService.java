@@ -57,7 +57,7 @@ public class ElectricLoadSchemeService {
 
         ElectricLoadScheme ElectricLoadScheme = optionalElectricLoadScheme.get();
         ElectricLoadScheme.setElectricLoadValues(electricLoadValueList);
-        electricLoadValueList.forEach(x->x.setElectricLoadScheme(ElectricLoadScheme));
+        electricLoadValueList.forEach(x -> x.setElectricLoadScheme(ElectricLoadScheme));
         ElectricLoadScheme.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return electricLoadSchemeRepository.save(ElectricLoadScheme);
     }
@@ -69,6 +69,7 @@ public class ElectricLoadSchemeService {
 
     @Transactional
     public ElectricLoadScheme createScheme(String schemeName, List<String> lineList) {
+
         List<ElectricLoadValue> electricLoadValueList = ElectricLoadValueDto
                 .convertByCsvContent(lineList)
                 .stream()
