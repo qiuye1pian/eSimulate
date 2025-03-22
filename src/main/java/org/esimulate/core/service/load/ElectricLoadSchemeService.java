@@ -1,5 +1,6 @@
 package org.esimulate.core.service.load;
 
+import lombok.NonNull;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.model.load.electric.ElectricLoadValue;
 import org.esimulate.core.pojo.ElectricLoadValueDto;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,5 +79,12 @@ public class ElectricLoadSchemeService {
                 .collect(Collectors.toList());
 
         return electricLoadSchemeRepository.save(new ElectricLoadScheme(schemeName, electricLoadValueList));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ElectricLoadValue> getLoadValuesBySchemeId(@NonNull Long id) {
+        return electricLoadSchemeRepository.findById(id)
+                .map(ElectricLoadScheme::getElectricLoadValues)
+                .orElse(new ArrayList<>());
     }
 }

@@ -1,6 +1,7 @@
 package org.esimulate.core.service.load;
 
 import lombok.NonNull;
+import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.model.load.electric.ElectricLoadValue;
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.esimulate.core.model.load.heat.ThermalLoadValue;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -81,4 +83,10 @@ public class ThermalLoadSchemeService {
         return thermalLoadSchemeRepository.save(new ThermalLoadScheme(schemeName, thermalLoadValueList));
     }
 
+    @Transactional(readOnly = true)
+    public List<ThermalLoadValue> getLoadValuesBySchemeId(@NonNull Long id) {
+        return thermalLoadSchemeRepository.findById(id)
+                .map(ThermalLoadScheme::getThermalLoadValues)
+                .orElse(new ArrayList<>());
+    }
 }
