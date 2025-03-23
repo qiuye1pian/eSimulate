@@ -29,12 +29,15 @@ public class SolarPowerModelController {
     /**
      * 新增光伏发电模型
      *
-     * @param solarPowerModel 传入 JSON 数据
+     * @param solarPowerModelDto 传入 JSON 数据
      * @return 返回新增的模型
      */
     @PostMapping("/add")
-    public SolarPowerModel addSolarPowerModel(@RequestBody SolarPowerModelDto solarPowerModel) {
-        return solarPowerService.addSolarPowerModel(solarPowerModel);
+    public SolarPowerModel addSolarPowerModel(@RequestBody SolarPowerModelDto solarPowerModelDto) {
+        if (solarPowerModelDto.getId() != null) {
+            return solarPowerService.updateSolarPowerModel(solarPowerModelDto);
+        }
+        return solarPowerService.addSolarPowerModel(solarPowerModelDto);
     }
 
     /**

@@ -83,6 +83,7 @@ public class WindPowerService {
         windPowerRepository.deleteById(id);
     }
 
+    @Transactional
     public WindPowerModel updateWindPowerModel(WindPowerModelDto windPowerModelDto) {
         Optional<WindPowerModel> windPowerModelOptional = windPowerRepository.findById(windPowerModelDto.getId());
         if (!windPowerModelOptional.isPresent()) {

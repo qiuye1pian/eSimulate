@@ -57,4 +57,21 @@ public class SolarPowerService {
         solarPowerRepository.deleteById(id);
     }
 
+    @Transactional
+    public SolarPowerModel updateSolarPowerModel(SolarPowerModelDto solarPowerModelDto) {
+        Optional<SolarPowerModel> solarPowerModelOptional = solarPowerRepository.findById(solarPowerModelDto.getId());
+        if (!solarPowerModelOptional.isPresent()) {
+            throw new IllegalArgumentException("模型不存在，ID: " + solarPowerModelDto.getId());
+        }
+        SolarPowerModel solarPowerModel = solarPowerModelOptional.get();
+        solarPowerModel.setP_pvN(solarPowerModelDto.getP_pvN());
+        solarPowerModel.setT_e(solarPowerModelDto.getT_e());
+        solarPowerModel.setT_ref(solarPowerModelDto.getT_ref());
+        solarPowerModel.setG_ref(solarPowerModelDto.getG_ref());
+        solarPowerModel.setCarbonEmissionFactor(solarPowerModelDto.getCarbonEmissionFactor());
+        solarPowerModel.setCost(solarPowerModelDto.getCost());
+        solarPowerModel.setPurchaseCost(solarPowerModelDto.getPurchaseCost());
+        solarPowerModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        return solarPowerRepository.save(solarPowerModel);
+    }
 }
