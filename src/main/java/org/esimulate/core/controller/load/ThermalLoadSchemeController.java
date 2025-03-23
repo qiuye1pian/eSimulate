@@ -114,7 +114,6 @@ public class ThermalLoadSchemeController {
         }
     }
 
-
     @PostMapping("/download")
     public ResponseEntity<byte[]> downloadLoadValues(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
         List<ThermalLoadValue> loadValues = thermalLoadSchemeService.getLoadValuesBySchemeId(thermalLoadSchemeDto.getId());
@@ -149,5 +148,11 @@ public class ThermalLoadSchemeController {
         return thermalLoadSchemeService.getLoadValuesBySchemeId(thermalLoadSchemeDto.getId()).stream()
                 .map(ThermalLoadValueDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/delete")
+    public String deleteScheme(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
+        thermalLoadSchemeService.deleteThermalLoadScheme(thermalLoadSchemeDto.getId());
+        return "删除成功";
     }
 }

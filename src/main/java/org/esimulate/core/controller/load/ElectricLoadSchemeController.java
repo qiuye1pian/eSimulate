@@ -150,4 +150,12 @@ public class ElectricLoadSchemeController {
                 .collect(Collectors.toList());
     }
 
+
+    @PostMapping("/delete")
+    public String deleteScheme(@RequestBody ElectricLoadSchemeDto electricLoadSchemeDto) {
+        electricLoadSchemeService.deleteElectricLoadScheme(electricLoadSchemeDto.getId());
+        return "删除成功";
+    }
+
+
 }
