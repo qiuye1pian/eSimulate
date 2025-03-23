@@ -9,7 +9,8 @@ import java.util.List;
 @AllArgsConstructor
 public class PaginationResponse<T> {
     private List<T> content; // 当前页数据
-    private long totalElements; // 总数据量
+    private long total; // 总数据量
     private int totalPages; // 总页数
-    private int currentPage; // 当前页
+    private int page; // 当前页
+    private int size; // 每页数据量
 }

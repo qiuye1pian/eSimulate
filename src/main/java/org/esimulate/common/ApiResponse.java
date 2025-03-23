@@ -50,7 +50,8 @@ public class ApiResponse<T> {
                 page.getContent(),
                 page.getTotalElements(),
                 page.getTotalPages(),
-                page.getNumber() + 1
+                page.getNumber() + 1,
+                page.getSize()
         );
         return new ApiResponse<>(200, "成功", pagination, true);
     }
