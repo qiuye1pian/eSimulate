@@ -83,15 +83,18 @@ public class ElectricLoadSchemeService {
             throw new IllegalArgumentException("方案名已存在: " + schemeName);
         }
 
+        ElectricLoadScheme electricLoadScheme = electricLoadSchemeRepository.save(new ElectricLoadScheme(schemeName));
+
         List<ElectricLoadValue> electricLoadValueList = ElectricLoadValueDto
                 .convertByCsvContent(lineList)
                 .stream()
                 .map(ElectricLoadValueDto::toElectricLoadValue)
+                .peek(x -> x.setElectricLoadScheme(electricLoadScheme))
                 .collect(Collectors.toList());
 
         electricLoadValueRepository.saveAll(electricLoadValueList);
 
-        return electricLoadSchemeRepository.save(new ElectricLoadScheme(schemeName, electricLoadValueList));
+        return electricLoadScheme;
     }
 
     @Transactional(readOnly = true)

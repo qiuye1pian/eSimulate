@@ -46,7 +46,5 @@ public class ThermalLoadScheme implements ThermalLoadData {
         return thermalLoadValues.get(timeIndex);
     }
 
-    public void addValue(ThermalLoadValue loadValue) {
-        thermalLoadValues.add(loadValue);
-    }
+
 }
