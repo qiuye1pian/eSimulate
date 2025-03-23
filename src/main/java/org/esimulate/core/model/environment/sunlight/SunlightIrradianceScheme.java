@@ -27,7 +27,7 @@ public class SunlightIrradianceScheme implements IrradianceData {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "sunlightIrradianceScheme", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "sunlightIrradianceScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<SunlightIrradianceValue> sunlightIrradianceValues;
 
     public SunlightIrradianceScheme(List<SunlightIrradianceValue> values) {

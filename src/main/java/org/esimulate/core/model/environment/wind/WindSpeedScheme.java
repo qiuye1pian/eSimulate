@@ -29,7 +29,7 @@ public class WindSpeedScheme implements WindSpeedData {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "windSpeedScheme", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "windSpeedScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<WindSpeedValue> windSpeedValues;
 
     @Override

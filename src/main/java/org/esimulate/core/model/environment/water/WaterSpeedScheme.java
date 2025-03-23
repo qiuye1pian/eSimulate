@@ -29,7 +29,7 @@ public class WaterSpeedScheme implements WaterSpeedData {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "waterSpeedScheme", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "waterSpeedScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<WaterSpeedValue> waterSpeedValues;
 
     @Override

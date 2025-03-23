@@ -29,7 +29,7 @@ public class TemperatureScheme implements TemperatureData {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "temperatureScheme", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "temperatureScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TemperatureValue> temperatureValues;
 
     @Override

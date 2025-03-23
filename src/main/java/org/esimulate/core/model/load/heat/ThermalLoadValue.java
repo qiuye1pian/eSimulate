@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.math.BigDecimal;

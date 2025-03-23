@@ -29,7 +29,7 @@ public class ThermalLoadScheme implements ThermalLoadData {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "thermalLoadScheme", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "thermalLoadScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ThermalLoadValue> thermalLoadValues = new ArrayList<>();
 
     public ThermalLoadScheme(String schemeName) {
