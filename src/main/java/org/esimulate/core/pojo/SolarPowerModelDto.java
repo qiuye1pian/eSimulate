@@ -21,16 +21,16 @@ public class SolarPowerModelDto {
     private String modelName;
 
     // 光伏系统额定功率 (kW)
-    private BigDecimal P_pvN;
+    private BigDecimal ppvN;
 
     // 光伏组件温度系数 (1/℃)，通常为负值
-    private BigDecimal t_e;
+    private BigDecimal te;
 
     // 参考温度 (℃)
-    private BigDecimal T_ref;
+    private BigDecimal tref;
 
     // 参考辐照度 (W/m²)
-    private BigDecimal G_ref;
+    private BigDecimal gref;
 
     // 碳排放因子
     private BigDecimal carbonEmissionFactor;

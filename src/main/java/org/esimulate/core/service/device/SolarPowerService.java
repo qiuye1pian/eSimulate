@@ -64,10 +64,10 @@ public class SolarPowerService {
             throw new IllegalArgumentException("模型不存在，ID: " + solarPowerModelDto.getId());
         }
         SolarPowerModel solarPowerModel = solarPowerModelOptional.get();
-        solarPowerModel.setP_pvN(solarPowerModelDto.getP_pvN());
-        solarPowerModel.setT_e(solarPowerModelDto.getT_e());
-        solarPowerModel.setT_ref(solarPowerModelDto.getT_ref());
-        solarPowerModel.setG_ref(solarPowerModelDto.getG_ref());
+        solarPowerModel.setP_pvN(solarPowerModelDto.getPpvN());
+        solarPowerModel.setT_e(solarPowerModelDto.getTe());
+        solarPowerModel.setT_ref(solarPowerModelDto.getTref());
+        solarPowerModel.setG_ref(solarPowerModelDto.getGref());
         solarPowerModel.setCarbonEmissionFactor(solarPowerModelDto.getCarbonEmissionFactor());
         solarPowerModel.setCost(solarPowerModelDto.getCost());
         solarPowerModel.setPurchaseCost(solarPowerModelDto.getPurchaseCost());

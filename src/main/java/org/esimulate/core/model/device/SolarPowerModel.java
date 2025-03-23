@@ -75,10 +75,10 @@ public class SolarPowerModel implements Producer {
 
     public SolarPowerModel(SolarPowerModelDto solarPowerModelDto) {
         this.modelName = solarPowerModelDto.getModelName();
-        this.P_pvN = solarPowerModelDto.getP_pvN();
-        this.t_e = solarPowerModelDto.getT_e();
-        this.T_ref = solarPowerModelDto.getT_ref();
-        this.G_ref = solarPowerModelDto.getG_ref();
+        this.P_pvN = solarPowerModelDto.getPpvN();
+        this.t_e = solarPowerModelDto.getTe();
+        this.T_ref = solarPowerModelDto.getTref();
+        this.G_ref = solarPowerModelDto.getGref();
         this.carbonEmissionFactor = solarPowerModelDto.getCarbonEmissionFactor();
         this.cost = solarPowerModelDto.getCost();
         this.purchaseCost = solarPowerModelDto.getPurchaseCost();
