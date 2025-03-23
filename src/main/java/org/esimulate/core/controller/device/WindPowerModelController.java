@@ -18,7 +18,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/model/wind-power")
@@ -36,13 +35,17 @@ public class WindPowerModelController {
     /**
      * 新增风力发电模型
      *
-     * @param windPowerModel 传入 JSON 数据
+     * @param windPowerModelDto 传入 JSON 数据
      * @return 返回新增的模型
      */
     @PostMapping("/add")
-    public WindPowerModel addWindPowerModel(@RequestBody WindPowerModelDto windPowerModel) {
-        return windPowerService.addWindPowerModel(windPowerModel);
+    public WindPowerModel addWindPowerModel(@RequestBody WindPowerModelDto windPowerModelDto) {
+        if (windPowerModelDto.getId() != null) {
+            return windPowerService.updateWindPowerModel(windPowerModelDto);
+        }
+        return windPowerService.addWindPowerModel(windPowerModelDto);
     }
+
 
     /**
      * 删除风力发电模型

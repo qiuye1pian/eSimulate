@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class WindPowerModelDto {
 
+    private Long id;
+
     /**
      * 模型名
      */
