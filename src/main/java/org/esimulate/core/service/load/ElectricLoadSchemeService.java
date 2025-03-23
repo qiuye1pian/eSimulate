@@ -3,6 +3,7 @@ package org.esimulate.core.service.load;
 import lombok.NonNull;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.model.load.electric.ElectricLoadValue;
+import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.repository.ElectricLoadSchemeRepository;
@@ -76,6 +77,11 @@ public class ElectricLoadSchemeService {
 
     @Transactional
     public ElectricLoadScheme createScheme(String schemeName, List<String> lineList) {
+        Optional<ElectricLoadScheme> existing = electricLoadSchemeRepository.findBySchemeName(schemeName);
+
+        if (existing.isPresent()) {
+            throw new IllegalArgumentException("方案名已存在: " + schemeName);
+        }
 
         List<ElectricLoadValue> electricLoadValueList = ElectricLoadValueDto
                 .convertByCsvContent(lineList)

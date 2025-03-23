@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.model.load.electric.ElectricLoadValue;
+import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.esimulate.core.pojo.ElectricLoadSchemeDto;
 import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
@@ -93,8 +94,19 @@ public class ElectricLoadSchemeController {
                 }
             }
 
+            // 开始计时
+            long start = System.currentTimeMillis();
+            // 返回更新后的对象
+            ElectricLoadScheme scheme = electricLoadSchemeService.createScheme(schemeName, lineList);
+            // 结束计时
+            long end = System.currentTimeMillis();
+            // 计算时间差
+            long duration = end - start;
+            // 打印时间差
+            log.info("上传方案 [{}] 共耗时：{} ms，记录数：{}", schemeName, duration, lineList.size());
             // 4️⃣ 返回更新后的对象
-            return electricLoadSchemeService.createScheme(schemeName, lineList);
+
+            return scheme;
 
         } catch (IOException ioException) {
             log.error("解析文件内容失败", ioException);

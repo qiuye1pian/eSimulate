@@ -96,15 +96,15 @@ public class ThermalLoadSchemeController {
                     lineList.add(line);
                 }
             }
-            // TODO:开始计时
+            // 开始计时
             long start = System.currentTimeMillis();
             // 返回更新后的对象
             ThermalLoadScheme scheme = thermalLoadSchemeService.createScheme(schemeName, lineList);
-            // TODO:结束计时
+            // 结束计时
             long end = System.currentTimeMillis();
-            // TODO:计算时间差
+            // 计算时间差
             long duration = end - start;
-            // TODO:打印时间差
+            // 打印时间差
             log.info("上传方案 [{}] 共耗时：{} ms，记录数：{}", schemeName, duration, lineList.size());
             return scheme;
 
