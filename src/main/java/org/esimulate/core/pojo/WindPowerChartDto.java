@@ -20,6 +20,10 @@ public class WindPowerChartDto {
     private List<Series> series;
 
     public WindPowerChartDto(List<BigDecimal> xAxisData, List<BigDecimal> seriesData) {
+        if (xAxisData == null || seriesData == null) {
+            throw new NullPointerException();
+        }
+
         this.xAxis = new XAxis(xAxisData);
         this.series = Collections.singletonList(new Series(seriesData));
         BigDecimal max = seriesData.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
@@ -33,8 +37,8 @@ public class WindPowerChartDto {
     public static class XAxis {
         private final String type = "category";
         private final boolean boundaryGap = false;
-        private List<BigDecimal> data;
         private final AxisLabel axisLabel = new AxisLabel();
+        private List<BigDecimal> data;
 
         @Getter
         @Setter
