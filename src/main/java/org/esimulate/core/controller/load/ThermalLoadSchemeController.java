@@ -4,11 +4,12 @@ import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
-import org.esimulate.core.model.load.heat.ThermalLoadValue;
 import org.esimulate.core.pojo.LoadPageQuery;
+import org.esimulate.core.pojo.LoadValueChartDto;
 import org.esimulate.core.pojo.ThermalLoadSchemeDto;
 import org.esimulate.core.pojo.ThermalLoadValueDto;
 import org.esimulate.core.service.load.ThermalLoadSchemeService;
+import org.esimulate.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -147,10 +149,21 @@ public class ThermalLoadSchemeController {
     }
 
     @PostMapping("/getLoadValues")
-    public List<ThermalLoadValueDto> getLoadValues(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
-        return thermalLoadSchemeService.getLoadValuesBySchemeId(thermalLoadSchemeDto.getId()).stream()
+    public LoadValueChartDto getLoadValues(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
+
+        List<ThermalLoadValueDto> sortedThermalLoadValueDtoList = thermalLoadSchemeService.getLoadValuesBySchemeId(thermalLoadSchemeDto.getId()).stream()
                 .map(ThermalLoadValueDto::new)
                 .collect(Collectors.toList());
+
+        List<String> xAxisData = sortedThermalLoadValueDtoList.stream().
+                map(x -> DateTimeUtil.formatNoYearString(x.getTime()))
+                .collect(Collectors.toList());
+
+        List<BigDecimal> yAxisData = sortedThermalLoadValueDtoList.stream()
+                .map(ThermalLoadValueDto::getValue)
+                .collect(Collectors.toList());
+
+        return new LoadValueChartDto(xAxisData, yAxisData);
     }
 
     @PostMapping("/delete")
