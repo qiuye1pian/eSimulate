@@ -28,7 +28,7 @@ public class CsvGenerator {
         // 设置波动范围
         BigDecimal maxFluctuation = new BigDecimal("50000.00");
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("load_values.csv"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("/Users/chenhonghe/Desktop/华北电力大学/县域多能互补一体化平台/脚本/上传模板/load_values.csv"))) {
             // 写入 CSV 表头
             writer.write("时间,负荷值\n");
 

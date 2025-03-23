@@ -1,9 +1,13 @@
 package org.esimulate.core.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ThermalLoadSchemeDto {
 
     public ThermalLoadSchemeDto(ThermalLoadScheme thermalLoadScheme) {
