@@ -5,8 +5,10 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.esimulate.core.model.load.heat.ThermalLoadValue;
+import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.pojo.ThermalLoadSchemeDto;
+import org.esimulate.core.pojo.ThermalLoadValueDto;
 import org.esimulate.core.service.load.ThermalLoadSchemeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
@@ -132,5 +135,12 @@ public class ThermalLoadSchemeController {
             return ResponseEntity.internalServerError()
                     .body(("生成CSV文件失败: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
         }
+    }
+
+    @PostMapping("/getLoadValues")
+    public List<ThermalLoadValueDto> getLoadValues(@RequestParam("id") @NonNull Long id) {
+        return thermalLoadSchemeService.getLoadValuesBySchemeId(id).stream()
+                .map(ThermalLoadValueDto::new)
+                .collect(Collectors.toList());
     }
 }

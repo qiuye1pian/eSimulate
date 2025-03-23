@@ -23,6 +23,11 @@ public class ElectricLoadValueDto {
 
     private BigDecimal value;
 
+    public ElectricLoadValueDto(ElectricLoadValue electricLoadValue) {
+        this.time = electricLoadValue.getDatetime();
+        this.value = electricLoadValue.getLoadValue();
+    }
+
     public static List<ElectricLoadValueDto> convertByCsvContent(List<String> csvContent) {
         return csvContent.stream()
                 .map(ElectricLoadValueDto::convertByCsvLine)
@@ -55,6 +60,4 @@ public class ElectricLoadValueDto {
         electricLoadValue.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return electricLoadValue;
     }
-
-
 }

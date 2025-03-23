@@ -6,6 +6,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.model.load.electric.ElectricLoadValue;
 import org.esimulate.core.pojo.ElectricLoadSchemeDto;
+import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.service.load.ElectricLoadSchemeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
@@ -39,8 +41,6 @@ public class ElectricLoadSchemeController {
     }
 
     @PostMapping("/add")
-
-    @Deprecated
     public ElectricLoadScheme addElectricLoadScheme(@RequestBody ElectricLoadSchemeDto electricLoadSchemeDto) {
         return electricLoadSchemeService.addElectricLoadScheme(electricLoadSchemeDto.getName());
     }
@@ -132,6 +132,11 @@ public class ElectricLoadSchemeController {
         }
     }
 
-
+    @PostMapping("/getLoadValues")
+    public List<ElectricLoadValueDto> getLoadValues(@RequestParam("id") @NonNull Long id) {
+        return electricLoadSchemeService.getLoadValuesBySchemeId(id).stream()
+                .map(ElectricLoadValueDto::new)
+                .collect(Collectors.toList());
+    }
 
 }

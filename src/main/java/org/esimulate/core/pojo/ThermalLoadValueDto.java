@@ -23,6 +23,11 @@ public class ThermalLoadValueDto {
 
     private BigDecimal value;
 
+    public ThermalLoadValueDto(ThermalLoadValue thermalLoadValue) {
+        this.time = thermalLoadValue.getDatetime();
+        this.value = thermalLoadValue.getLoadValue();
+    }
+
     public static List<ThermalLoadValueDto> convertByCsvContent(List<String> csvContent) {
         return csvContent.stream()
                 .map(ThermalLoadValueDto::convertByCsvLine)

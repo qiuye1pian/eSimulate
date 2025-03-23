@@ -3,6 +3,7 @@ package org.esimulate.core.service.load;
 import lombok.NonNull;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.model.load.electric.ElectricLoadValue;
+import org.esimulate.core.model.load.heat.ThermalLoadValue;
 import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.repository.ElectricLoadSchemeRepository;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -85,6 +87,9 @@ public class ElectricLoadSchemeService {
     public List<ElectricLoadValue> getLoadValuesBySchemeId(@NonNull Long id) {
         return electricLoadSchemeRepository.findById(id)
                 .map(ElectricLoadScheme::getElectricLoadValues)
-                .orElse(new ArrayList<>());
+                .orElse(new ArrayList<>())
+                .stream()
+                .sorted(Comparator.comparing(ElectricLoadValue::getDatetime))
+                .collect(Collectors.toList());
     }
 }
