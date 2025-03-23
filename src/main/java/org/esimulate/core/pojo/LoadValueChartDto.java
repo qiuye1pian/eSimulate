@@ -1,16 +1,14 @@
 package org.esimulate.core.pojo;
 
-import lombok.Data;
 import org.esimulate.core.pojo.chart.line.ChartLineDto;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-@Data
-public class WindPowerChartDto extends ChartLineDto<BigDecimal, BigDecimal> {
+public class LoadValueChartDto extends ChartLineDto<String, BigDecimal> {
 
-    public WindPowerChartDto(List<BigDecimal> xAxisData, List<BigDecimal> seriesData) {
+    public LoadValueChartDto(List<String> xAxisData, List<BigDecimal> seriesData) {
         if (xAxisData == null) {
             throw new IllegalArgumentException("xAxisData cannot be null");
         }
@@ -27,7 +25,7 @@ public class WindPowerChartDto extends ChartLineDto<BigDecimal, BigDecimal> {
 
         this.init(xAxisData, seriesData, yAxisMax);
 
-        this.getXAxis().getAxisLabel().setFormatter("{value} m/s");
+        this.getXAxis().getAxisLabel().setFormatter("{value}");
+
     }
 }
-

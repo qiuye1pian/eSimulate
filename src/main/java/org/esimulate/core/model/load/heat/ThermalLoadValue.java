@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -40,14 +39,6 @@ public class ThermalLoadValue implements LoadValue {
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
-
-    public ThermalLoadValue(ThermalLoadScheme thermalLoadScheme, LocalDateTime datetime, BigDecimal loadValue) {
-        this.thermalLoadScheme = thermalLoadScheme;
-        this.datetime = datetime;
-        this.loadValue = loadValue;
-        this.createdAt = new Timestamp(System.currentTimeMillis());
-        this.updatedAt = new Timestamp(System.currentTimeMillis());
-    }
 
     @Override
     public Energy calculateDifference(List<Energy> produceList) {

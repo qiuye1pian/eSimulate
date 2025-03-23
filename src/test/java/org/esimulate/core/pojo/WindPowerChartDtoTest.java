@@ -79,12 +79,12 @@ class WindPowerChartDtoTest {
     void testConstructorWithNullData() {
         // xAxisData 为 null
         List<BigDecimal> seriesData = Arrays.asList(new BigDecimal("1.0"), new BigDecimal("2.0"));
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
             new WindPowerChartDto(null, seriesData);
         }, "传入 null 的 xAxisData 应该抛出 NullPointerException");
         // seriesData 为 null
         List<BigDecimal> xAxisData = Arrays.asList(new BigDecimal("1.0"), new BigDecimal("2.0"));
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
             new WindPowerChartDto(xAxisData, null);
         }, "传入 null 的 seriesData 应该抛出 NullPointerException");
     }
