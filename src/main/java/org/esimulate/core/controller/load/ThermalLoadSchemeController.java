@@ -126,6 +126,8 @@ public class ThermalLoadSchemeController {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
 
+            writer.write('\uFEFF');
+
             // 写入 CSV 表头
             writer.write("时间,负荷值\n");
 
@@ -143,6 +145,7 @@ public class ThermalLoadSchemeController {
                     .body(out.toByteArray());
 
         } catch (Exception e) {
+            log.error("生成CSV文件失败", e);
             return ResponseEntity.internalServerError()
                     .body(("生成CSV文件失败: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
         }
