@@ -7,7 +7,9 @@ import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.pojo.ElectricLoadSchemeDto;
 import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
+import org.esimulate.core.pojo.LoadValueChartDto;
 import org.esimulate.core.service.load.ElectricLoadSchemeService;
+import org.esimulate.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -147,10 +150,22 @@ public class ElectricLoadSchemeController {
     }
 
     @PostMapping("/getLoadValues")
-    public List<ElectricLoadValueDto> getLoadValues(@RequestBody ElectricLoadSchemeDto electricLoadSchemeDto) {
-        return electricLoadSchemeService.getLoadValuesBySchemeId(electricLoadSchemeDto.getId()).stream()
+    public LoadValueChartDto getLoadValues(@RequestBody ElectricLoadSchemeDto electricLoadSchemeDto) {
+
+        List<ElectricLoadValueDto> sortedElectricLoadValueDtoList = electricLoadSchemeService.getLoadValuesBySchemeId(electricLoadSchemeDto.getId())
+                .stream()
                 .map(ElectricLoadValueDto::new)
                 .collect(Collectors.toList());
+
+        List<String> xAxisData = sortedElectricLoadValueDtoList.stream().
+                map(x -> DateTimeUtil.formatNoYearString(x.getTime()))
+                .collect(Collectors.toList());
+
+        List<BigDecimal> yAxisData = sortedElectricLoadValueDtoList.stream()
+                .map(ElectricLoadValueDto::getValue)
+                .collect(Collectors.toList());
+
+        return new LoadValueChartDto(xAxisData, yAxisData);
     }
 
 
