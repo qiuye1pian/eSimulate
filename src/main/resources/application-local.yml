@@ -4,3 +4,8 @@ spring:
     hibernate:
       ddl-auto: update  # 自动更新数据库表结构（生产环境推荐 none）
     show-sql: true  # 控制台打印 SQL 语句
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
