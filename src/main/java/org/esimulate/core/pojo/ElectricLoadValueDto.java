@@ -7,6 +7,7 @@ import org.esimulate.core.model.load.electric.ElectricLoadValue;
 import org.esimulate.util.DateTimeUtil;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -59,5 +60,9 @@ public class ElectricLoadValueDto {
         electricLoadValue.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         electricLoadValue.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return electricLoadValue;
+    }
+
+    public String toLine() {
+        return String.format("%s,%s\n", DateTimeUtil.format(this.time), this.value.setScale(2, RoundingMode.HALF_UP));
     }
 }

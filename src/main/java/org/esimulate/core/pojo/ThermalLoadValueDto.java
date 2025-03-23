@@ -7,6 +7,7 @@ import org.esimulate.core.model.load.heat.ThermalLoadValue;
 import org.esimulate.util.DateTimeUtil;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -61,5 +62,8 @@ public class ThermalLoadValueDto {
         return thermalLoadValue;
     }
 
+    public String toLine() {
+        return String.format("%s,%s\n", DateTimeUtil.format(this.time), this.value.setScale(2, RoundingMode.HALF_UP));
+    }
 
 }

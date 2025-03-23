@@ -4,7 +4,6 @@ import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
-import org.esimulate.core.model.load.electric.ElectricLoadValue;
 import org.esimulate.core.pojo.ElectricLoadSchemeDto;
 import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
@@ -116,7 +115,11 @@ public class ElectricLoadSchemeController {
 
     @PostMapping("/download")
     public ResponseEntity<byte[]> downloadLoadValues(@RequestBody ElectricLoadSchemeDto electricLoadSchemeDto) {
-        List<ElectricLoadValue> loadValues = electricLoadSchemeService.getLoadValuesBySchemeId(electricLoadSchemeDto.getId());
+        List<ElectricLoadValueDto> electricLoadValueDtoList = electricLoadSchemeService.getLoadValuesBySchemeId(electricLoadSchemeDto.getId())
+                .stream()
+                .map(ElectricLoadValueDto::new)
+                .collect(Collectors.toList());
+
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
@@ -125,8 +128,8 @@ public class ElectricLoadSchemeController {
             writer.write("时间,负荷值\n");
 
             // 写入每一行数据
-            for (ElectricLoadValue value : loadValues) {
-                writer.write(value.getDatetime().toString() + "," + value.getLoadValue() + "\n");
+            for (ElectricLoadValueDto value : electricLoadValueDtoList) {
+                writer.write(value.toLine());
             }
 
             writer.flush();

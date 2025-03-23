@@ -116,7 +116,10 @@ public class ThermalLoadSchemeController {
 
     @PostMapping("/download")
     public ResponseEntity<byte[]> downloadLoadValues(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
-        List<ThermalLoadValue> loadValues = thermalLoadSchemeService.getLoadValuesBySchemeId(thermalLoadSchemeDto.getId());
+
+        List<ThermalLoadValueDto> loadValueDtoList = thermalLoadSchemeService.getLoadValuesBySchemeId(thermalLoadSchemeDto.getId()).stream()
+                .map(ThermalLoadValueDto::new)
+                .collect(Collectors.toList());
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
@@ -125,8 +128,8 @@ public class ThermalLoadSchemeController {
             writer.write("时间,负荷值\n");
 
             // 写入每一行数据
-            for (ThermalLoadValue value : loadValues) {
-                writer.write(value.getDatetime().toString() + "," + value.getLoadValue() + "\n");
+            for (ThermalLoadValueDto value : loadValueDtoList) {
+                writer.write(value.toLine());
             }
 
             writer.flush();
