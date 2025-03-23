@@ -116,8 +116,8 @@ public class ThermalLoadSchemeController {
 
 
     @PostMapping("/download")
-    public ResponseEntity<byte[]> downloadLoadValues(@RequestParam("id") @NonNull Long id) {
-        List<ThermalLoadValue> loadValues = thermalLoadSchemeService.getLoadValuesBySchemeId(id);
+    public ResponseEntity<byte[]> downloadLoadValues(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
+        List<ThermalLoadValue> loadValues = thermalLoadSchemeService.getLoadValuesBySchemeId(thermalLoadSchemeDto.getId());
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
@@ -145,8 +145,8 @@ public class ThermalLoadSchemeController {
     }
 
     @PostMapping("/getLoadValues")
-    public List<ThermalLoadValueDto> getLoadValues(@RequestParam("id") @NonNull Long id) {
-        return thermalLoadSchemeService.getLoadValuesBySchemeId(id).stream()
+    public List<ThermalLoadValueDto> getLoadValues(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
+        return thermalLoadSchemeService.getLoadValuesBySchemeId(thermalLoadSchemeDto.getId()).stream()
                 .map(ThermalLoadValueDto::new)
                 .collect(Collectors.toList());
     }

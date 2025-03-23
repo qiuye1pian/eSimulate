@@ -5,7 +5,6 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.model.load.electric.ElectricLoadValue;
-import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.esimulate.core.pojo.ElectricLoadSchemeDto;
 import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
@@ -116,8 +115,8 @@ public class ElectricLoadSchemeController {
 
 
     @PostMapping("/download")
-    public ResponseEntity<byte[]> downloadLoadValues(@RequestParam("id") @NonNull Long id) {
-        List<ElectricLoadValue> loadValues = electricLoadSchemeService.getLoadValuesBySchemeId(id);
+    public ResponseEntity<byte[]> downloadLoadValues(@RequestBody ElectricLoadSchemeDto electricLoadSchemeDto) {
+        List<ElectricLoadValue> loadValues = electricLoadSchemeService.getLoadValuesBySchemeId(electricLoadSchemeDto.getId());
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
@@ -145,8 +144,8 @@ public class ElectricLoadSchemeController {
     }
 
     @PostMapping("/getLoadValues")
-    public List<ElectricLoadValueDto> getLoadValues(@RequestParam("id") @NonNull Long id) {
-        return electricLoadSchemeService.getLoadValuesBySchemeId(id).stream()
+    public List<ElectricLoadValueDto> getLoadValues(@RequestBody ElectricLoadSchemeDto electricLoadSchemeDto) {
+        return electricLoadSchemeService.getLoadValuesBySchemeId(electricLoadSchemeDto.getId()).stream()
                 .map(ElectricLoadValueDto::new)
                 .collect(Collectors.toList());
     }
