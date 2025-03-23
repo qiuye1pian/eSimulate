@@ -7,6 +7,7 @@ import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.pojo.ThermalLoadSchemeDto;
 import org.esimulate.core.pojo.ThermalLoadValueDto;
 import org.esimulate.core.repository.ThermalLoadSchemeRepository;
+import org.esimulate.core.repository.ThermalLoadValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,9 @@ public class ThermalLoadSchemeService {
 
     @Autowired
     private ThermalLoadSchemeRepository thermalLoadSchemeRepository;
+
+    @Autowired
+    private ThermalLoadValueRepository thermalLoadValueRepository;
 
     @Transactional(readOnly = true)
     public Page<ThermalLoadScheme> getListByPage(LoadPageQuery pageQuery) {
@@ -72,13 +76,24 @@ public class ThermalLoadSchemeService {
 
     @Transactional
     public ThermalLoadScheme createScheme(@NonNull String schemeName, List<String> lineList) {
+
+        Optional<ThermalLoadScheme> existing = thermalLoadSchemeRepository.findBySchemeName(schemeName);
+        if (existing.isPresent()) {
+            throw new IllegalArgumentException("方案名已存在: " + schemeName);
+        }
+
+        ThermalLoadScheme thermalLoadScheme = thermalLoadSchemeRepository.save(new ThermalLoadScheme(schemeName));
+
         List<ThermalLoadValue> thermalLoadValueList = ThermalLoadValueDto
                 .convertByCsvContent(lineList)
                 .stream()
                 .map(ThermalLoadValueDto::toThermalLoadValue)
+                .peek(x->x.setThermalLoadScheme(thermalLoadScheme))
                 .collect(Collectors.toList());
 
-        return thermalLoadSchemeRepository.save(new ThermalLoadScheme(schemeName, thermalLoadValueList));
+        thermalLoadValueRepository.saveAll(thermalLoadValueList);
+
+        return thermalLoadScheme;
     }
 
     @Transactional(readOnly = true)

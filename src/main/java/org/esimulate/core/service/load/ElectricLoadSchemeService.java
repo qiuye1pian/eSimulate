@@ -3,10 +3,10 @@ package org.esimulate.core.service.load;
 import lombok.NonNull;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.model.load.electric.ElectricLoadValue;
-import org.esimulate.core.model.load.heat.ThermalLoadValue;
 import org.esimulate.core.pojo.ElectricLoadValueDto;
 import org.esimulate.core.pojo.LoadPageQuery;
 import org.esimulate.core.repository.ElectricLoadSchemeRepository;
+import org.esimulate.core.repository.ElectricLoadValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -24,6 +24,9 @@ public class ElectricLoadSchemeService {
 
     @Autowired
     private ElectricLoadSchemeRepository electricLoadSchemeRepository;
+
+    @Autowired
+    private ElectricLoadValueRepository electricLoadValueRepository;
 
     @Transactional(readOnly = true)
     public Page<ElectricLoadScheme> getListByPage(LoadPageQuery pageQuery) {
@@ -79,6 +82,8 @@ public class ElectricLoadSchemeService {
                 .stream()
                 .map(ElectricLoadValueDto::toElectricLoadValue)
                 .collect(Collectors.toList());
+
+        electricLoadValueRepository.saveAll(electricLoadValueList);
 
         return electricLoadSchemeRepository.save(new ElectricLoadScheme(schemeName, electricLoadValueList));
     }
