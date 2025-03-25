@@ -6,6 +6,7 @@ import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ public class WindSpeedScheme implements WindSpeedData {
     private Timestamp updatedAt;
 
     @OneToMany(mappedBy = "windSpeedScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<WindSpeedValue> windSpeedValues;
+    private List<WindSpeedValue> windSpeedValues = new ArrayList<>();
 
     @Override
     public int getDataLength() {

@@ -46,8 +46,5 @@ public class ElectricLoadScheme implements ElectricLoadData {
         return electricLoadValues.get(timeIndex);
     }
 
-    public void addValue(ElectricLoadValue loadValue) {
-        this.electricLoadValues.add(loadValue);
-    }
 
 }

@@ -27,12 +27,14 @@ public class TimeValueCsvConverter {
     @TestOnly
     public static <T> T convertByCsvLineForTest(String line, BiFunction<LocalDateTime, BigDecimal, T> factory) {
         return convertByCsvLine(line, factory);
-
     }
 
     private static <T> T convertByCsvLine(String line, BiFunction<LocalDateTime, BigDecimal, T> factory) {
         String[] split = line.split(",");
-        if (split.length != 2) return null;
+
+        if (split.length != 2) {
+            return null;
+        }
 
         if (split[0] == null || split[1] == null
                 || DateTimeUtil.isNotValidDateTime(split[0])

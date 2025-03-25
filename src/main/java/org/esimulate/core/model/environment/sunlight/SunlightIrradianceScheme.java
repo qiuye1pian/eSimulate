@@ -6,6 +6,7 @@ import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -28,7 +29,7 @@ public class SunlightIrradianceScheme implements IrradianceData {
     private Timestamp updatedAt;
 
     @OneToMany(mappedBy = "sunlightIrradianceScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<SunlightIrradianceValue> sunlightIrradianceValues;
+    private List<SunlightIrradianceValue> sunlightIrradianceValues = new ArrayList<>();
 
     public SunlightIrradianceScheme(String schemeName) {
         this.schemeName = schemeName;
