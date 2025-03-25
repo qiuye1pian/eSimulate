@@ -33,6 +33,11 @@ public class WindSpeedScheme implements WindSpeedData {
     @OneToMany(mappedBy = "windSpeedScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<WindSpeedValue> windSpeedValues = new ArrayList<>();
 
+    public WindSpeedScheme(String schemeName) {
+        this.schemeName = schemeName;
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
+
     @Override
     public int getDataLength() {
         return windSpeedValues.size();

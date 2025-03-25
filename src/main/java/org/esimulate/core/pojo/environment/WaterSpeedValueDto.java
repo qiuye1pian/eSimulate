@@ -19,7 +19,6 @@ public class WaterSpeedValueDto implements TimeValue {
 
     private BigDecimal value;
 
-
     public WaterSpeedValueDto(WaterSpeedValue waterSpeedValue) {
         this.time = waterSpeedValue.getDatetime();
         this.value = waterSpeedValue.getValue();
