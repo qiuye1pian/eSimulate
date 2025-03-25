@@ -44,11 +44,11 @@ public class SunlightIrradianceSchemeService {
 
     @Transactional
     public SunlightIrradianceScheme addSunlightIrradianceScheme(String schemeName) {
-        SunlightIrradianceScheme electricLoadScheme = new SunlightIrradianceScheme();
-        electricLoadScheme.setSchemeName(schemeName);
-        electricLoadScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        sunlightIrradianceSchemeRepository.save(electricLoadScheme);
-        return electricLoadScheme;
+        SunlightIrradianceScheme sunlightIrradianceScheme = new SunlightIrradianceScheme();
+        sunlightIrradianceScheme.setSchemeName(schemeName);
+        sunlightIrradianceScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        sunlightIrradianceSchemeRepository.save(sunlightIrradianceScheme);
+        return sunlightIrradianceScheme;
     }
 
     @Transactional
