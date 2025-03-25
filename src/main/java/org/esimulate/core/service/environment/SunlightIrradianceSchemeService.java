@@ -90,6 +90,7 @@ public class SunlightIrradianceSchemeService {
                 .convertByCsvContent(lineList, SunlightIrradianceValueDto::new)
                 .stream()
                 .map(SunlightIrradianceValueDto::toSunlightIrradianceValue)
+                .peek(x -> x.setSunlightIrradianceScheme(sunlightIrradianceScheme))
                 .collect(Collectors.toList());
 
         sunlightIrradianceValueRepository.saveAll(sunlightIrradianceValueList);

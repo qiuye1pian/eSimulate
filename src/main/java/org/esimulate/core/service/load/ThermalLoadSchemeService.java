@@ -89,7 +89,7 @@ public class ThermalLoadSchemeService {
                 .convertByCsvContent(lineList, ThermalLoadValueDto::new)
                 .stream()
                 .map(ThermalLoadValueDto::toThermalLoadValue)
-                .peek(x->x.setThermalLoadScheme(thermalLoadScheme))
+                .peek(x -> x.setThermalLoadScheme(thermalLoadScheme))
                 .collect(Collectors.toList());
 
         thermalLoadValueRepository.saveAll(thermalLoadValueList);
