@@ -33,6 +33,10 @@ public class WaterSpeedScheme implements WaterSpeedData {
     @OneToMany(mappedBy = "waterSpeedScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<WaterSpeedValue> waterSpeedValues = new ArrayList<>();
 
+    public WaterSpeedScheme(String schemeName) {
+        this.schemeName = schemeName;
+    }
+
     @Override
     public int getDataLength() {
         return waterSpeedValues.size();
