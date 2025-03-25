@@ -36,17 +36,17 @@ public class SunlightController {
 
 
     @Autowired
-    private SunlightIrradianceSchemeService electricLoadSchemeService;
+    private SunlightIrradianceSchemeService sunlightIrradianceSchemeService;
 
     @PostMapping("/getListByPage")
     public Page<SunlightIrradianceSchemeDto> getListByPage(@RequestBody LoadPageQuery loadPageQuery) {
-        return electricLoadSchemeService.getListByPage(loadPageQuery)
+        return sunlightIrradianceSchemeService.getListByPage(loadPageQuery)
                 .map(SunlightIrradianceSchemeDto::new);
     }
 
     @PostMapping("/add")
-    public SunlightIrradianceScheme addSunlightIrradianceScheme(@RequestBody SunlightIrradianceSchemeDto electricLoadSchemeDto) {
-        return electricLoadSchemeService.addSunlightIrradianceScheme(electricLoadSchemeDto.getName());
+    public SunlightIrradianceScheme addSunlightIrradianceScheme(@RequestBody SunlightIrradianceSchemeDto sunlightIrradianceSchemeDto) {
+        return sunlightIrradianceSchemeService.addSunlightIrradianceScheme(sunlightIrradianceSchemeDto.getName());
     }
 
     @PostMapping("/upload")
@@ -68,7 +68,7 @@ public class SunlightController {
             }
 
             // 返回更新后的对象
-            return electricLoadSchemeService.updateSunlightIrradianceScheme(id, lineList);
+            return sunlightIrradianceSchemeService.updateSunlightIrradianceScheme(id, lineList);
 
         } catch (IOException ioException) {
             log.error("解析文件内容失败", ioException);
@@ -100,7 +100,7 @@ public class SunlightController {
             // 开始计时
             long start = System.currentTimeMillis();
             // 返回更新后的对象
-            SunlightIrradianceScheme scheme = electricLoadSchemeService.createScheme(schemeName, lineList);
+            SunlightIrradianceScheme scheme = sunlightIrradianceSchemeService.createScheme(schemeName, lineList);
             // 结束计时
             long end = System.currentTimeMillis();
             // 计算时间差
@@ -119,8 +119,9 @@ public class SunlightController {
 
 
     @PostMapping("/download")
-    public ResponseEntity<byte[]> downloadLoadValues(@RequestBody SunlightIrradianceSchemeDto electricLoadSchemeDto) {
-        List<SunlightIrradianceValueDto> electricLoadValueDtoList = electricLoadSchemeService.getLoadValuesBySchemeId(electricLoadSchemeDto.getId())
+    public ResponseEntity<byte[]> downloadLoadValues(@RequestBody SunlightIrradianceSchemeDto sunlightIrradianceSchemeDto) {
+        List<SunlightIrradianceValueDto> sunlightIrradianceValueDtoList = sunlightIrradianceSchemeService
+                .getLoadValuesBySchemeId(sunlightIrradianceSchemeDto.getId())
                 .stream()
                 .map(SunlightIrradianceValueDto::new)
                 .collect(Collectors.toList());
@@ -135,7 +136,7 @@ public class SunlightController {
             writer.write("时间,负荷值\n");
 
             // 写入每一行数据
-            for (SunlightIrradianceValueDto value : electricLoadValueDtoList) {
+            for (SunlightIrradianceValueDto value : sunlightIrradianceValueDtoList) {
                 writer.write(TimeValueCsvConverter.toLine(value));
             }
 
@@ -155,9 +156,9 @@ public class SunlightController {
     }
 
     @PostMapping("/getLoadValues")
-    public LoadValueChartDto getLoadValues(@RequestBody SunlightIrradianceSchemeDto electricLoadSchemeDto) {
+    public LoadValueChartDto getLoadValues(@RequestBody SunlightIrradianceSchemeDto sunlightIrradianceSchemeDto) {
 
-        List<SunlightIrradianceValueDto> sortedSunlightIrradianceValueDtoList = electricLoadSchemeService.getLoadValuesBySchemeId(electricLoadSchemeDto.getId())
+        List<SunlightIrradianceValueDto> sortedSunlightIrradianceValueDtoList = sunlightIrradianceSchemeService.getLoadValuesBySchemeId(sunlightIrradianceSchemeDto.getId())
                 .stream()
                 .map(SunlightIrradianceValueDto::new)
                 .collect(Collectors.toList());
@@ -175,8 +176,8 @@ public class SunlightController {
 
 
     @PostMapping("/delete")
-    public String deleteScheme(@RequestBody SunlightIrradianceSchemeDto electricLoadSchemeDto) {
-        electricLoadSchemeService.deleteSunlightIrradianceScheme(electricLoadSchemeDto.getId());
+    public String deleteScheme(@RequestBody SunlightIrradianceSchemeDto sunlightIrradianceSchemeDto) {
+        sunlightIrradianceSchemeService.deleteSunlightIrradianceScheme(sunlightIrradianceSchemeDto.getId());
         return "删除成功";
     }
 
