@@ -2,6 +2,7 @@ package org.esimulate.core.pojo;
 
 
 import com.alibaba.fastjson2.JSONObject;
+import org.esimulate.core.pojo.model.WindPowerChartDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

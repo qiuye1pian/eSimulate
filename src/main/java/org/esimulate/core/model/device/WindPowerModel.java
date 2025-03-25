@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.wind.WindSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
-import org.esimulate.core.pojo.WindPowerModelDto;
+import org.esimulate.core.pojo.model.WindPowerModelDto;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;

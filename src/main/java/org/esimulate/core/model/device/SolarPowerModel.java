@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.environment.temperature.TemperatureValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
-import org.esimulate.core.pojo.SolarPowerModelDto;
+import org.esimulate.core.pojo.model.SolarPowerModelDto;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;

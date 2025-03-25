@@ -4,12 +4,13 @@ import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
-import org.esimulate.core.pojo.ElectricLoadSchemeDto;
-import org.esimulate.core.pojo.ElectricLoadValueDto;
-import org.esimulate.core.pojo.LoadPageQuery;
-import org.esimulate.core.pojo.LoadValueChartDto;
+import org.esimulate.core.pojo.load.ElectricLoadSchemeDto;
+import org.esimulate.core.pojo.load.ElectricLoadValueDto;
+import org.esimulate.core.pojo.load.LoadPageQuery;
+import org.esimulate.core.pojo.load.LoadValueChartDto;
 import org.esimulate.core.service.load.ElectricLoadSchemeService;
 import org.esimulate.util.DateTimeUtil;
+import org.esimulate.util.TimeValueCsvConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -134,7 +135,7 @@ public class ElectricLoadSchemeController {
 
             // 写入每一行数据
             for (ElectricLoadValueDto value : electricLoadValueDtoList) {
-                writer.write(value.toLine());
+                writer.write(TimeValueCsvConverter.toLine(value));
             }
 
             writer.flush();

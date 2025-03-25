@@ -3,11 +3,11 @@ package org.esimulate.core.service.load;
 import lombok.NonNull;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.esimulate.core.model.load.electric.ElectricLoadValue;
-import org.esimulate.core.model.load.heat.ThermalLoadScheme;
-import org.esimulate.core.pojo.ElectricLoadValueDto;
-import org.esimulate.core.pojo.LoadPageQuery;
+import org.esimulate.core.pojo.load.ElectricLoadValueDto;
+import org.esimulate.core.pojo.load.LoadPageQuery;
 import org.esimulate.core.repository.ElectricLoadSchemeRepository;
 import org.esimulate.core.repository.ElectricLoadValueRepository;
+import org.esimulate.util.TimeValueCsvConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 public class ElectricLoadSchemeService {
@@ -57,8 +58,8 @@ public class ElectricLoadSchemeService {
             throw new IllegalArgumentException("负荷不存在，ID: " + id);
         }
 
-        List<ElectricLoadValue> electricLoadValueList = ElectricLoadValueDto
-                .convertByCsvContent(electricLoadValueListString)
+        List<ElectricLoadValue> electricLoadValueList = TimeValueCsvConverter
+                .convertByCsvContent(electricLoadValueListString, ElectricLoadValueDto::new)
                 .stream()
                 .map(ElectricLoadValueDto::toElectricLoadValue)
                 .collect(Collectors.toList());
@@ -85,8 +86,8 @@ public class ElectricLoadSchemeService {
 
         ElectricLoadScheme electricLoadScheme = electricLoadSchemeRepository.save(new ElectricLoadScheme(schemeName));
 
-        List<ElectricLoadValue> electricLoadValueList = ElectricLoadValueDto
-                .convertByCsvContent(lineList)
+        List<ElectricLoadValue> electricLoadValueList = TimeValueCsvConverter
+                .convertByCsvContent(lineList, ElectricLoadValueDto::new)
                 .stream()
                 .map(ElectricLoadValueDto::toElectricLoadValue)
                 .peek(x -> x.setElectricLoadScheme(electricLoadScheme))

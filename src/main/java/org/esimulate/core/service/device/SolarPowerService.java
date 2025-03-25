@@ -2,8 +2,8 @@ package org.esimulate.core.service.device;
 
 import lombok.extern.log4j.Log4j2;
 import org.esimulate.core.model.device.SolarPowerModel;
-import org.esimulate.core.pojo.SolarPowerModelDto;
-import org.esimulate.core.pojo.SolarPowerPageQuery;
+import org.esimulate.core.pojo.model.SolarPowerModelDto;
+import org.esimulate.core.pojo.model.SolarPowerPageQuery;
 import org.esimulate.core.repository.SolarPowerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

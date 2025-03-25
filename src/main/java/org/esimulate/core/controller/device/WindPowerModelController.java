@@ -2,9 +2,9 @@ package org.esimulate.core.controller.device;
 
 import lombok.extern.log4j.Log4j2;
 import org.esimulate.core.model.device.WindPowerModel;
-import org.esimulate.core.pojo.WindPowerChartDto;
-import org.esimulate.core.pojo.WindPowerModelDto;
-import org.esimulate.core.pojo.WindPowerPageQuery;
+import org.esimulate.core.pojo.model.WindPowerChartDto;
+import org.esimulate.core.pojo.model.WindPowerModelDto;
+import org.esimulate.core.pojo.model.WindPowerPageQuery;
 import org.esimulate.core.service.device.WindPowerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

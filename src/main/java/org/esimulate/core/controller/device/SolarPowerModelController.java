@@ -1,8 +1,8 @@
 package org.esimulate.core.controller.device;
 
 import org.esimulate.core.model.device.SolarPowerModel;
-import org.esimulate.core.pojo.SolarPowerModelDto;
-import org.esimulate.core.pojo.SolarPowerPageQuery;
+import org.esimulate.core.pojo.model.SolarPowerModelDto;
+import org.esimulate.core.pojo.model.SolarPowerPageQuery;
 import org.esimulate.core.service.device.SolarPowerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

@@ -30,8 +30,8 @@ public class SunlightIrradianceScheme implements IrradianceData {
     @OneToMany(mappedBy = "sunlightIrradianceScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<SunlightIrradianceValue> sunlightIrradianceValues;
 
-    public SunlightIrradianceScheme(List<SunlightIrradianceValue> values) {
-        this.sunlightIrradianceValues = values;
+    public SunlightIrradianceScheme(String schemeName) {
+        this.schemeName = schemeName;
     }
 
     @Override

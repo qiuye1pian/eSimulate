@@ -1,14 +1,14 @@
-package org.esimulate.core.controller.load;
+package org.esimulate.core.controller.environment;
 
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.esimulate.core.model.load.heat.ThermalLoadScheme;
+import org.esimulate.core.model.environment.sunlight.SunlightIrradianceScheme;
+import org.esimulate.core.pojo.environment.SunlightIrradianceSchemeDto;
+import org.esimulate.core.pojo.environment.SunlightIrradianceValueDto;
 import org.esimulate.core.pojo.load.LoadPageQuery;
 import org.esimulate.core.pojo.load.LoadValueChartDto;
-import org.esimulate.core.pojo.load.ThermalLoadSchemeDto;
-import org.esimulate.core.pojo.load.ThermalLoadValueDto;
-import org.esimulate.core.service.load.ThermalLoadSchemeService;
+import org.esimulate.core.service.environment.SunlightIrradianceSchemeService;
 import org.esimulate.util.DateTimeUtil;
 import org.esimulate.util.TimeValueCsvConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,26 +31,56 @@ import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
-@RequestMapping("/load/thermal-load-schemes")
-public class ThermalLoadSchemeController {
+@RequestMapping("/environment/sunlight")
+public class SunlightController {
+
 
     @Autowired
-    private ThermalLoadSchemeService thermalLoadSchemeService;
+    private SunlightIrradianceSchemeService electricLoadSchemeService;
 
     @PostMapping("/getListByPage")
-    public Page<ThermalLoadSchemeDto> getListByPage(@RequestBody LoadPageQuery loadPageQuery) {
-        return thermalLoadSchemeService.getListByPage(loadPageQuery)
-                .map(ThermalLoadSchemeDto::new);
+    public Page<SunlightIrradianceSchemeDto> getListByPage(@RequestBody LoadPageQuery loadPageQuery) {
+        return electricLoadSchemeService.getListByPage(loadPageQuery)
+                .map(SunlightIrradianceSchemeDto::new);
     }
 
     @PostMapping("/add")
-    @Deprecated
-    public ThermalLoadScheme addThermalLoadScheme(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
-        return thermalLoadSchemeService.addThermalLoadScheme(thermalLoadSchemeDto);
+    public SunlightIrradianceScheme addSunlightIrradianceScheme(@RequestBody SunlightIrradianceSchemeDto electricLoadSchemeDto) {
+        return electricLoadSchemeService.addSunlightIrradianceScheme(electricLoadSchemeDto.getName());
     }
 
     @PostMapping("/upload")
-    public ThermalLoadScheme uploadFile(@RequestParam("id") Long id, @RequestParam("file") MultipartFile file) {
+    public SunlightIrradianceScheme uploadFile(@RequestParam("id") Long id, @RequestParam("file") MultipartFile file) {
+        // 检查文件是否为空
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("上传失败：文件不能为空");
+        }
+
+        try {
+            // 解析文件内容
+            List<String> lineList = new ArrayList<>();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    lineList.add(line);
+                }
+            }
+
+            // 返回更新后的对象
+            return electricLoadSchemeService.updateSunlightIrradianceScheme(id, lineList);
+
+        } catch (IOException ioException) {
+            log.error("解析文件内容失败", ioException);
+            throw new RuntimeException("解析文件内容失败", ioException);
+        }
+    }
+
+
+    @PostMapping("/uploadScheme")
+    public SunlightIrradianceScheme uploadScheme(@RequestParam("schemeName") @NonNull String schemeName,
+                                           @RequestParam("file") MultipartFile file) {
+
         // 1️⃣ 检查文件是否为空
         if (file.isEmpty()) {
             throw new IllegalArgumentException("上传失败：文件不能为空");
@@ -67,48 +97,18 @@ public class ThermalLoadSchemeController {
                 }
             }
 
-            // 3️⃣ 解析后的内容
-            log.debug("文件内容共有{}行", lineList.size());
-
-            // 4️⃣ 返回更新后的对象
-            return thermalLoadSchemeService.updateThermalLoadScheme(id, lineList);
-
-        } catch (IOException ioException) {
-            log.error("解析文件内容失败", ioException);
-            throw new RuntimeException("解析文件内容失败", ioException);
-        }
-    }
-
-
-    @PostMapping("/uploadScheme")
-    public ThermalLoadScheme uploadScheme(@RequestParam("schemeName") @NonNull String schemeName,
-                                          @RequestParam("file") MultipartFile file) {
-
-        // 检查文件是否为空
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("上传失败：文件不能为空");
-        }
-
-        try {
-            // 解析文件内容
-            List<String> lineList = new ArrayList<>();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    lineList.add(line);
-                }
-            }
             // 开始计时
             long start = System.currentTimeMillis();
             // 返回更新后的对象
-            ThermalLoadScheme scheme = thermalLoadSchemeService.createScheme(schemeName, lineList);
+            SunlightIrradianceScheme scheme = electricLoadSchemeService.createScheme(schemeName, lineList);
             // 结束计时
             long end = System.currentTimeMillis();
             // 计算时间差
             long duration = end - start;
             // 打印时间差
             log.info("上传方案 [{}] 共耗时：{} ms，记录数：{}", schemeName, duration, lineList.size());
+            // 4️⃣ 返回更新后的对象
+
             return scheme;
 
         } catch (IOException ioException) {
@@ -117,12 +117,14 @@ public class ThermalLoadSchemeController {
         }
     }
 
-    @PostMapping("/download")
-    public ResponseEntity<byte[]> downloadLoadValues(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
 
-        List<ThermalLoadValueDto> loadValueDtoList = thermalLoadSchemeService.getLoadValuesBySchemeId(thermalLoadSchemeDto.getId()).stream()
-                .map(ThermalLoadValueDto::new)
+    @PostMapping("/download")
+    public ResponseEntity<byte[]> downloadLoadValues(@RequestBody SunlightIrradianceSchemeDto electricLoadSchemeDto) {
+        List<SunlightIrradianceValueDto> electricLoadValueDtoList = electricLoadSchemeService.getLoadValuesBySchemeId(electricLoadSchemeDto.getId())
+                .stream()
+                .map(SunlightIrradianceValueDto::new)
                 .collect(Collectors.toList());
+
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
@@ -133,7 +135,7 @@ public class ThermalLoadSchemeController {
             writer.write("时间,负荷值\n");
 
             // 写入每一行数据
-            for (ThermalLoadValueDto value : loadValueDtoList) {
+            for (SunlightIrradianceValueDto value : electricLoadValueDtoList) {
                 writer.write(TimeValueCsvConverter.toLine(value));
             }
 
@@ -153,26 +155,29 @@ public class ThermalLoadSchemeController {
     }
 
     @PostMapping("/getLoadValues")
-    public LoadValueChartDto getLoadValues(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
+    public LoadValueChartDto getLoadValues(@RequestBody SunlightIrradianceSchemeDto electricLoadSchemeDto) {
 
-        List<ThermalLoadValueDto> sortedThermalLoadValueDtoList = thermalLoadSchemeService.getLoadValuesBySchemeId(thermalLoadSchemeDto.getId()).stream()
-                .map(ThermalLoadValueDto::new)
+        List<SunlightIrradianceValueDto> sortedSunlightIrradianceValueDtoList = electricLoadSchemeService.getLoadValuesBySchemeId(electricLoadSchemeDto.getId())
+                .stream()
+                .map(SunlightIrradianceValueDto::new)
                 .collect(Collectors.toList());
 
-        List<String> xAxisData = sortedThermalLoadValueDtoList.stream().
+        List<String> xAxisData = sortedSunlightIrradianceValueDtoList.stream().
                 map(x -> DateTimeUtil.formatNoYearString(x.getTime()))
                 .collect(Collectors.toList());
 
-        List<BigDecimal> yAxisData = sortedThermalLoadValueDtoList.stream()
-                .map(ThermalLoadValueDto::getValue)
+        List<BigDecimal> yAxisData = sortedSunlightIrradianceValueDtoList.stream()
+                .map(SunlightIrradianceValueDto::getValue)
                 .collect(Collectors.toList());
 
         return new LoadValueChartDto(xAxisData, yAxisData);
     }
 
+
     @PostMapping("/delete")
-    public String deleteScheme(@RequestBody ThermalLoadSchemeDto thermalLoadSchemeDto) {
-        thermalLoadSchemeService.deleteThermalLoadScheme(thermalLoadSchemeDto.getId());
+    public String deleteScheme(@RequestBody SunlightIrradianceSchemeDto electricLoadSchemeDto) {
+        electricLoadSchemeService.deleteSunlightIrradianceScheme(electricLoadSchemeDto.getId());
         return "删除成功";
     }
+
 }

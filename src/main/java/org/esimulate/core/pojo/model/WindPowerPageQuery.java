@@ -1,4 +1,4 @@
-package org.esimulate.core.pojo;
+package org.esimulate.core.pojo.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

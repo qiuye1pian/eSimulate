@@ -1,4 +1,4 @@
-package org.esimulate.core.pojo;
+package org.esimulate.core.pojo.load;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,9 +8,9 @@ import org.esimulate.common.PageQuery;
 @NoArgsConstructor
 @Getter
 @Setter
-public abstract class ModelPageQuery extends PageQuery {
+public class LoadPageQuery extends PageQuery {
 
-    private String modelName;
+    private String schemeName;
 
     @Override
     public String getDefaultSortByProperty() {

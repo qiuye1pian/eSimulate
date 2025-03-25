@@ -3,11 +3,12 @@ package org.esimulate.core.service.load;
 import lombok.NonNull;
 import org.esimulate.core.model.load.heat.ThermalLoadScheme;
 import org.esimulate.core.model.load.heat.ThermalLoadValue;
-import org.esimulate.core.pojo.LoadPageQuery;
-import org.esimulate.core.pojo.ThermalLoadSchemeDto;
-import org.esimulate.core.pojo.ThermalLoadValueDto;
+import org.esimulate.core.pojo.load.LoadPageQuery;
+import org.esimulate.core.pojo.load.ThermalLoadSchemeDto;
+import org.esimulate.core.pojo.load.ThermalLoadValueDto;
 import org.esimulate.core.repository.ThermalLoadSchemeRepository;
 import org.esimulate.core.repository.ThermalLoadValueRepository;
+import org.esimulate.util.TimeValueCsvConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -56,8 +57,8 @@ public class ThermalLoadSchemeService {
             throw new IllegalArgumentException("负荷不存在，ID: " + id);
         }
 
-        List<ThermalLoadValue> thermalLoadValueList = ThermalLoadValueDto
-                .convertByCsvContent(thermalLoadValueListString)
+        List<ThermalLoadValue> thermalLoadValueList = TimeValueCsvConverter
+                .convertByCsvContent(thermalLoadValueListString, ThermalLoadValueDto::new)
                 .stream()
                 .map(ThermalLoadValueDto::toThermalLoadValue)
                 .collect(Collectors.toList());
@@ -84,8 +85,8 @@ public class ThermalLoadSchemeService {
 
         ThermalLoadScheme thermalLoadScheme = thermalLoadSchemeRepository.save(new ThermalLoadScheme(schemeName));
 
-        List<ThermalLoadValue> thermalLoadValueList = ThermalLoadValueDto
-                .convertByCsvContent(lineList)
+        List<ThermalLoadValue> thermalLoadValueList = TimeValueCsvConverter
+                .convertByCsvContent(lineList, ThermalLoadValueDto::new)
                 .stream()
                 .map(ThermalLoadValueDto::toThermalLoadValue)
                 .peek(x->x.setThermalLoadScheme(thermalLoadScheme))
