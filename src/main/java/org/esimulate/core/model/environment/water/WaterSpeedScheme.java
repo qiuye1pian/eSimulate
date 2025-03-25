@@ -35,6 +35,7 @@ public class WaterSpeedScheme implements WaterSpeedData {
 
     public WaterSpeedScheme(String schemeName) {
         this.schemeName = schemeName;
+        this.createdAt = new Timestamp(System.currentTimeMillis());
     }
 
     @Override

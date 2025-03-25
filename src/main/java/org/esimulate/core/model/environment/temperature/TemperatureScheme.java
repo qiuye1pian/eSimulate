@@ -33,6 +33,11 @@ public class TemperatureScheme implements TemperatureData {
     @OneToMany(mappedBy = "temperatureScheme", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TemperatureValue> temperatureValues = new ArrayList<>();
 
+    public TemperatureScheme(String schemeName) {
+        this.schemeName = schemeName;
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
+
     @Override
     public int getDataLength() {
         return temperatureValues.size();

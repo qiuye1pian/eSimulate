@@ -31,6 +31,5 @@ public class WaterSpeedValueDto implements TimeValue {
         waterSpeedValue.setWaterSpeed(this.value);
         waterSpeedValue.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return waterSpeedValue;
-
     }
 }

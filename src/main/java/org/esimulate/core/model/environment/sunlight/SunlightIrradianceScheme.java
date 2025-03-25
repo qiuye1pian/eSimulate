@@ -33,6 +33,7 @@ public class SunlightIrradianceScheme implements IrradianceData {
 
     public SunlightIrradianceScheme(String schemeName) {
         this.schemeName = schemeName;
+        this.createdAt = new Timestamp(System.currentTimeMillis());
     }
 
     @Override
