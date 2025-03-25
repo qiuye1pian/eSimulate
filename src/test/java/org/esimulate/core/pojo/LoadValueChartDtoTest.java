@@ -29,7 +29,6 @@ class LoadValueChartDtoTest {
         // 将对象转换为 JSON 字符串
         String jsonString = JSONObject.toJSONString(dto);
         // 断言 JSON 字符串是否符合预期
-        System.out.println(jsonString);
         Assertions.assertEquals("{\"XAxis\":{\"axisLabel\":{\"formatter\":\"{value}\"},\"boundaryGap\":false,\"data\":[\"01-01 00:00:00\",\"01-01 01:00:00\",\"01-01 02:00:00\"],\"type\":\"category\"},\"YAxis\":{\"max\":13},\"series\":[{\"data\":[5.0,10.0,7.5],\"name\":\"\",\"smooth\":true,\"type\":\"line\"}]}", jsonString);
     }
 }
