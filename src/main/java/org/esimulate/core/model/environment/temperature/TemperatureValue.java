@@ -28,7 +28,7 @@ public class TemperatureValue implements EnvironmentValue {
     @Column(name = "datetime", nullable = false)
     private LocalDateTime datetime;
 
-    @Column(name = "temperature_speed", nullable = false)
+    @Column(name = "temperature", nullable = false)
     private BigDecimal temperature;
 
     @Column(name = "created_at", nullable = false, updatable = false)
