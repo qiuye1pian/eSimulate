@@ -32,7 +32,7 @@ public class WaterSpeedValue implements EnvironmentValue {
     private BigDecimal waterSpeed;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt;
+    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;

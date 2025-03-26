@@ -32,7 +32,7 @@ public class WindSpeedValue implements EnvironmentValue {
     private BigDecimal windSpeed;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt;
+    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
