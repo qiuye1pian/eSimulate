@@ -7,6 +7,7 @@ import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -19,30 +20,29 @@ public class ThermalPowerModel implements Producer {
     private static final BigDecimal KW_CONVERSION_FACTOR = new BigDecimal("1000");
 
     // 光热转换效率 (η_SF)
-    private final BigDecimal etaSF;
+    private BigDecimal etaSF;
 
     // CSP 电站镜场面积 (S_SF, 单位: m²)
-    private final BigDecimal SSF;
+    private BigDecimal SSF;
 
     // 模型数量
-    private final int modelCount;
+    private int modelCount;
+
+    // 碳排放因子
+    @Column(nullable = false)
+    private BigDecimal carbonEmissionFactor;
+
+    // 发电成本
+    @Column(nullable = false)
+    private BigDecimal cost;
+
+    // 建设成本
+    @Column(nullable = false)
+    private BigDecimal purchaseCost;
 
     // 每小时光热电站出力列表 (单位: kW)
-    private final List<ThermalEnergy> thermalEnergyList;
+    private final List<ThermalEnergy> thermalEnergyList = new ArrayList<>();
 
-    /**
-     * 构造函数：初始化光热电站参数
-     *
-     * @param etaSF      光热转换效率 (0~1)
-     * @param SSF        CSP 电站镜场面积 (m²)
-     * @param modelCount 模型数量
-     */
-    public ThermalPowerModel(String etaSF, String SSF, int modelCount) {
-        this.etaSF = new BigDecimal(etaSF);
-        this.SSF = new BigDecimal(SSF);
-        this.modelCount = modelCount;
-        this.thermalEnergyList = new ArrayList<>();
-    }
 
     /**
      * 计算单个时段的光热电站吸收热功率 (kW)。

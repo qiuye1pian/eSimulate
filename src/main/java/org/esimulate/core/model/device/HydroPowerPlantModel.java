@@ -59,7 +59,7 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
     // 碳排放因子 (kg CO₂ / m³)
     private final BigDecimal emissionFactor;
 
-    private final List<ElectricEnergy> electricEnergyList;
+    private final List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     /**
      * 构造函数

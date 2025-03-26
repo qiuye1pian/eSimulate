@@ -3,6 +3,7 @@ package org.esimulate.core.pso.particle;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ public class Position implements Cloneable {
      * 粒子在各维度的坐标
      */
 
-    private final List<Coordinate> coordinateList;
+    private final List<Coordinate> coordinateList = new ArrayList<>();
 
     public Position(List<Dimension> dimensionsList) {
         coordinateList = dimensionsList.stream().map(Coordinate::new).collect(Collectors.toList());

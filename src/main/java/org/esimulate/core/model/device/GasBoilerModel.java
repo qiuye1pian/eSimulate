@@ -6,6 +6,7 @@ import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -17,30 +18,27 @@ public class GasBoilerModel implements Provider {
     // 燃气锅炉的燃烧效率 (η_GB)
     private final BigDecimal etaGB;
 
-    // 碳排放因子 (kg CO₂ / m³)
-    private final BigDecimal emissionFactor;
-
     // 燃气热值 (kWh/m³)
     private final BigDecimal gasEnergyDensity;
 
+    // 碳排放因子 (kg CO₂ / m³)
+    @Column(nullable = false)
+    private BigDecimal carbonEmissionFactor;
+
+    // 发电成本
+    @Column(nullable = false)
+    private BigDecimal cost;
+
+    // 建设成本
+    @Column(nullable = false)
+    private BigDecimal purchaseCost;
+
     // 燃气锅炉出力 (kW)
-    private final List<Energy> gasBoilerOutputList;
+    private final List<Energy> gasBoilerOutputList = new ArrayList<>();
 
     // 燃气消耗量(m³)
-    private final List<BigDecimal> gasConsumptionList;
+    private final List<BigDecimal> gasConsumptionList = new ArrayList<>();
 
-    /**
-     * 构造函数：初始化燃气锅炉参数
-     *
-     * @param etaGB 燃气锅炉的燃烧效率 (0~1)
-     */
-    public GasBoilerModel(String etaGB, BigDecimal emissionFactor, BigDecimal gasEnergyDensity) {
-        this.etaGB = new BigDecimal(etaGB);
-        this.emissionFactor = emissionFactor;
-        this.gasEnergyDensity = gasEnergyDensity;
-        this.gasBoilerOutputList = new ArrayList<>();
-        this.gasConsumptionList = new ArrayList<>();
-    }
 
     private static @NotNull BigDecimal getEnergyGapValue(BigDecimal afterStorageThermalEnergy) {
         if (afterStorageThermalEnergy.compareTo(BigDecimal.ZERO) >= 0) {
@@ -120,6 +118,6 @@ public class GasBoilerModel implements Provider {
         return gasConsumptionList.stream()
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO)
-                .multiply(emissionFactor);
+                .multiply(this.carbonEmissionFactor);
     }
 }

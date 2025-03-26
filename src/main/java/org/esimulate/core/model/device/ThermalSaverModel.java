@@ -1,5 +1,6 @@
 package org.esimulate.core.model.device;
 
+import lombok.Data;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
@@ -7,6 +8,7 @@ import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Data
 public class ThermalSaverModel implements Storage {
 
     @Override

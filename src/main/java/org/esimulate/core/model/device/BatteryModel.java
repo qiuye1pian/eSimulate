@@ -6,6 +6,7 @@ import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,43 +36,18 @@ public class BatteryModel implements Storage {
     private final BigDecimal eta_hdis;
 
     // 每个时刻电池的剩余电量 (Wh)
-    private final List<ElectricEnergy> E_ESS_LIST;
+    private final List<ElectricEnergy> E_ESS_LIST = new ArrayList<>();
 
     // 当前储电量 (Wh)
     private ElectricEnergy E_ESS_t;
 
-    /**
-     * 构造函数
-     *
-     * @param C_t      蓄电池总容量 (Wh)
-     * @param SOC_min  SOC 最小值 (0~1)
-     * @param SOC_max  SOC 最大值 (0~1)
-     * @param mu       自放电损失率 (无量纲)
-     * @param eta_hch  充电效率 (0~1)
-     * @param eta_hdis 放电效率 (0~1)
-     */
-    public BatteryModel(String C_t, String SOC_min, String SOC_max,
-                        String mu, String eta_hch, String eta_hdis) {
+    // 碳排放因子
+    @Column(nullable = false)
+    private BigDecimal carbonEmissionFactor;
 
-        this.C_t = new ElectricEnergy(new BigDecimal(C_t));
-        this.SOC_min = new BigDecimal(SOC_min);
-        this.SOC_max = new BigDecimal(SOC_max);
-        this.mu = new BigDecimal(mu);
-        this.eta_hch = new BigDecimal(eta_hch);
-        this.eta_hdis = new BigDecimal(eta_hdis);
-
-        // 参数检查
-        if (this.SOC_min.compareTo(BigDecimal.ZERO) < 0 ||
-                this.SOC_max.compareTo(BigDecimal.ONE) > 0 ||
-                this.SOC_min.compareTo(this.SOC_max) >= 0) {
-            throw new IllegalArgumentException("SOC_min 和 SOC_max 必须在 0 到 1 之间，且 SOC_min < SOC_max");
-        }
-
-        // 初始化储电量，默认从 SOC_min 开始
-        this.E_ESS_t = this.C_t.multiply(this.SOC_min);
-
-        this.E_ESS_LIST = new ArrayList<>();
-    }
+    // 建设成本
+    @Column(nullable = false)
+    private BigDecimal purchaseCost;
 
 
     /**
