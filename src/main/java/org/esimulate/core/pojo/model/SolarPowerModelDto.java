@@ -42,7 +42,6 @@ public class SolarPowerModelDto {
     // 建设成本
     private BigDecimal purchaseCost;
 
-
     public SolarPowerModelDto(SolarPowerModel solarPowerModel) {
         this.id = solarPowerModel.getId();
         this.modelName = solarPowerModel.getModelName();

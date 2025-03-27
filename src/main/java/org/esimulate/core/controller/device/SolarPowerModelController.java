@@ -1,6 +1,7 @@
 package org.esimulate.core.controller.device;
 
 import org.esimulate.core.model.device.SolarPowerModel;
+import org.esimulate.core.pojo.chart.bar3d.SolarPower3DChartDto;
 import org.esimulate.core.pojo.model.SolarPowerModelDto;
 import org.esimulate.core.pojo.model.SolarPowerPageQuery;
 import org.esimulate.core.service.device.SolarPowerService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -54,18 +56,9 @@ public class SolarPowerModelController {
     }
 
 
-//    @PostMapping("/show-graph")
-//    public SolarPower3DChartDto showGraph(@RequestBody SolarPowerModelDto solarPowerModelDto) {
-//
-//        // 计算风速最大值：向上取整 `vOut * 1.1`
-//        List<TemperatureValue> temperatureList = new ArrayList<>();
-//
-//        // 生成 0 到 maxWindSpeed 的整数列表
-//        List<SunlightIrradianceValue> sunlightIrradianceValue = new ArrayList<>();
-//
-//
-//        List<BigDecimal> outPutList = SolarPowerService.getSolarPowerOutPutList(solarPowerModelDto,sunlightIrradianceValue,temperatureList);
-//
-//        return new SolarPower3DChartDto(windSpeedList, outPutList);
-//    }
+    @PostMapping("/show-graph")
+    public List<SolarPower3DChartDto> showGraph(@RequestBody SolarPowerModelDto solarPowerModelDto) {
+
+        return SolarPowerService.getSolarPowerOutPutList(solarPowerModelDto);
+    }
 }

@@ -38,6 +38,10 @@ public class SunlightIrradianceValue implements EnvironmentValue {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    public SunlightIrradianceValue(BigDecimal irradiance) {
+        this.irradiance = irradiance;
+    }
+
     @TestOnly
     public SunlightIrradianceValue(LocalDateTime dateTime, BigDecimal irradiance) {
         this.datetime = dateTime;

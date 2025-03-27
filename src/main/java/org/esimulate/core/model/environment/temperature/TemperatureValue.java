@@ -37,6 +37,10 @@ public class TemperatureValue implements EnvironmentValue {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    public TemperatureValue(BigDecimal temperature) {
+        this.temperature = temperature;
+    }
+
     @Override
     public BigDecimal getValue() {
         return temperature;
