@@ -21,8 +21,9 @@ public class SolarPowerModelController {
     private SolarPowerService solarPowerService;
 
     @PostMapping("/getListByPage")
-    public Page<SolarPowerModel> findListByPage(@RequestBody SolarPowerPageQuery pageQuery) {
-        return solarPowerService.findListByPage(pageQuery);
+    public Page<SolarPowerModelDto> findListByPage(@RequestBody SolarPowerPageQuery pageQuery) {
+        return solarPowerService.findListByPage(pageQuery)
+                .map(SolarPowerModelDto::new);
     }
 
 
@@ -51,4 +52,20 @@ public class SolarPowerModelController {
         solarPowerService.deleteById(requestBody.get("id"));
         return "光伏发电模型删除成功";
     }
+
+
+//    @PostMapping("/show-graph")
+//    public SolarPower3DChartDto showGraph(@RequestBody SolarPowerModelDto solarPowerModelDto) {
+//
+//        // 计算风速最大值：向上取整 `vOut * 1.1`
+//        List<TemperatureValue> temperatureList = new ArrayList<>();
+//
+//        // 生成 0 到 maxWindSpeed 的整数列表
+//        List<SunlightIrradianceValue> sunlightIrradianceValue = new ArrayList<>();
+//
+//
+//        List<BigDecimal> outPutList = SolarPowerService.getSolarPowerOutPutList(solarPowerModelDto,sunlightIrradianceValue,temperatureList);
+//
+//        return new SolarPower3DChartDto(windSpeedList, outPutList);
+//    }
 }

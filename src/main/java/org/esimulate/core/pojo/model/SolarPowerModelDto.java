@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.esimulate.core.model.device.SolarPowerModel;
 
 import java.math.BigDecimal;
 
@@ -42,4 +43,16 @@ public class SolarPowerModelDto {
     private BigDecimal purchaseCost;
 
 
+    public SolarPowerModelDto(SolarPowerModel solarPowerModel) {
+        this.id = solarPowerModel.getId();
+        this.modelName = solarPowerModel.getModelName();
+        this.ppvN = solarPowerModel.getP_pvN();
+        this.te = solarPowerModel.getT_e();
+        this.tref = solarPowerModel.getT_ref();
+        this.gref = solarPowerModel.getG_ref();
+        this.carbonEmissionFactor = solarPowerModel.getG_ref();
+        this.cost = solarPowerModel.getCost();
+        this.purchaseCost = solarPowerModel.getPurchaseCost();
+
+    }
 }

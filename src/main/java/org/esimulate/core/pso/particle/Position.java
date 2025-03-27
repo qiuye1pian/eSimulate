@@ -1,9 +1,9 @@
 package org.esimulate.core.pso.particle;
 
+import io.jsonwebtoken.lang.Collections;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +15,7 @@ public class Position implements Cloneable {
      * 粒子在各维度的坐标
      */
 
-    private final List<Coordinate> coordinateList = new ArrayList<>();
+    private final List<Coordinate> coordinateList;
 
     public Position(List<Dimension> dimensionsList) {
         coordinateList = dimensionsList.stream().map(Coordinate::new).collect(Collectors.toList());
@@ -25,7 +25,7 @@ public class Position implements Cloneable {
      * 获取坐标的维度数量
      */
     public int getDimensionCount() {
-        return coordinateList.size();
+        return Collections.isEmpty(coordinateList) ? 0 : coordinateList.size();
     }
 
     /**

@@ -1,7 +1,6 @@
 package org.esimulate.core.model.device;
 
 import lombok.Getter;
-import org.esimulate.core.model.environment.water.WaterSpeedData;
 import org.esimulate.core.model.environment.water.WaterSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pso.simulator.facade.Producer;
@@ -9,6 +8,7 @@ import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.carbon.CarbonEmitter;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -21,75 +21,54 @@ import java.util.List;
 public class HydroPowerPlantModel implements Producer, CarbonEmitter {
 
     // 水轮机效率
-    private final BigDecimal eta1;
+    private BigDecimal eta1;
 
     // 发电机效率
-    private final BigDecimal eta2;
+    private BigDecimal eta2;
 
     // 机组传动效率
-    private final BigDecimal eta3;
+    private BigDecimal eta3;
 
     // 总效率 = eta1 * eta2 * eta3
-    private final BigDecimal eta;
+    private BigDecimal eta;
 
     // 上游水面相对于参考面的位能 (m)
-    private final BigDecimal z1;
+    private BigDecimal z1;
 
     // 水轮机入口处相对于参考面的位能 (m)
-    private final BigDecimal z2;
+    private BigDecimal z2;
 
     // 过水断面平均流速 v1
-    private final BigDecimal v1;
+    private BigDecimal v1;
 
     // 过水断面平均流速 v2
-    private final BigDecimal v2;
+    private BigDecimal v2;
 
     // 水密度 ρ1
-    private final BigDecimal p1;
+    private BigDecimal p1;
 
     // 水密度 ρ2
-    private final BigDecimal p2;
+    private BigDecimal p2;
 
     // ρg
-    private final BigDecimal pg;
+    private BigDecimal pg;
 
     // 重力加速度g
-    private final BigDecimal g;
+    private BigDecimal g;
 
     // 碳排放因子 (kg CO₂ / m³)
-    private final BigDecimal emissionFactor;
+    @Column(nullable = false)
+    private BigDecimal carbonEmissionFactor;
 
-    private final List<ElectricEnergy> electricEnergyList = new ArrayList<>();
+    // 发电成本
+    @Column(nullable = false)
+    private BigDecimal cost;
 
-    /**
-     * 构造函数
-     *
-     * @param eta1 水轮机效率
-     * @param eta2 发电机效率
-     * @param eta3 机组传动效率
-     */
-    public HydroPowerPlantModel(BigDecimal eta1, BigDecimal eta2, BigDecimal eta3,
-                                BigDecimal z1, BigDecimal p1, BigDecimal v1,
-                                BigDecimal z2, BigDecimal p2, BigDecimal v2,
-                                BigDecimal pg, BigDecimal g, BigDecimal emissionFactor) {
-        this.eta1 = eta1;
-        this.eta2 = eta2;
-        this.eta3 = eta3;
-        this.eta = this.eta1.multiply(this.eta2).multiply(this.eta3).setScale(10, RoundingMode.HALF_UP);
+    // 建设成本
+    @Column(nullable = false)
+    private BigDecimal purchaseCost;
 
-        this.z1 = z1;
-        this.p1 = p1;
-        this.v1 = v1;
-        this.z2 = z2;
-        this.p2 = p2;
-        this.v2 = v2;
-        this.pg = pg;
-        this.g = g;
-
-        this.emissionFactor = emissionFactor;
-
-        this.electricEnergyList = new ArrayList<>();
-    }
+    private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     /**
      * 计算水头 H
@@ -173,6 +152,6 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO)
-                .multiply(emissionFactor);
+                .multiply(carbonEmissionFactor);
     }
 }
