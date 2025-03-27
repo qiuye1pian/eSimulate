@@ -1,7 +1,7 @@
 package org.esimulate.core.controller.device;
 
+import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.device.SolarPowerModel;
-import org.esimulate.core.pojo.chart.bar3d.SolarPower3DChartDto;
 import org.esimulate.core.pojo.model.SolarPowerModelDto;
 import org.esimulate.core.pojo.model.SolarPowerPageQuery;
 import org.esimulate.core.service.device.SolarPowerService;
@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/model/solar-power")
 public class SolarPowerModelController {
@@ -57,8 +59,7 @@ public class SolarPowerModelController {
 
 
     @PostMapping("/show-graph")
-    public List<SolarPower3DChartDto> showGraph(@RequestBody SolarPowerModelDto solarPowerModelDto) {
-
+    public List<List<BigDecimal>> showGraph(@RequestBody SolarPowerModelDto solarPowerModelDto) {
         return SolarPowerService.getSolarPowerOutPutList(solarPowerModelDto);
     }
 }

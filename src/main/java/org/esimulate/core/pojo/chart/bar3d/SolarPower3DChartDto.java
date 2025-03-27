@@ -6,16 +6,18 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@Deprecated
 public class SolarPower3DChartDto {
     BigDecimal x;
     BigDecimal y;
     BigDecimal z;
 
-    public String toPoint() {
-        return Arrays.asList(x, y, z).toString();
+    public List<BigDecimal> toPoint() {
+        return Arrays.asList(x, y, z);
     }
 }
