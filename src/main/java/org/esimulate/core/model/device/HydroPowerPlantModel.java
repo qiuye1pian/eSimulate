@@ -1,6 +1,6 @@
 package org.esimulate.core.model.device;
 
-import lombok.Getter;
+import lombok.*;
 import org.esimulate.core.model.environment.water.WaterSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pso.simulator.facade.Producer;
@@ -8,7 +8,7 @@ import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.carbon.CarbonEmitter;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -17,43 +17,68 @@ import java.util.List;
 /**
  * 小水电机组功率计算 (Java 版)
  */
-@Getter
+@Data
+@Entity
+@Table(name = "hydro_power_plant_model")
+@AllArgsConstructor
+@NoArgsConstructor
 public class HydroPowerPlantModel implements Producer, CarbonEmitter {
 
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String modelName;
+
     // 水轮机效率
+    @Column(nullable = false)
     private BigDecimal eta1;
 
     // 发电机效率
+    @Column(nullable = false)
     private BigDecimal eta2;
 
     // 机组传动效率
+    @Column(nullable = false)
     private BigDecimal eta3;
 
     // 总效率 = eta1 * eta2 * eta3
+    @Column(nullable = false)
+    @Setter(AccessLevel.PRIVATE)
     private BigDecimal eta;
 
     // 上游水面相对于参考面的位能 (m)
+    @Column(nullable = false)
     private BigDecimal z1;
 
     // 水轮机入口处相对于参考面的位能 (m)
+    @Column(nullable = false)
     private BigDecimal z2;
 
     // 过水断面平均流速 v1
+    @Column(nullable = false)
     private BigDecimal v1;
 
     // 过水断面平均流速 v2
+    @Column(nullable = false)
     private BigDecimal v2;
 
     // 水密度 ρ1
+    @Column(nullable = false)
     private BigDecimal p1;
 
     // 水密度 ρ2
+    @Column(nullable = false)
     private BigDecimal p2;
 
     // ρg
+    @Column(nullable = false)
     private BigDecimal pg;
 
     // 重力加速度g
+    @Column(nullable = false)
     private BigDecimal g;
 
     // 碳排放因子 (kg CO₂ / m³)
@@ -68,6 +93,7 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
+    @Transient
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     /**

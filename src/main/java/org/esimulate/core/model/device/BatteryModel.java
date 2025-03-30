@@ -6,7 +6,7 @@ import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,28 +17,39 @@ import java.util.List;
 @Data
 public class BatteryModel implements Storage {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String modelName;
+
     // 蓄电池总容量 (Wh)
-    private final ElectricEnergy C_t;
+    @Column(nullable = false)
+    private ElectricEnergy C_t;
 
     // SOC 最小值 (0~1)
-    private final BigDecimal SOC_min;
+    @Column(nullable = false)
+    private BigDecimal SOC_min;
 
     // SOC 最大值 (0~1)
-    private final BigDecimal SOC_max;
+    @Column(nullable = false)
+    private BigDecimal SOC_max;
 
     // 自放电损失率 (无量纲)
-    private final BigDecimal mu;
+    @Column(nullable = false)
+    private BigDecimal mu;
 
     // 最大充电功率 (W)
-    private final BigDecimal eta_hch;
+    @Column(nullable = false)
+    private BigDecimal eta_hch;
 
     // 最大放电功率 (W)
-    private final BigDecimal eta_hdis;
-
-    // 每个时刻电池的剩余电量 (Wh)
-    private final List<ElectricEnergy> E_ESS_LIST = new ArrayList<>();
+    @Column(nullable = false)
+    private BigDecimal eta_hdis;
 
     // 当前储电量 (Wh)
+    @Column(nullable = false)
     private ElectricEnergy E_ESS_t;
 
     // 碳排放因子
@@ -49,6 +60,9 @@ public class BatteryModel implements Storage {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
+    @Transient
+    // 每个时刻电池的剩余电量 (Wh)
+    private List<ElectricEnergy> E_ESS_LIST = new ArrayList<>();
 
     /**
      * 电池根据传入的能源 冗余/缺口 中的电力能源数据数据计算充放电

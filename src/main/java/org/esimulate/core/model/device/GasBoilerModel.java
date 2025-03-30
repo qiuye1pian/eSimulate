@@ -23,8 +23,6 @@ import java.util.List;
 @NoArgsConstructor
 public class GasBoilerModel implements Provider {
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -59,6 +57,9 @@ public class GasBoilerModel implements Provider {
     @Transient
     // 燃气消耗量(m³)
     private List<BigDecimal> gasConsumptionList = new ArrayList<>();
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
