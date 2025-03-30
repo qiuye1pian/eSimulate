@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/model/wind-power")
@@ -50,12 +49,12 @@ public class WindPowerModelController {
     /**
      * 删除风力发电模型
      *
-     * @param requestBody 前端传递的 JSON，包含 `id`
+     * @param windPowerModelDto 前端传递的 JSON，包含 `id`
      * @return 操作结果
      */
     @PostMapping("/delete")
-    public String deleteWindPowerModel(@RequestBody Map<String, Long> requestBody) {
-        windPowerService.deleteById(requestBody.get("id"));
+    public String deleteWindPowerModel(@RequestBody WindPowerModelDto windPowerModelDto) {
+        windPowerService.deleteById(windPowerModelDto.getId());
         return "风力发电模型删除成功";
     }
 

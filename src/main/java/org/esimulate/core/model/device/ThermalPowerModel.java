@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
+import org.esimulate.core.pojo.model.ThermalPowerModelDto;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
@@ -41,10 +42,6 @@ public class ThermalPowerModel implements Producer {
     @Column(nullable = false)
     private BigDecimal SSF;
 
-    // 模型数量
-    @Column(nullable = false)
-    private int modelCount;
-
     // 碳排放因子
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
@@ -67,6 +64,16 @@ public class ThermalPowerModel implements Producer {
     // 每小时光热电站出力列表 (单位: kW)
     private List<ThermalEnergy> thermalEnergyList = new ArrayList<>();
 
+    public ThermalPowerModel(ThermalPowerModelDto thermalPowerModelDto) {
+        this.modelName = thermalPowerModelDto.getModelName();
+        this.etaSF = thermalPowerModelDto.getEtaSF();
+        this.SSF = thermalPowerModelDto.getSSF();
+        this.carbonEmissionFactor = thermalPowerModelDto.getCarbonEmissionFactor();
+        this.cost = thermalPowerModelDto.getCost();
+        this.purchaseCost = thermalPowerModelDto.getPurchaseCost();
+
+    }
+
     /**
      * 计算单个时段的光热电站吸收热功率 (kW)。
      * <p>
@@ -77,8 +84,7 @@ public class ThermalPowerModel implements Producer {
      */
     private BigDecimal calculateThermalPower(BigDecimal D_t) {
         return etaSF.multiply(SSF).multiply(D_t)
-                .divide(KW_CONVERSION_FACTOR, 10, RoundingMode.HALF_UP)
-                .multiply(new BigDecimal(modelCount));
+                .divide(KW_CONVERSION_FACTOR, 10, RoundingMode.HALF_UP);
     }
 
     @Override

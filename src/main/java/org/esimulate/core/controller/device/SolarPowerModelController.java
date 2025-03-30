@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -48,12 +47,12 @@ public class SolarPowerModelController {
     /**
      * 删除光伏发电模型
      *
-     * @param requestBody 前端传递的 JSON，包含 `id`
+     * @param solarPowerModelDto 前端传递的 JSON，包含 `id`
      * @return 操作结果
      */
     @PostMapping("/delete")
-    public String deleteWindPowerModel(@RequestBody Map<String, Long> requestBody) {
-        solarPowerService.deleteById(requestBody.get("id"));
+    public String deleteSolarPowerModel(@RequestBody SolarPowerModelDto solarPowerModelDto) {
+        solarPowerService.deleteById(solarPowerModelDto.getId());
         return "光伏发电模型删除成功";
     }
 

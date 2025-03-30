@@ -28,29 +28,38 @@ public class GasBoilerModel implements Provider {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, unique = true)
     private String modelName;
+
     // 燃气锅炉的燃烧效率 (η_GB)
     @Column(nullable = false)
     private BigDecimal etaGB;
+
     // 燃气热值 (kWh/m³)
     @Column(nullable = false)
     private BigDecimal gasEnergyDensity;
+
     // 碳排放因子 (kg CO₂ / m³)
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
+
     // 发电成本
     @Column(nullable = false)
     private BigDecimal cost;
+
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
+
     @Transient
     // 燃气锅炉出力 (kW)
     private List<Energy> gasBoilerOutputList = new ArrayList<>();
+
     @Transient
     // 燃气消耗量(m³)
     private List<BigDecimal> gasConsumptionList = new ArrayList<>();
+
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
