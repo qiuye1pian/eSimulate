@@ -32,5 +32,11 @@ public class GasBoilerModelController {
         }
         return gasBoilerService.addGasBoilerModel(gasBoilerModelDto);
     }
+    
+    @PostMapping("/delete")
+    public String deleteGasBoilerModel(@RequestBody GasBoilerModelDto gasBoilerModelDto) {
+        gasBoilerService.deleteById(gasBoilerModelDto.getId());
+        return "模型删除成功";
+    }
 
 }

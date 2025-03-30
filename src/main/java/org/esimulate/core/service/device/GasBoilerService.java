@@ -73,6 +73,6 @@ public class GasBoilerService {
         gasBoilerModel.setPurchaseCost(gasBoilerModelDto.getPurchaseCost());
         gasBoilerModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return gasBoilerRepository.save(gasBoilerModel);
-
     }
+
 }
