@@ -1,31 +1,48 @@
 package org.esimulate.core.model.device;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
+@Data
+@Entity
+@Table(name = "thermal_power_model")
+@AllArgsConstructor
+@NoArgsConstructor
 public class ThermalPowerModel implements Producer {
 
     // 常量：用于将 W 转换为 kW
     private static final BigDecimal KW_CONVERSION_FACTOR = new BigDecimal("1000");
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String modelName;
+
     // 光热转换效率 (η_SF)
+    @Column(nullable = false)
     private BigDecimal etaSF;
 
     // CSP 电站镜场面积 (S_SF, 单位: m²)
+    @Column(nullable = false)
     private BigDecimal SSF;
 
     // 模型数量
+    @Column(nullable = false)
     private int modelCount;
 
     // 碳排放因子
@@ -40,9 +57,15 @@ public class ThermalPowerModel implements Producer {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
-    // 每小时光热电站出力列表 (单位: kW)
-    private final List<ThermalEnergy> thermalEnergyList = new ArrayList<>();
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
+
+    @Transient
+    // 每小时光热电站出力列表 (单位: kW)
+    private List<ThermalEnergy> thermalEnergyList = new ArrayList<>();
 
     /**
      * 计算单个时段的光热电站吸收热功率 (kW)。
