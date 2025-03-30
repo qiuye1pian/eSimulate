@@ -58,7 +58,7 @@ public class ThermalPowerModel implements Producer {
     private BigDecimal purchaseCost;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;

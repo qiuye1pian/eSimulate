@@ -25,7 +25,7 @@ public class WaterSpeedScheme implements WaterSpeedData {
     private String schemeName;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
@@ -35,7 +35,6 @@ public class WaterSpeedScheme implements WaterSpeedData {
 
     public WaterSpeedScheme(String schemeName) {
         this.schemeName = schemeName;
-        this.createdAt = new Timestamp(System.currentTimeMillis());
     }
 
     @Override

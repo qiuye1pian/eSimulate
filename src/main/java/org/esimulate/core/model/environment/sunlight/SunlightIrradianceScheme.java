@@ -23,7 +23,7 @@ public class SunlightIrradianceScheme implements IrradianceData {
     private String schemeName;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
@@ -33,7 +33,6 @@ public class SunlightIrradianceScheme implements IrradianceData {
 
     public SunlightIrradianceScheme(String schemeName) {
         this.schemeName = schemeName;
-        this.createdAt = new Timestamp(System.currentTimeMillis());
     }
 
     @Override

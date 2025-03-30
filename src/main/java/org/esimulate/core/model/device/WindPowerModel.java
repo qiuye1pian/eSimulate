@@ -63,7 +63,7 @@ public class WindPowerModel implements Producer {
     private BigDecimal purchaseCost;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
@@ -81,7 +81,6 @@ public class WindPowerModel implements Producer {
         this.carbonEmissionFactor = windPowerModelDto.getCarbonEmissionFactor();
         this.cost = windPowerModelDto.getCost();
         this.purchaseCost = windPowerModelDto.getPurchaseCost();
-        this.createdAt = new Timestamp(System.currentTimeMillis());
     }
 
     /**

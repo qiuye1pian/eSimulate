@@ -46,7 +46,6 @@ public class SunlightIrradianceSchemeService {
     public SunlightIrradianceScheme addSunlightIrradianceScheme(String schemeName) {
         SunlightIrradianceScheme sunlightIrradianceScheme = new SunlightIrradianceScheme();
         sunlightIrradianceScheme.setSchemeName(schemeName);
-        sunlightIrradianceScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         sunlightIrradianceSchemeRepository.save(sunlightIrradianceScheme);
         return sunlightIrradianceScheme;
     }

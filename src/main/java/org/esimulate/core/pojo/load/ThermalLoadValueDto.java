@@ -28,7 +28,6 @@ public class ThermalLoadValueDto implements TimeValue {
         ThermalLoadValue thermalLoadValue = new ThermalLoadValue();
         thermalLoadValue.setDatetime(time);
         thermalLoadValue.setLoadValue(value);
-        thermalLoadValue.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         thermalLoadValue.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return thermalLoadValue;
     }

@@ -45,7 +45,6 @@ public class TemperatureSchemeService {
     public TemperatureScheme addTemperatureScheme(String schemeName) {
         TemperatureScheme temperatureScheme = new TemperatureScheme(schemeName);
         temperatureScheme.setSchemeName(schemeName);
-        temperatureScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         temperatureSchemeRepository.save(temperatureScheme);
         return temperatureScheme;
     }

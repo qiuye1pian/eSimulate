@@ -7,7 +7,6 @@ import org.esimulate.core.model.environment.wind.WindSpeedValue;
 import org.esimulate.core.pojo.common.TimeValue;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -28,7 +27,6 @@ public class WindSpeedValueDto  implements TimeValue {
         WindSpeedValue windSpeedValue = new WindSpeedValue();
         windSpeedValue.setDatetime(this.time);
         windSpeedValue.setWindSpeed(this.value);
-        windSpeedValue.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return windSpeedValue;
     }
 }

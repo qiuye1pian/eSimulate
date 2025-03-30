@@ -28,7 +28,7 @@ public class User {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @JSONField(serialize = false)
-    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "updated_at")
     @JSONField(serialize = false)

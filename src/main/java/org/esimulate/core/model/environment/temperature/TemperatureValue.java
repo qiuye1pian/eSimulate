@@ -32,7 +32,7 @@ public class TemperatureValue implements EnvironmentValue {
     private BigDecimal temperature;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;

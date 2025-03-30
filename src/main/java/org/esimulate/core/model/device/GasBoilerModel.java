@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
+import org.esimulate.core.pojo.model.GasBoilerModelDto;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,38 +23,45 @@ import java.util.List;
 @NoArgsConstructor
 public class GasBoilerModel implements Provider {
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false, unique = true)
     private String modelName;
-
     // 燃气锅炉的燃烧效率 (η_GB)
+    @Column(nullable = false)
     private BigDecimal etaGB;
-
     // 燃气热值 (kWh/m³)
+    @Column(nullable = false)
     private BigDecimal gasEnergyDensity;
-
     // 碳排放因子 (kg CO₂ / m³)
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
-
     // 发电成本
     @Column(nullable = false)
     private BigDecimal cost;
-
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
-
     @Transient
     // 燃气锅炉出力 (kW)
-    private final List<Energy> gasBoilerOutputList = new ArrayList<>();
-
+    private List<Energy> gasBoilerOutputList = new ArrayList<>();
     @Transient
     // 燃气消耗量(m³)
-    private final List<BigDecimal> gasConsumptionList = new ArrayList<>();
+    private List<BigDecimal> gasConsumptionList = new ArrayList<>();
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
+
+    public GasBoilerModel(GasBoilerModelDto gasBoilerModelDto) {
+        this.modelName = gasBoilerModelDto.getModelName();
+        this.etaGB = gasBoilerModelDto.getEtaGB();
+        this.gasEnergyDensity = gasBoilerModelDto.getGasEnergyDensity();
+        this.carbonEmissionFactor = gasBoilerModelDto.getCarbonEmissionFactor();
+        this.cost = gasBoilerModelDto.getCost();
+        this.purchaseCost = gasBoilerModelDto.getPurchaseCost();
+    }
 
     private static @NotNull BigDecimal getEnergyGapValue(BigDecimal afterStorageThermalEnergy) {
         if (afterStorageThermalEnergy.compareTo(BigDecimal.ZERO) >= 0) {

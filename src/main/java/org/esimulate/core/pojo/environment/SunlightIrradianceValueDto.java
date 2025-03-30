@@ -7,7 +7,6 @@ import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.pojo.common.TimeValue;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -28,7 +27,6 @@ public class SunlightIrradianceValueDto implements TimeValue {
         SunlightIrradianceValue sunlightIrradianceValue = new SunlightIrradianceValue();
         sunlightIrradianceValue.setDatetime(time);
         sunlightIrradianceValue.setIrradiance(value);
-        sunlightIrradianceValue.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return sunlightIrradianceValue;
     }
 

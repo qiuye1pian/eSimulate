@@ -45,7 +45,6 @@ public class WindSpeedSchemeService {
     public WindSpeedScheme addWindSpeedScheme(String schemeName) {
         WindSpeedScheme windSpeedScheme = new WindSpeedScheme();
         windSpeedScheme.setSchemeName(schemeName);
-        windSpeedScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         windSpeedSchemeRepository.save(windSpeedScheme);
         return windSpeedScheme;
     }

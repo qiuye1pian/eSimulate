@@ -45,7 +45,6 @@ public class GasSchemeService {
     public GasScheme addGasScheme(String schemeName) {
         GasScheme gasScheme = new GasScheme();
         gasScheme.setSchemeName(schemeName);
-        gasScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         gasSchemeRepository.save(gasScheme);
         return gasScheme;
     }

@@ -45,7 +45,6 @@ public class ThermalLoadSchemeService {
     public ThermalLoadScheme addThermalLoadScheme(ThermalLoadSchemeDto thermalLoadSchemeDto) {
         ThermalLoadScheme thermalLoadScheme = new ThermalLoadScheme();
         thermalLoadScheme.setSchemeName(thermalLoadSchemeDto.getName());
-        thermalLoadScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         thermalLoadSchemeRepository.save(thermalLoadScheme);
         return thermalLoadScheme;
     }

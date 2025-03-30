@@ -46,7 +46,6 @@ public class ElectricLoadSchemeService {
     public ElectricLoadScheme addElectricLoadScheme(String schemeName) {
         ElectricLoadScheme electricLoadScheme = new ElectricLoadScheme();
         electricLoadScheme.setSchemeName(schemeName);
-        electricLoadScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         electricLoadSchemeRepository.save(electricLoadScheme);
         return electricLoadScheme;
     }

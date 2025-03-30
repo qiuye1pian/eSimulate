@@ -28,7 +28,6 @@ public class ElectricLoadValueDto implements TimeValue {
         ElectricLoadValue electricLoadValue = new ElectricLoadValue();
         electricLoadValue.setDatetime(time);
         electricLoadValue.setLoadValue(value);
-        electricLoadValue.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         electricLoadValue.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return electricLoadValue;
     }

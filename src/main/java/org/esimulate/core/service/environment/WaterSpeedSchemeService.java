@@ -45,7 +45,6 @@ public class WaterSpeedSchemeService {
     public WaterSpeedScheme addWaterSpeedScheme(String schemeName) {
         WaterSpeedScheme waterSpeedScheme = new WaterSpeedScheme();
         waterSpeedScheme.setSchemeName(schemeName);
-        waterSpeedScheme.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         waterSpeedSchemeRepository.save(waterSpeedScheme);
         return waterSpeedScheme;
     }

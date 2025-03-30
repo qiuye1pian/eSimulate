@@ -7,7 +7,6 @@ import org.esimulate.core.model.environment.water.WaterSpeedValue;
 import org.esimulate.core.pojo.common.TimeValue;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -28,7 +27,6 @@ public class WaterSpeedValueDto implements TimeValue {
         WaterSpeedValue waterSpeedValue = new WaterSpeedValue();
         waterSpeedValue.setDatetime(this.time);
         waterSpeedValue.setWaterSpeed(this.value);
-        waterSpeedValue.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return waterSpeedValue;
     }
 }
