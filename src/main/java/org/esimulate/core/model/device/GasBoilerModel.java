@@ -1,25 +1,38 @@
 package org.esimulate.core.model.device;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Entity
+@Table(name = "gas_boiler_model")
+@AllArgsConstructor
+@NoArgsConstructor
 public class GasBoilerModel implements Provider {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String modelName;
+
     // 燃气锅炉的燃烧效率 (η_GB)
-    private final BigDecimal etaGB;
+    private BigDecimal etaGB;
 
     // 燃气热值 (kWh/m³)
-    private final BigDecimal gasEnergyDensity;
+    private BigDecimal gasEnergyDensity;
 
     // 碳排放因子 (kg CO₂ / m³)
     @Column(nullable = false)
@@ -33,12 +46,13 @@ public class GasBoilerModel implements Provider {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
+    @Transient
     // 燃气锅炉出力 (kW)
     private final List<Energy> gasBoilerOutputList = new ArrayList<>();
 
+    @Transient
     // 燃气消耗量(m³)
     private final List<BigDecimal> gasConsumptionList = new ArrayList<>();
-
 
     private static @NotNull BigDecimal getEnergyGapValue(BigDecimal afterStorageThermalEnergy) {
         if (afterStorageThermalEnergy.compareTo(BigDecimal.ZERO) >= 0) {

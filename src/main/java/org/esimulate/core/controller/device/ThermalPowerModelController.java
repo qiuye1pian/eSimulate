@@ -24,4 +24,13 @@ public class ThermalPowerModelController {
     public Page<ThermalPowerModel> findListByPage(@RequestBody ThermalPowerPageQuery pageQuery) {
         return thermalPowerService.findListByPage(pageQuery);
     }
+
+//    @PostMapping("/add")
+//    public ThermalPowerModel addThermalPowerModel(@RequestBody ThermalPowerModelDto thermalPowerModelDto) {
+//        if (thermalPowerModelDto.getId() != null) {
+//            return thermalPowerService.updateThermalPowerModel(thermalPowerModelDto);
+//        }
+//        return thermalPowerService.addThermalPowerModel(thermalPowerModelDto);
+//    }
+
 }
