@@ -31,14 +31,14 @@ public class SolarPowerService {
         SolarPowerModel solarPowerModel = new SolarPowerModel(solarPowerModelDto);
 
         // 温度范围
-        // 生成一个从 -50 到 50的列表，间隔为1
+        // 生成一个从 -40 到 40的列表，间隔为1
         List<TemperatureValue> temperatureList = new ArrayList<>();
-        for (int t = -50; t <= 50; t++) {
+        for (int t = -40; t <= 40; t++) {
             temperatureList.add(new TemperatureValue(BigDecimal.valueOf(t)));
         }
-        // 生成 0 到 3000 的整数列表
+        // 生成 0 到 1000 的整数列表
         List<SunlightIrradianceValue> sunlightIrradianceValueList = new ArrayList<>();
-        for (int g = 500; g <= 2000; g += 10) {
+        for (int g = 0; g <= 2000; g += 100) {
             sunlightIrradianceValueList.add(new SunlightIrradianceValue(BigDecimal.valueOf(g)));
         }
 
