@@ -156,7 +156,7 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
                 );
 
         // H1 - H2
-        return head1.subtract(head2).setScale(10, RoundingMode.HALF_UP);
+        return head1.subtract(head2).setScale(2, RoundingMode.HALF_UP);
     }
 
     /**
@@ -165,7 +165,7 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter {
      * @return 总效率
      */
     private @NotNull BigDecimal calculateEta() {
-        return eta1.multiply(eta2).multiply(eta3).setScale(10, RoundingMode.HALF_UP);
+        return eta1.multiply(eta2).multiply(eta3).setScale(2, RoundingMode.HALF_UP);
     }
 
     /**

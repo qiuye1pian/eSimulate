@@ -43,11 +43,22 @@ public class HydroPowerPlantController {
 
     @PostMapping("/calculate_eta")
     public BigDecimal calculate_eta(@RequestBody HydroPowerPlantModelDto hydroPowerPlantModelDto) {
+        hydroPowerPlantModelDto.setZ1(BigDecimal.ONE);
+        hydroPowerPlantModelDto.setZ2(BigDecimal.ONE);
+        hydroPowerPlantModelDto.setV1(BigDecimal.ONE);
+        hydroPowerPlantModelDto.setV2(BigDecimal.ONE);
+        hydroPowerPlantModelDto.setP1(BigDecimal.ONE);
+        hydroPowerPlantModelDto.setP2(BigDecimal.ONE);
+        hydroPowerPlantModelDto.setPg(BigDecimal.ONE);
+        hydroPowerPlantModelDto.setG(BigDecimal.ONE);
         return new HydroPowerPlantModel(hydroPowerPlantModelDto).getEta();
     }
 
     @PostMapping("/calculate_head")
     public BigDecimal calculate_head(@RequestBody HydroPowerPlantModelDto hydroPowerPlantModelDto) {
+        hydroPowerPlantModelDto.setEta1(BigDecimal.ONE);
+        hydroPowerPlantModelDto.setEta2(BigDecimal.ONE);
+        hydroPowerPlantModelDto.setEta3(BigDecimal.ONE);
         return new HydroPowerPlantModel(hydroPowerPlantModelDto).getHead();
     }
 
