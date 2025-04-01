@@ -28,6 +28,10 @@ public class BatteryModel implements Storage {
     @Column(nullable = false)
     private ElectricEnergy C_t;
 
+    // 蓄电池初始电量
+    @Column(nullable = false)
+    private BigDecimal EESSInit;
+
     // SOC 最小值 (0~1)
     @Column(nullable = false)
     private BigDecimal SOC_min;
