@@ -20,9 +20,6 @@ public class BatteryModelDto {
     // 蓄电池总容量 (Wh)
     private BigDecimal Ct;
 
-    // 蓄电池初始电量
-    private BigDecimal EESSInit;
-
     // SOC 最小值 (0~1)
     private BigDecimal SOCMin;
 

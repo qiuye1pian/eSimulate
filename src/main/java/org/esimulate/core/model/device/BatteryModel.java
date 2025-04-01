@@ -1,13 +1,17 @@
 package org.esimulate.core.model.device;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.pojo.model.BatteryModelDto;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +19,10 @@ import java.util.List;
  * 蓄电池储能模型
  */
 @Data
+@Entity
+@Table(name = "battery_model")
+@AllArgsConstructor
+@NoArgsConstructor
 public class BatteryModel implements Storage {
 
     @Id
@@ -26,11 +34,9 @@ public class BatteryModel implements Storage {
 
     // 蓄电池总容量 (Wh)
     @Column(nullable = false)
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "c_t"))
     private ElectricEnergy C_t;
-
-    // 蓄电池初始电量
-    @Column(nullable = false)
-    private BigDecimal EESSInit;
 
     // SOC 最小值 (0~1)
     @Column(nullable = false)
@@ -54,6 +60,8 @@ public class BatteryModel implements Storage {
 
     // 当前储电量 (Wh)
     @Column(nullable = false)
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "e_ess_t"))
     private ElectricEnergy E_ESS_t;
 
     // 碳排放因子
@@ -64,9 +72,28 @@ public class BatteryModel implements Storage {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
+
     @Transient
     // 每个时刻电池的剩余电量 (Wh)
     private List<ElectricEnergy> E_ESS_LIST = new ArrayList<>();
+
+    public BatteryModel(BatteryModelDto batteryModelDto) {
+        this.modelName = batteryModelDto.getModelName();
+        this.C_t = new ElectricEnergy(batteryModelDto.getCt());
+        this.SOC_min = batteryModelDto.getSOCMin();
+        this.SOC_max = batteryModelDto.getSOCMax();
+        this.mu = batteryModelDto.getMu();
+        this.eta_hch = batteryModelDto.getEtaHch();
+        this.eta_hdis = batteryModelDto.getEtaHDis();
+        this.E_ESS_t = new ElectricEnergy(batteryModelDto.getEESSt());
+        this.carbonEmissionFactor = batteryModelDto.getCarbonEmissionFactor();
+        this.purchaseCost = batteryModelDto.getPurchaseCost();
+    }
 
     /**
      * 电池根据传入的能源 冗余/缺口 中的电力能源数据数据计算充放电
