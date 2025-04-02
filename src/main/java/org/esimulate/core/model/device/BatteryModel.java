@@ -52,11 +52,19 @@ public class BatteryModel implements Storage {
 
     // 最大充电功率 (W)
     @Column(nullable = false)
-    private BigDecimal eta_hch;
+    private BigDecimal maxChargePower;
 
     // 最大放电功率 (W)
     @Column(nullable = false)
-    private BigDecimal eta_hdis;
+    private BigDecimal maxDischargePower;
+
+    // 充电效率 (0~1)
+    @Column(nullable = false)
+    private BigDecimal etaHch;
+
+    // 放电效率 (0~1)
+    @Column(nullable = false)
+    private BigDecimal etaHdis;
 
     // 当前储电量 (Wh)
     @Column(nullable = false)
@@ -88,8 +96,10 @@ public class BatteryModel implements Storage {
         this.SOC_min = batteryModelDto.getSOCMin();
         this.SOC_max = batteryModelDto.getSOCMax();
         this.mu = batteryModelDto.getMu();
-        this.eta_hch = batteryModelDto.getEtaHch();
-        this.eta_hdis = batteryModelDto.getEtaHDis();
+        this.maxChargePower = batteryModelDto.getMaxChargePower();
+        this.maxDischargePower = batteryModelDto.getMaxDischargePower();
+        this.etaHch = batteryModelDto.getEtaHch();
+        this.etaHdis = batteryModelDto.getEtaHDis();
         this.E_ESS_t = new ElectricEnergy(batteryModelDto.getEESSt());
         this.carbonEmissionFactor = batteryModelDto.getCarbonEmissionFactor();
         this.purchaseCost = batteryModelDto.getPurchaseCost();
@@ -140,14 +150,14 @@ public class BatteryModel implements Storage {
         if (remainingDifference.compareTo(BigDecimal.ZERO) > 0) {
             // 3.1 充电逻辑
             BigDecimal maxChargeCapacity = this.C_t.multiply(this.SOC_max).subtract(this.E_ESS_t).getValue(); // 可用充电容量
-            BigDecimal actualCharge = remainingDifference.min(this.eta_hch).min(maxChargeCapacity); // 实际充电量
+            BigDecimal actualCharge = remainingDifference.min(this.etaHch).min(maxChargeCapacity); // 实际充电量
             this.E_ESS_t = this.E_ESS_t.add(actualCharge); // 更新储电量
             remainingDifference = remainingDifference.subtract(actualCharge); // 剩余冗余
         }
         if (remainingDifference.compareTo(BigDecimal.ZERO) < 0) {
             // 3.2 放电逻辑
             BigDecimal maxDischargeCapacity = this.E_ESS_t.subtract(this.C_t.multiply(this.SOC_min)).getValue(); // 可用放电容量
-            BigDecimal actualDischarge = remainingDifference.abs().min(this.eta_hdis).min(maxDischargeCapacity); // 实际放电量
+            BigDecimal actualDischarge = remainingDifference.abs().min(this.etaHdis).min(maxDischargeCapacity); // 实际放电量
             this.E_ESS_t = this.E_ESS_t.subtract(actualDischarge); // 更新储电量
             remainingDifference = remainingDifference.add(actualDischarge); // 剩余缺口
         }

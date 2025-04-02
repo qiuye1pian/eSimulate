@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.esimulate.core.model.device.BatteryModel;
 
 import java.math.BigDecimal;
 
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BatteryModelDto {
-    
+
     private Long id;
 
     private String modelName;
@@ -30,9 +31,15 @@ public class BatteryModelDto {
     private BigDecimal mu;
 
     // 最大充电功率 (W)
-    private BigDecimal etaHch;
+    private BigDecimal maxChargePower;
 
     // 最大放电功率 (W)
+    private BigDecimal maxDischargePower;
+
+    // 充电效率
+    private BigDecimal etaHch;
+
+    // 放电效率
     private BigDecimal etaHDis;
 
     // 当前储电量 (Wh)
@@ -44,4 +51,19 @@ public class BatteryModelDto {
     // 建设成本
     private BigDecimal purchaseCost;
 
+    public BatteryModelDto(BatteryModel batteryModel) {
+        this.id = batteryModel.getId();
+        this.modelName = batteryModel.getModelName();
+        this.Ct = batteryModel.getC_t().getValue();
+        this.SOCMax = batteryModel.getSOC_max();
+        this.SOCMin = batteryModel.getSOC_min();
+        this.mu = batteryModel.getMu();
+        this.maxChargePower = batteryModel.getMaxChargePower();
+        this.maxDischargePower = batteryModel.getMaxDischargePower();
+        this.etaHch = batteryModel.getEtaHch();
+        this.etaHDis = batteryModel.getEtaHdis();
+        this.EESSt = batteryModel.getE_ESS_t().getValue();
+        this.carbonEmissionFactor = batteryModel.getCarbonEmissionFactor();
+        this.purchaseCost = batteryModel.getPurchaseCost();
+    }
 }

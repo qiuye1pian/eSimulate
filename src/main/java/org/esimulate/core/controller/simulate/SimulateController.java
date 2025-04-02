@@ -1,0 +1,19 @@
+package org.esimulate.core.controller.simulate;
+
+import lombok.extern.log4j.Log4j2;
+import org.esimulate.core.pojo.simulate.SimulateDto;
+import org.esimulate.core.pso.simulator.result.SimulateResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@Log4j2
+@RestController
+@RequestMapping("/simulate/simulator")
+public class SimulateController {
+
+    @PostMapping("/do")
+    public SimulateResult doSimulate(SimulateDto simulateDto) {
+        return SimulateResult.success();
+    }
+}
