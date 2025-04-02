@@ -19,7 +19,7 @@ public class BatteryModelDto {
     private String modelName;
 
     // 蓄电池总容量 (Wh)
-    private BigDecimal Ct;
+    private BigDecimal ct;
 
     // SOC 最小值 (0~1)
     private BigDecimal SOCMin;
@@ -54,7 +54,7 @@ public class BatteryModelDto {
     public BatteryModelDto(BatteryModel batteryModel) {
         this.id = batteryModel.getId();
         this.modelName = batteryModel.getModelName();
-        this.Ct = batteryModel.getC_t();
+        this.ct = batteryModel.getC_t();
         this.SOCMax = batteryModel.getSOC_max();
         this.SOCMin = batteryModel.getSOC_min();
         this.mu = batteryModel.getMu();
