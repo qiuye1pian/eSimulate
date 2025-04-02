@@ -34,9 +34,7 @@ public class BatteryModel implements Storage {
 
     // 蓄电池总容量 (Wh)
     @Column(nullable = false)
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "c_t"))
-    private ElectricEnergy C_t;
+    private BigDecimal C_t;
 
     // SOC 最小值 (0~1)
     @Column(nullable = false)
@@ -68,9 +66,7 @@ public class BatteryModel implements Storage {
 
     // 当前储电量 (Wh)
     @Column(nullable = false)
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "e_ess_t"))
-    private ElectricEnergy E_ESS_t;
+    private BigDecimal E_ESS_t;
 
     // 碳排放因子
     @Column(nullable = false)
@@ -92,7 +88,7 @@ public class BatteryModel implements Storage {
 
     public BatteryModel(BatteryModelDto batteryModelDto) {
         this.modelName = batteryModelDto.getModelName();
-        this.C_t = new ElectricEnergy(batteryModelDto.getCt());
+        this.C_t = batteryModelDto.getCt();
         this.SOC_min = batteryModelDto.getSOCMin();
         this.SOC_max = batteryModelDto.getSOCMax();
         this.mu = batteryModelDto.getMu();
@@ -100,7 +96,7 @@ public class BatteryModel implements Storage {
         this.maxDischargePower = batteryModelDto.getMaxDischargePower();
         this.etaHch = batteryModelDto.getEtaHch();
         this.etaHdis = batteryModelDto.getEtaHDis();
-        this.E_ESS_t = new ElectricEnergy(batteryModelDto.getEESSt());
+        this.E_ESS_t = batteryModelDto.getEESSt();
         this.carbonEmissionFactor = batteryModelDto.getCarbonEmissionFactor();
         this.purchaseCost = batteryModelDto.getPurchaseCost();
     }
@@ -117,16 +113,15 @@ public class BatteryModel implements Storage {
     @Override
     public Energy storage(List<Energy> differenceList) {
         // 1. 计算输入的电能冗余/缺口
-        ElectricEnergy electricEnergyDifference = differenceList.stream()
+        BigDecimal electricEnergyDifference = differenceList.stream()
                 .filter(x -> x instanceof ElectricEnergy)
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
-                .map(ElectricEnergy::new)
-                .orElse(new ElectricEnergy(BigDecimal.ZERO));
+                .orElse(BigDecimal.ZERO);
 
         // 2. 计算自然放电并更新储电量
         // 自然放电损失
-        BigDecimal naturalDischarge = this.E_ESS_t.multiply(this.mu).getValue();
+        BigDecimal naturalDischarge = this.E_ESS_t.multiply(this.mu);
         this.E_ESS_t = this.E_ESS_t.subtract(naturalDischarge);
 
         // 3. 充放电逻辑处理
@@ -142,21 +137,20 @@ public class BatteryModel implements Storage {
      * 接着，如果剩余差值为负，则计算可用的放电容量，并确定实际放电量，更新储电量。
      * 。
      *
-     * @param electricEnergyDifference 电能差值
+     * @param remainingDifference 剩余差额值
      * @return 最后返回剩余的电能差值
      */
-    private @NotNull BigDecimal updateElectricEnergy(ElectricEnergy electricEnergyDifference) {
-        BigDecimal remainingDifference = electricEnergyDifference.getValue(); // 剩余差值
+    private @NotNull BigDecimal updateElectricEnergy(BigDecimal remainingDifference) {
         if (remainingDifference.compareTo(BigDecimal.ZERO) > 0) {
             // 3.1 充电逻辑
-            BigDecimal maxChargeCapacity = this.C_t.multiply(this.SOC_max).subtract(this.E_ESS_t).getValue(); // 可用充电容量
+            BigDecimal maxChargeCapacity = this.C_t.multiply(this.SOC_max).subtract(this.E_ESS_t); // 可用充电容量
             BigDecimal actualCharge = remainingDifference.min(this.etaHch).min(maxChargeCapacity); // 实际充电量
             this.E_ESS_t = this.E_ESS_t.add(actualCharge); // 更新储电量
             remainingDifference = remainingDifference.subtract(actualCharge); // 剩余冗余
         }
         if (remainingDifference.compareTo(BigDecimal.ZERO) < 0) {
             // 3.2 放电逻辑
-            BigDecimal maxDischargeCapacity = this.E_ESS_t.subtract(this.C_t.multiply(this.SOC_min)).getValue(); // 可用放电容量
+            BigDecimal maxDischargeCapacity = this.E_ESS_t.subtract(this.C_t.multiply(this.SOC_min)); // 可用放电容量
             BigDecimal actualDischarge = remainingDifference.abs().min(this.etaHdis).min(maxDischargeCapacity); // 实际放电量
             this.E_ESS_t = this.E_ESS_t.subtract(actualDischarge); // 更新储电量
             remainingDifference = remainingDifference.add(actualDischarge); // 剩余缺口

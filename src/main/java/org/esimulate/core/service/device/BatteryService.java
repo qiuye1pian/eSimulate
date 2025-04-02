@@ -1,7 +1,6 @@
 package org.esimulate.core.service.device;
 
 import org.esimulate.core.model.device.BatteryModel;
-import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.BatteryModelDto;
 import org.esimulate.core.pojo.model.BatteryPageQuery;
 import org.esimulate.core.repository.BatteryRepository;
@@ -66,13 +65,15 @@ public class BatteryService {
 
         BatteryModel batteryModel = batteryModelOptional.get();
         batteryModel.setModelName(batteryModelDto.getModelName());
-        batteryModel.setC_t(new ElectricEnergy(batteryModelDto.getCt()));
-        batteryModel.setE_ESS_t(new ElectricEnergy(batteryModelDto.getEESSt()));
+        batteryModel.setC_t(batteryModelDto.getCt());
+        batteryModel.setE_ESS_t(batteryModelDto.getEESSt());
         batteryModel.setSOC_min(batteryModelDto.getSOCMin());
         batteryModel.setSOC_max(batteryModelDto.getSOCMax());
         batteryModel.setMu(batteryModelDto.getMu());
-        batteryModel.setEta_hch(batteryModelDto.getEtaHch());
-        batteryModel.setEta_hdis(batteryModelDto.getEtaHDis());
+        batteryModel.setMaxChargePower(batteryModel.getMaxChargePower());
+        batteryModel.setMaxDischargePower(batteryModel.getMaxDischargePower());
+        batteryModel.setEtaHch(batteryModelDto.getEtaHch());
+        batteryModel.setEtaHdis(batteryModelDto.getEtaHDis());
         batteryModel.setCarbonEmissionFactor(batteryModelDto.getCarbonEmissionFactor());
         batteryModel.setPurchaseCost(batteryModelDto.getPurchaseCost());
         batteryModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));

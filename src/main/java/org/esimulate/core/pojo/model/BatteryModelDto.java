@@ -54,7 +54,7 @@ public class BatteryModelDto {
     public BatteryModelDto(BatteryModel batteryModel) {
         this.id = batteryModel.getId();
         this.modelName = batteryModel.getModelName();
-        this.Ct = batteryModel.getC_t().getValue();
+        this.Ct = batteryModel.getC_t();
         this.SOCMax = batteryModel.getSOC_max();
         this.SOCMin = batteryModel.getSOC_min();
         this.mu = batteryModel.getMu();
@@ -62,7 +62,7 @@ public class BatteryModelDto {
         this.maxDischargePower = batteryModel.getMaxDischargePower();
         this.etaHch = batteryModel.getEtaHch();
         this.etaHDis = batteryModel.getEtaHdis();
-        this.EESSt = batteryModel.getE_ESS_t().getValue();
+        this.EESSt = batteryModel.getE_ESS_t();
         this.carbonEmissionFactor = batteryModel.getCarbonEmissionFactor();
         this.purchaseCost = batteryModel.getPurchaseCost();
     }
