@@ -8,6 +8,7 @@ import org.esimulate.core.pojo.model.BatteryModelDto;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -25,60 +26,46 @@ import java.util.List;
 @NoArgsConstructor
 public class BatteryModel implements Storage {
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false, unique = true)
     private String modelName;
-
     // 蓄电池总容量 (Wh)
     @Column(nullable = false)
     private BigDecimal C_t;
-
     // SOC 最小值 (0~1)
     @Column(nullable = false)
     private BigDecimal SOC_min;
-
     // SOC 最大值 (0~1)
     @Column(nullable = false)
     private BigDecimal SOC_max;
-
     // 自放电损失率 (无量纲)
     @Column(nullable = false)
     private BigDecimal mu;
-
     // 最大充电功率 (W)
     @Column(nullable = false)
     private BigDecimal maxChargePower;
-
     // 最大放电功率 (W)
     @Column(nullable = false)
     private BigDecimal maxDischargePower;
-
     // 充电效率 (0~1)
     @Column(nullable = false)
     private BigDecimal etaHch;
-
     // 放电效率 (0~1)
     @Column(nullable = false)
     private BigDecimal etaHdis;
-
     // 当前储电量 (Wh)
     @Column(nullable = false)
     private BigDecimal E_ESS_t;
-
     // 碳排放因子
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
-
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
-
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
@@ -143,17 +130,25 @@ public class BatteryModel implements Storage {
     private @NotNull BigDecimal updateElectricEnergy(BigDecimal remainingDifference) {
         if (remainingDifference.compareTo(BigDecimal.ZERO) > 0) {
             // 3.1 充电逻辑
-            BigDecimal maxChargeCapacity = this.C_t.multiply(this.SOC_max).subtract(this.E_ESS_t); // 可用充电容量
-            BigDecimal actualCharge = remainingDifference.min(this.etaHch).min(maxChargeCapacity); // 实际充电量
-            this.E_ESS_t = this.E_ESS_t.add(actualCharge); // 更新储电量
-            remainingDifference = remainingDifference.subtract(actualCharge); // 剩余冗余
+            // 计算最大可用充电容量 = 最大容量 * SOC_max - 剩余电量
+            BigDecimal maxChargeCapacity = this.C_t.multiply(this.SOC_max).subtract(this.E_ESS_t);
+            // 取出 待充能量，最大可用充电容量，最大充电功率 中最小的值作为实际充电量
+            BigDecimal actualCharge = remainingDifference.min(this.maxChargePower).min(maxChargeCapacity); // 实际充电量
+            // 更新储电量，剩余电量 += 实际充电量 * 充电效率
+            this.E_ESS_t = this.E_ESS_t.add(actualCharge.multiply(this.etaHch));
+            // 剩余冗余
+            remainingDifference = remainingDifference.subtract(actualCharge);
         }
         if (remainingDifference.compareTo(BigDecimal.ZERO) < 0) {
             // 3.2 放电逻辑
-            BigDecimal maxDischargeCapacity = this.E_ESS_t.subtract(this.C_t.multiply(this.SOC_min)); // 可用放电容量
-            BigDecimal actualDischarge = remainingDifference.abs().min(this.etaHdis).min(maxDischargeCapacity); // 实际放电量
-            this.E_ESS_t = this.E_ESS_t.subtract(actualDischarge); // 更新储电量
-            remainingDifference = remainingDifference.add(actualDischarge); // 剩余缺口
+            // 计算最大可用放电容量 = 剩余电量 - 最大容量 * SOC_min
+            BigDecimal maxDischargeCapacity = this.E_ESS_t.subtract(this.C_t.multiply(this.SOC_min));
+            // 取出 待放能量，最大可用放电容量，最大放电功率 中最小的值作为实际放电量
+            BigDecimal actualDischarge = remainingDifference.abs().min(this.maxDischargePower).min(maxDischargeCapacity);
+            // 更新储电量，剩余电量 -= 实际放电量 * 放电效率
+            this.E_ESS_t = this.E_ESS_t.subtract(actualDischarge.multiply(this.etaHdis));
+            // 剩余缺口
+            remainingDifference = remainingDifference.add(actualDischarge);
         }
         return remainingDifference;
     }
@@ -161,5 +156,10 @@ public class BatteryModel implements Storage {
     @Override
     public BigDecimal calculateCarbonEmissions() {
         return BigDecimal.ZERO;
+    }
+
+    @TestOnly
+    public BigDecimal testUpdateElectricEnergy(BigDecimal remainingDifference) {
+        return this.updateElectricEnergy(remainingDifference);
     }
 }
