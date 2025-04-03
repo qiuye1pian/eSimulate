@@ -185,7 +185,8 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter, Device {
         return gravity.multiply(this.eta)
                 .multiply(Q)
                 .multiply(this.head)
-                .setScale(10, RoundingMode.HALF_UP);
+                .setScale(10, RoundingMode.HALF_UP)
+                .multiply(this.quantity);
     }
 
     @Override

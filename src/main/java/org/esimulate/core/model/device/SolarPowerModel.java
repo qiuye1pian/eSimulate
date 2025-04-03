@@ -107,7 +107,8 @@ public class SolarPowerModel implements Producer, Device {
         return new ElectricEnergy(P_pvN
                 .multiply(temperatureFactor)
                 .multiply(irradianceRatio)
-                .setScale(10, RoundingMode.HALF_UP));
+                .setScale(10, RoundingMode.HALF_UP)
+                .multiply(this.quantity));
     }
 
     @Override

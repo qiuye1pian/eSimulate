@@ -119,7 +119,8 @@ public class WindPowerModel implements Producer, Device {
                 .filter(x -> x instanceof WindSpeedValue)
                 .findAny()
                 .map(EnvironmentValue::getValue)
-                .orElse(BigDecimal.ZERO);
+                .orElse(BigDecimal.ZERO)
+                .multiply(this.quantity);
 
         ElectricEnergy currentEnergy = calculatePower(windSpeed);
 

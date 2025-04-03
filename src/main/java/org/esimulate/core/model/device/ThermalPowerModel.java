@@ -98,7 +98,8 @@ public class ThermalPowerModel implements Producer, Device {
                 .map(EnvironmentValue::getValue)
                 .map(this::calculateThermalPower)
                 .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
+                .orElse(BigDecimal.ZERO)
+                .multiply(this.quantity);
 
         ThermalEnergy thermalEnergy = new ThermalEnergy(output);
 
