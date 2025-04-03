@@ -94,35 +94,40 @@ public class Simulator {
     public SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList,
                                    List<Producer> producerList, List<Storage> storageList,
                                    List<Provider> providerList, List<Constraint> constraintList) {
+        try {
 
-        //验证负荷长度和环境长度是否一致，如果一致则返回他们的长度
-        int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
+            //验证负荷长度和环境长度是否一致，如果一致则返回他们的长度
+            int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
 
-        //计算某一时刻的情景
-        momentResultList = IntStream.range(0, timeLength)
-                .mapToObj(timeIndex ->
-                        calculateAMoment(loadList, environmentList, producerList, storageList, providerList, timeIndex))
-                .collect(Collectors.toList());
+            //计算某一时刻的情景
+            momentResultList = IntStream.range(0, timeLength)
+                    .mapToObj(timeIndex ->
+                            calculateAMoment(loadList, environmentList, producerList, storageList, providerList, timeIndex))
+                    .collect(Collectors.toList());
 
 
-        //校验仿真约束
-        //校验是否 100% 满足负荷
-        if (momentResultList.stream().anyMatch(MomentResultFacade::isUnqualified)) {
-            return SimulateResult.fail("不能满足负荷");
+            //校验仿真约束
+            //校验是否 100% 满足负荷
+            if (momentResultList.stream().anyMatch(MomentResultFacade::isUnqualified)) {
+                return SimulateResult.fail("不能满足负荷");
+            }
+
+            //计算指标
+            //
+            Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
+            Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
+
+            log.info("renewableEnergyPercent:{}", JSONObject.toJSONString(renewableEnergyPercent));
+            log.info("carbonEmission:{}", JSONObject.toJSONString(carbonEmission));
+            log.info("momentResultList:{}", JSONObject.toJSONString(momentResultList));
+
+            //TODO:需要整理
+            return SimulateResult.success();
+
+        } catch (Exception ex) {
+            log.info("仿真失败", ex);
+            return SimulateResult.fail(ex.getMessage());
         }
-
-        //计算指标
-        //
-        Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
-        Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
-
-        log.info("renewableEnergyPercent:{}", JSONObject.toJSONString(renewableEnergyPercent));
-        log.info("carbonEmission:{}", JSONObject.toJSONString(carbonEmission));
-        log.info("momentResultList:{}", JSONObject.toJSONString(momentResultList));
-
-        //TODO:需要整理
-        return SimulateResult.success();
-
 
     }
 
