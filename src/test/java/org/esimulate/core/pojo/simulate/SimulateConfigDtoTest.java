@@ -11,8 +11,33 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class SimulateConfigDtoTest {
+
+    private static @NotNull SimulateConfigDto getSimulateConfigDto() {
+        SimulateConfigDto simulateConfigDto = new SimulateConfigDto();
+
+        List<LoadDto> loadDtoList = Arrays.asList(
+                new LoadDto(LoadTypeEnum.ElectricLoad, 0L),
+                new LoadDto(LoadTypeEnum.ThermalLoad, 1L));
+        simulateConfigDto.setLoadDtoList(loadDtoList);
+
+        List<ModelDto> modelDtoList = Arrays.asList(
+                new ModelDto(ModelTypeEnum.WindPower, 2L, 1),
+                new ModelDto(ModelTypeEnum.SolarPower, 3L, 2),
+                new ModelDto(ModelTypeEnum.HydroPower, 4L, 1)
+        );
+        simulateConfigDto.setModelDtoList(modelDtoList);
+
+        List<EnvironmentDto> environmentDtoList = Arrays.asList(
+                new EnvironmentDto(EnvironmentTypeEnum.WindSpeed, 5L),
+                new EnvironmentDto(EnvironmentTypeEnum.WaterSpeed, 6L),
+                new EnvironmentDto(EnvironmentTypeEnum.Sunlight, 7L)
+        );
+        simulateConfigDto.setEnvironmentDtoList(environmentDtoList);
+        return simulateConfigDto;
+    }
 
     @Test
     public void test_simulate_config_dto_to_json() {
@@ -38,27 +63,40 @@ class SimulateConfigDtoTest {
         assertEquals(JSONObject.parse(expectedJson), JSONObject.parse(JSONObject.toJSONString(simulateConfigDto)));
     }
 
-    private static @NotNull SimulateConfigDto getSimulateConfigDto() {
-        SimulateConfigDto simulateConfigDto = new SimulateConfigDto();
-
-        List<LoadDto> loadDtoList = Arrays.asList(
-                new LoadDto(LoadTypeEnum.ElectricLoad, 0L),
-                new LoadDto(LoadTypeEnum.ThermalLoad, 1L));
-        simulateConfigDto.setLoadDtoList(loadDtoList);
-
-        List<ModelDto> modelDtoList = Arrays.asList(
-                new ModelDto(ModelTypeEnum.WindPower, 2L, 1),
-                new ModelDto(ModelTypeEnum.SolarPower, 3L, 2),
-                new ModelDto(ModelTypeEnum.HydroPower, 4L, 1)
-        );
-        simulateConfigDto.setModelDtoList(modelDtoList);
-
-        List<EnvironmentDto> environmentDtoList = Arrays.asList(
-                new EnvironmentDto(EnvironmentTypeEnum.WindSpeed, 5L),
-                new EnvironmentDto(EnvironmentTypeEnum.WaterSpeed, 6L),
-                new EnvironmentDto(EnvironmentTypeEnum.Sunlight, 7L)
-        );
-        simulateConfigDto.setEnvironmentDtoList(environmentDtoList);
-        return simulateConfigDto;
+    @Test
+    public void test_反序列化() {
+        String json = "{\n" +
+                "    \"environmentDtoList\": [\n" +
+                "        {\n" +
+                "            \"environmentTypeEnum\": \"Sunlight\",\n" +
+                "            \"id\": 1\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"loadDtoList\": [\n" +
+                "        {\n" +
+                "            \"id\": 13,\n" +
+                "            \"loadTypeEnum\": \"ThermalLoad\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"modelDtoList\": [\n" +
+                "        {\n" +
+                "            \"id\": 2,\n" +
+                "            \"modelTypeEnum\": \"ThermalPower\",\n" +
+                "            \"quantity\": 1\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"id\": 2,\n" +
+                "            \"modelTypeEnum\": \"GasBoiler\",\n" +
+                "            \"quantity\": 1\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
+        SimulateConfigDto simulateConfigDto = JSONObject.parseObject(json, SimulateConfigDto.class);
+        assertNotNull(simulateConfigDto.getEnvironmentDtoList());
+        assertNotNull(simulateConfigDto.getLoadDtoList());
+        assertNotNull(simulateConfigDto.getModelDtoList());
+        assertEquals(1, simulateConfigDto.getEnvironmentDtoList().size());
+        assertEquals(1, simulateConfigDto.getLoadDtoList().size());
+        assertEquals(2, simulateConfigDto.getModelDtoList().size());
     }
 }

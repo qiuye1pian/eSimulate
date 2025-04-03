@@ -6,6 +6,7 @@ import org.esimulate.core.pojo.simulate.SimulateConfigDto;
 import org.esimulate.core.pso.simulator.result.SimulateResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +19,7 @@ public class SimulateController {
     SimulateApplication simulateApplication;
 
     @PostMapping("/do")
-    public SimulateResult doSimulate(SimulateConfigDto simulateConfigDto) {
+    public SimulateResult doSimulate(@RequestBody SimulateConfigDto simulateConfigDto) {
         return simulateApplication.doSimulate(simulateConfigDto);
     }
 }
