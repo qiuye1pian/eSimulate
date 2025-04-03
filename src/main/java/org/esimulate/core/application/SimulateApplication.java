@@ -119,7 +119,7 @@ public class SimulateApplication {
                 return gasSchemeService.findById(environmentDto.getId());
 
             default:
-                log.error("");
+                log.error("未识别的环境类型: {}", environmentDto.getEnvironmentTypeEnum());
                 throw new IllegalArgumentException("未知环境数据类型: " + environmentDto.getEnvironmentTypeEnum());
         }
     }
@@ -145,7 +145,7 @@ public class SimulateApplication {
                 return gasBoilerService.findById(modelDto.getId());
 
             default:
-                log.error("");
+                log.error("未识别的模型类型: {}", modelDto.getModelTypeEnum());
                 throw new IllegalArgumentException("未知模型类型: " + modelDto.getModelTypeEnum());
         }
     }
@@ -157,7 +157,7 @@ public class SimulateApplication {
             case ThermalLoad:
                 return thermalLoadSchemeService.findById(loadDto.getId());
             default:
-                log.error("");
+                log.error("未识别的负荷类型: {}, ID={}", loadDto.getLoadTypeEnum(), loadDto.getId());
                 throw new IllegalArgumentException("未知负荷类型: " + loadDto.getLoadTypeEnum() +
                         "，ID=" + loadDto.getId());
         }
