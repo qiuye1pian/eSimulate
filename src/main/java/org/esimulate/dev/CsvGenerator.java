@@ -40,6 +40,16 @@ public class CsvGenerator {
         return new Result(init, jump, valueTitle, min, max);
     }
 
+
+    private static @NotNull Result getLoad() {
+        String init = "501.0";
+        String jump = "80.00";
+        String valueTitle = "负荷";
+        String min = "85.1";
+        String max = "3041.00";
+        return new Result(init, jump, valueTitle, min, max);
+    }
+
     /**
      * 曲线生成器
      *
@@ -47,7 +57,9 @@ public class CsvGenerator {
      */
     public static void main(String[] args) {
 
-        Result result = getSunlight();
+        Result result = getLoad();
+
+        int days = 1;
 
         // 设置初始时间
         LocalDateTime startTime = LocalDateTime.of(2025, 1, 1, 0, 0);
@@ -65,7 +77,7 @@ public class CsvGenerator {
             writer.write(String.format("%s,%s\n", "时间", result.valueTitle));
 
             // 写入每一行数据
-            for (int i = 0; i < 1 * 24; i++) { // 一年的小时数
+            for (int i = 0; i < days * 24; i++) { // 一年的小时数
                 // 当前时间
                 LocalDateTime currentTime = startTime.plusHours(i);
                 // 生成负荷值波动
@@ -86,7 +98,7 @@ public class CsvGenerator {
                 previousValue = currentValue;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.printf("发生错误" + e.getMessage());
         }
     }
 
