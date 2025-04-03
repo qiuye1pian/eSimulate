@@ -101,10 +101,10 @@ public class ThermalSaverModel implements Storage, Device {
             currentStorage = totalStorageCapacity.multiply(quantity);
         }
 
+        this.E_ESS_LIST.add(new ThermalEnergy(currentStorage));
+
         // 返回一个新的 ThermalEnergy 对象（这里仍以热能差值表示，可根据需要调整返回逻辑）
-        ThermalEnergy thermalEnergy = new ThermalEnergy(thermalEnergyDifference);
-        this.E_ESS_LIST.add(thermalEnergy);
-        return thermalEnergy;
+        return new ThermalEnergy(thermalEnergyDifference);
     }
 
     @Override

@@ -113,13 +113,13 @@ public class BatteryModel implements Storage, Device {
         BigDecimal naturalDischarge = this.E_ESS_t.multiply(this.mu);
         this.E_ESS_t = this.E_ESS_t.subtract(naturalDischarge);
 
+        this.E_ESS_LIST.add(new ElectricEnergy(E_ESS_t));
+
         // 3. 充放电逻辑处理
         BigDecimal remainingDifference = updateElectricEnergy(electricEnergyDifference);
 
         // 4. 返回剩余的电能差值
-        ElectricEnergy electricEnergy = new ElectricEnergy(remainingDifference);
-        this.E_ESS_LIST.add(electricEnergy);
-        return electricEnergy;
+        return new ElectricEnergy(remainingDifference);
     }
 
     /**
