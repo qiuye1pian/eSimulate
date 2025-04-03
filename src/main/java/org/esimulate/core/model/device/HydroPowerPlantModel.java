@@ -25,12 +25,12 @@ import java.util.List;
 @Table(name = "hydro_power_plant_model")
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter(AccessLevel.PRIVATE)
 public class HydroPowerPlantModel implements Producer, CarbonEmitter, Device {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, unique = true)
     private String modelName;
 
@@ -85,6 +85,7 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter, Device {
 
     // 水头H
     @Column(nullable = false)
+    @Setter(AccessLevel.PRIVATE)
     private BigDecimal head;
 
     // 碳排放因子 (kg CO₂ / m³)
@@ -98,6 +99,9 @@ public class HydroPowerPlantModel implements Producer, CarbonEmitter, Device {
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
+
+    @Transient
+    private BigDecimal quantity;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());

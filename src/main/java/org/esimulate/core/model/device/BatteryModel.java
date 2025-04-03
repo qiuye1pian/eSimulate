@@ -77,6 +77,9 @@ public class BatteryModel implements Storage, Device {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
+    @Transient
+    private BigDecimal quantity;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
@@ -176,4 +179,5 @@ public class BatteryModel implements Storage, Device {
     public BigDecimal testUpdateElectricEnergy(BigDecimal remainingDifference) {
         return this.updateElectricEnergy(remainingDifference);
     }
+
 }

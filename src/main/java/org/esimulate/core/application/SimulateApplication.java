@@ -96,9 +96,7 @@ public class SimulateApplication {
                 .map(x -> (Provider) x)
                 .collect(Collectors.toList());
 
-
-        Simulator simulator = new Simulator();
-        return simulator.simulate(loadDataList, environmentDataList, producerList, storageList, providerList, new ArrayList<>());
+        return Simulator.simulate(loadDataList, environmentDataList, producerList, storageList, providerList, new ArrayList<>());
     }
 
     private EnvironmentData readEnvironmentData(EnvironmentDto environmentDto) {
@@ -125,29 +123,38 @@ public class SimulateApplication {
     }
 
     private Device readModelData(ModelDto modelDto) {
+        Device device;
         switch (modelDto.getModelTypeEnum()) {
             case WindPower:
-                return windPowerService.findById(modelDto.getId());
+                device = windPowerService.findById(modelDto.getId());
+                break;
 
             case SolarPower:
-                return solarPowerService.findById(modelDto.getId());
+                device = solarPowerService.findById(modelDto.getId());
+                break;
 
             case HydroPower:
-                return hydroPowerPlantModelService.findById(modelDto.getId());
+                device = hydroPowerPlantModelService.findById(modelDto.getId());
+                break;
 
             case ThermalPower:
-                return thermalPowerService.findById(modelDto.getId());
+                device = thermalPowerService.findById(modelDto.getId());
+                break;
 
             case Battery:
-                return batteryService.findById(modelDto.getId());
+                device = batteryService.findById(modelDto.getId());
+                break;
 
             case GasBoiler:
-                return gasBoilerService.findById(modelDto.getId());
+                device = gasBoilerService.findById(modelDto.getId());
+                break;
 
             default:
                 log.error("未识别的模型类型: {}", modelDto.getModelTypeEnum());
                 throw new IllegalArgumentException("未知模型类型: " + modelDto.getModelTypeEnum());
         }
+        device.setQuantity(modelDto.getQuantity());
+        return device;
     }
 
     private LoadData readLoadData(LoadDto loadDto) {

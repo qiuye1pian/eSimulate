@@ -17,6 +17,7 @@ import org.esimulate.core.pso.simulator.facade.result.MomentResultFacade;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 import org.esimulate.core.pso.simulator.result.SimulateResult;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +27,6 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class Simulator {
-
-    List<MomentResultFacade> momentResultList = new ArrayList<>();
 
     private static MomentResultFacade calculateAMoment(List<LoadData> loadList, List<EnvironmentData> environmentList, List<Producer> producerList, List<Storage> storageList, List<Provider> providerList, int timeIndex) {
         final Integer currentTimeIndex = timeIndex;
@@ -54,8 +53,8 @@ public class Simulator {
                 //返回的数是正的代表产出值大于负荷
                 .collect(Collectors.toList());
 
-        //计算经过储能调整后的 冗余/缺口 数据
-        List<Energy> afterStorageEnergyList = storageList.stream()
+        //如果有储能设备， 计算经过储能调整后的 冗余/缺口 数据
+        List<Energy> afterStorageEnergyList = CollectionUtils.isEmpty(storageList) ? differenceList : storageList.stream()
                 //热能和电能分开计算
                 .map(x -> x.storage(differenceList))
                 //通过储能计算后，各能源的 冗余/缺口
@@ -91,10 +90,12 @@ public class Simulator {
      * @param constraintList  约束
      * @return 仿真结果
      */
-    public SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList,
-                                   List<Producer> producerList, List<Storage> storageList,
-                                   List<Provider> providerList, List<Constraint> constraintList) {
+    public static SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList,
+                                          List<Producer> producerList, List<Storage> storageList,
+                                          List<Provider> providerList, List<Constraint> constraintList) {
         try {
+
+            List<MomentResultFacade> momentResultList = new ArrayList<>();
 
             //验证负荷长度和环境长度是否一致，如果一致则返回他们的长度
             int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);

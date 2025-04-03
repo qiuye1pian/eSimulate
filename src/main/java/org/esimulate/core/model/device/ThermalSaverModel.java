@@ -5,11 +5,15 @@ import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
+import javax.persistence.Transient;
 import java.math.BigDecimal;
 import java.util.List;
 
 @Data
 public class ThermalSaverModel implements Storage, Device {
+
+    @Transient
+    private final BigDecimal quantity = BigDecimal.ONE;
 
     @Override
     public Energy storage(List<Energy> differenceList) {

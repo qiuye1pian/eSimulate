@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.pojo.simulate.enums.ModelTypeEnum;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,6 +16,6 @@ public class ModelDto {
 
     Long id;
 
-    Integer quantity;
+    BigDecimal quantity;
 
 }
