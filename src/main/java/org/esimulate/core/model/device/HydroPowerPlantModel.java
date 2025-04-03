@@ -26,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter(AccessLevel.PRIVATE)
-public class HydroPowerPlantModel implements Producer, CarbonEmitter {
+public class HydroPowerPlantModel implements Producer, CarbonEmitter, Device {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

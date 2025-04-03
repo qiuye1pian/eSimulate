@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Data
-public class ThermalSaverModel implements Storage {
+public class ThermalSaverModel implements Storage, Device {
 
     @Override
     public Energy storage(List<Energy> differenceList) {

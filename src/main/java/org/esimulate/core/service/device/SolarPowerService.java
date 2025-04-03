@@ -107,4 +107,11 @@ public class SolarPowerService {
         solarPowerModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return solarPowerRepository.save(solarPowerModel);
     }
+
+    @Transactional(readOnly = true)
+    public SolarPowerModel findById(Long id) {
+        return solarPowerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的光伏模型，ID: " + id));
+    }
+
 }

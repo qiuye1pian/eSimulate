@@ -105,4 +105,10 @@ public class WaterSpeedSchemeService {
                 .sorted(Comparator.comparing(WaterSpeedValue::getDatetime))
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public WaterSpeedScheme findById(Long id) {
+        return waterSpeedSchemeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的水流数据，ID: " + id));
+    }
 }

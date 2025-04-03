@@ -105,4 +105,10 @@ public class WindSpeedSchemeService {
                 .sorted(Comparator.comparing(WindSpeedValue::getDatetime))
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public WindSpeedScheme findById(Long id) {
+        return windSpeedSchemeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的风速数据，ID: " + id));
+    }
 }

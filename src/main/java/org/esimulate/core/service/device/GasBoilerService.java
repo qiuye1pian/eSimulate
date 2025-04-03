@@ -75,4 +75,10 @@ public class GasBoilerService {
         return gasBoilerRepository.save(gasBoilerModel);
     }
 
+    @Transactional(readOnly = true)
+    public GasBoilerModel findById(Long id) {
+        return gasBoilerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的燃气锅炉模型，ID: " + id));
+    }
+
 }

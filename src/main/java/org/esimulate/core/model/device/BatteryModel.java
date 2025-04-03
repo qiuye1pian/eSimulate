@@ -24,7 +24,7 @@ import java.util.List;
 @Table(name = "battery_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class BatteryModel implements Storage {
+public class BatteryModel implements Storage, Device {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

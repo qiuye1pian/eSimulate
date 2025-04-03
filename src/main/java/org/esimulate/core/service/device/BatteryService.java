@@ -80,4 +80,10 @@ public class BatteryService {
         return batteryRepository.save(batteryModel);
 
     }
+
+    @Transactional(readOnly = true)
+    public BatteryModel findById(Long id) {
+        return batteryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的电池模型，ID: " + id));
+    }
 }

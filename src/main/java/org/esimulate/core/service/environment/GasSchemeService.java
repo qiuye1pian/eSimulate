@@ -105,5 +105,10 @@ public class GasSchemeService {
                 .sorted(Comparator.comparing(GasValue::getDatetime))
                 .collect(Collectors.toList());
     }
-    
+
+    @Transactional(readOnly = true)
+    public GasScheme findById(Long id) {
+        return gasSchemeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的温度数据，ID: " + id));
+    }
 }

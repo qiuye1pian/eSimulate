@@ -21,7 +21,7 @@ import java.util.List;
 @Table(name = "gas_boiler_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GasBoilerModel implements Provider {
+public class GasBoilerModel implements Provider, Device {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

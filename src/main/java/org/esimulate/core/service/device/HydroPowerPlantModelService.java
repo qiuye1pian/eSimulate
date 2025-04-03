@@ -70,4 +70,9 @@ public class HydroPowerPlantModelService {
         return hydroPowerPlantRepository.save(hydroPowerPlantModel);
     }
 
+    @Transactional(readOnly = true)
+    public HydroPowerPlantModel findById(Long id) {
+        return hydroPowerPlantRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的小水电模型，ID: " + id));
+    }
 }

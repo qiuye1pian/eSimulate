@@ -1,5 +1,7 @@
 package org.esimulate.core.pso.simulator;
 
+import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.MomentResult;
 import org.esimulate.core.model.result.indication.calculator.CarbonEmissionCalculator;
 import org.esimulate.core.model.result.indication.calculator.RenewableEnergyShareCalculator;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+@Slf4j
 public class Simulator {
 
     List<MomentResultFacade> momentResultList = new ArrayList<>();
@@ -101,8 +104,6 @@ public class Simulator {
                         calculateAMoment(loadList, environmentList, producerList, storageList, providerList, timeIndex))
                 .collect(Collectors.toList());
 
-        //计算指标
-        // 例如
 
         //校验仿真约束
         //校验是否 100% 满足负荷
@@ -110,10 +111,14 @@ public class Simulator {
             return SimulateResult.fail("不能满足负荷");
         }
 
-
+        //计算指标
+        //
         Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
         Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
 
+        log.info("renewableEnergyPercent:{}", JSONObject.toJSONString(renewableEnergyPercent));
+        log.info("carbonEmission:{}", JSONObject.toJSONString(carbonEmission));
+        log.info("momentResultList:{}", JSONObject.toJSONString(momentResultList));
 
         //TODO:需要整理
         return SimulateResult.success();
