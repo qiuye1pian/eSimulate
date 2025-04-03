@@ -67,17 +67,23 @@ public class SimulateApplication {
     @Autowired
     GasSchemeService gasSchemeService;
 
+    @Autowired
+    ThermalSaverService thermalSaverService;
+
     public SimulateResult doSimulate(SimulateConfigDto simulateConfigDto) {
 
         List<LoadData> loadDataList = simulateConfigDto.getLoadDtoList().stream()
+                .parallel()
                 .map(this::readLoadData)
                 .collect(Collectors.toList());
 
         List<EnvironmentData> environmentDataList = simulateConfigDto.getEnvironmentDtoList().stream()
+                .parallel()
                 .map(this::readEnvironmentData)
                 .collect(Collectors.toList());
 
         List<Device> deviceList = simulateConfigDto.getModelDtoList().stream()
+                .parallel()
                 .map(this::readModelData)
                 .collect(Collectors.toList());
 
@@ -149,6 +155,9 @@ public class SimulateApplication {
                 device = gasBoilerService.findById(modelDto.getId());
                 break;
 
+            case ThermalSaver:
+                device = thermalSaverService.findById(modelDto.getId());
+                break;
             default:
                 log.error("未识别的模型类型: {}", modelDto.getModelTypeEnum());
                 throw new IllegalArgumentException("未知模型类型: " + modelDto.getModelTypeEnum());

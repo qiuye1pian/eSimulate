@@ -63,7 +63,7 @@ public class WindPowerModel implements Producer, Device {
     private BigDecimal purchaseCost;
 
     @Transient
-    private BigDecimal quantity;
+    private BigDecimal quantity = BigDecimal.ONE;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());

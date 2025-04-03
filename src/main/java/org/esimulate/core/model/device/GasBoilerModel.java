@@ -51,7 +51,7 @@ public class GasBoilerModel implements Provider, Device {
     private BigDecimal purchaseCost;
 
     @Transient
-    private BigDecimal quantity;
+    private BigDecimal quantity = BigDecimal.ONE;
 
     @Transient
     // 燃气锅炉出力 (kW)
