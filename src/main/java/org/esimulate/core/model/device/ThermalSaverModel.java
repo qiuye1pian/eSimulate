@@ -3,7 +3,6 @@ package org.esimulate.core.model.device;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.ThermalSaverModelDto;
 import org.esimulate.core.pso.simulator.facade.Storage;
@@ -23,53 +22,42 @@ import java.util.List;
 @NoArgsConstructor
 public class ThermalSaverModel implements Storage, Device {
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false, unique = true)
     private String modelName;
-
     // 总热储能容量（例如单位：kWh）
     @Column(nullable = false)
     private BigDecimal totalStorageCapacity;
-
     // 当前热储能量
     @Column(nullable = false)
     private BigDecimal currentStorage;
-
     // 储热效率（例如：0.9表示90%的储热效率）
     @Column(nullable = false)
     private BigDecimal chargingEfficiency;
-
     // 放热效率（例如：0.85表示85%的放热效率）
     @Column(nullable = false)
     private BigDecimal dischargingEfficiency;
-
     // 热损失率（例如：0.05表示每个时段损失5%的储热能量）
     @Column(nullable = false)
     private BigDecimal thermalLossRate;
-
     // 碳排放因子
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
-
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
-
     @Transient
     private BigDecimal quantity = BigDecimal.ONE;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
-
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
     @Transient
-    // 每个时刻电池的剩余电量 (Wh)
-    private List<ElectricEnergy> E_ESS_LIST = new ArrayList<>();
+    // 每个时刻热存储的剩余热量
+    private List<ThermalEnergy> E_ESS_LIST = new ArrayList<>();
 
     public ThermalSaverModel(ThermalSaverModelDto thermalSaverModelDto) {
         this.id = thermalSaverModelDto.getId();
@@ -114,7 +102,9 @@ public class ThermalSaverModel implements Storage, Device {
         }
 
         // 返回一个新的 ThermalEnergy 对象（这里仍以热能差值表示，可根据需要调整返回逻辑）
-        return new ThermalEnergy(thermalEnergyDifference);
+        ThermalEnergy thermalEnergy = new ThermalEnergy(thermalEnergyDifference);
+        this.E_ESS_LIST.add(thermalEnergy);
+        return thermalEnergy;
     }
 
     @Override

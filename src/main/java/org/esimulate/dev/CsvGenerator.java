@@ -40,6 +40,15 @@ public class CsvGenerator {
         return new Result(init, jump, valueTitle, min, max);
     }
 
+    private static @NotNull Result getWaterSpeed() {
+        String init = "3.0";
+        String jump = "5.00";
+        String valueTitle = "水流";
+        String min = "0";
+        String max = "35.00";
+        return new Result(init, jump, valueTitle, min, max);
+    }
+
 
     private static @NotNull Result getLoad() {
         String init = "501.0";

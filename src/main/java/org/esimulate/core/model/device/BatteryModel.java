@@ -26,63 +26,48 @@ import java.util.List;
 @NoArgsConstructor
 public class BatteryModel implements Storage, Device {
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false, unique = true)
     private String modelName;
-
     // 蓄电池总容量 (Wh)
     @Column(nullable = false)
     private BigDecimal C_t;
-
     // SOC 最小值 (0~1)
     @Column(nullable = false)
     private BigDecimal SOC_min;
-
     // SOC 最大值 (0~1)
     @Column(nullable = false)
     private BigDecimal SOC_max;
-
     // 自放电损失率 (无量纲)
     @Column(nullable = false)
     private BigDecimal mu;
-
     // 最大充电功率 (W)
     @Column(nullable = false)
     private BigDecimal maxChargePower;
-
     // 最大放电功率 (W)
     @Column(nullable = false)
     private BigDecimal maxDischargePower;
-
     // 充电效率 (0~1)
     @Column(nullable = false)
     private BigDecimal etaHch;
-
     // 放电效率 (0~1)
     @Column(nullable = false)
     private BigDecimal etaHdis;
-
     // 当前储电量 (Wh)
     @Column(nullable = false)
     private BigDecimal E_ESS_t;
-
     // 碳排放因子
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
-
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
-
     @Transient
     private BigDecimal quantity = BigDecimal.ONE;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
-
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
@@ -132,7 +117,9 @@ public class BatteryModel implements Storage, Device {
         BigDecimal remainingDifference = updateElectricEnergy(electricEnergyDifference);
 
         // 4. 返回剩余的电能差值
-        return new ElectricEnergy(remainingDifference);
+        ElectricEnergy electricEnergy = new ElectricEnergy(remainingDifference);
+        this.E_ESS_LIST.add(electricEnergy);
+        return electricEnergy;
     }
 
     /**
