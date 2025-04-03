@@ -1,6 +1,5 @@
 package org.esimulate.core.pso.simulator;
 
-import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.MomentResult;
 import org.esimulate.core.model.result.indication.calculator.CarbonEmissionCalculator;
@@ -17,9 +16,11 @@ import org.esimulate.core.pso.simulator.facade.result.MomentResultFacade;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 import org.esimulate.core.pso.simulator.result.SimulateResult;
+import org.esimulate.core.pso.simulator.result.SimulateResultType;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -47,6 +48,7 @@ public class Simulator {
         List<Energy> differenceList = loadList.stream()
                 // 当前时刻的负荷
                 .map(x -> x.getLoadValue(currentTimeIndex))
+                // todo:如果是同种负荷，多个叠加，需要进行group之后求和，这里的逻辑待完善
                 // 分别去计算能量冗余/缺口
                 // 冗余/缺口 数据 = 当前时刻能量产出量 - 当前时刻的负荷
                 .map(x -> x.calculateDifference(produceList))
@@ -65,13 +67,18 @@ public class Simulator {
                 .map(x -> x.provide(afterStorageEnergyList))
                 .collect(Collectors.toList());
 
+        //剩余的能源将被丢弃，电能为弃风弃光，热能为自然散逸
         return new MomentResult(afterProvideList);
     }
 
     @SafeVarargs
     private static Integer validateDataLengthAndGetDataLength(List<? extends TimeSeriesData>... dataLists) {
 
-        final List<Integer> distinct = Stream.of(dataLists).flatMap(List::stream).map(TimeSeriesData::getDataLength).distinct().collect(Collectors.toList());
+        final List<Integer> distinct = Stream.of(dataLists)
+                .flatMap(List::stream)
+                .map(TimeSeriesData::getDataLength)
+                .distinct()
+                .collect(Collectors.toList());
 
         boolean isLengthMismatch = distinct.size() > 1;
 
@@ -118,12 +125,22 @@ public class Simulator {
             Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
             Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
 
-            log.info("renewableEnergyPercent:{}", JSONObject.toJSONString(renewableEnergyPercent));
-            log.info("carbonEmission:{}", JSONObject.toJSONString(carbonEmission));
-            log.info("momentResultList:{}", JSONObject.toJSONString(momentResultList));
+//            log.info("renewableEnergyPercent:{}", JSONObject.toJSONString(renewableEnergyPercent));
+//            log.info("carbonEmission:{}", JSONObject.toJSONString(carbonEmission));
+//            log.info("momentResultList:{}", JSONObject.toJSONString(momentResultList));
+//            log.info("producerList:{}", JSONObject.toJSONString(producerList));
+//            log.info("storageList:{}", JSONObject.toJSONString(storageList));
+//            log.info("providerList:{}", JSONObject.toJSONString(providerList));
 
-            //TODO:需要整理
-            return SimulateResult.success();
+            List<Indication> indicationList = Arrays.asList(renewableEnergyPercent, carbonEmission);
+
+            return SimulateResult.builder()
+                    .indicationList(indicationList)
+                    .producerList(producerList)
+                    .storageList(storageList)
+                    .providerList(providerList)
+                    .resultType(SimulateResultType.SUCCESS)
+                    .build();
 
         } catch (Exception ex) {
             log.info("仿真失败", ex);

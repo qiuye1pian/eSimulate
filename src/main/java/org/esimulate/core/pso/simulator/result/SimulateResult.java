@@ -1,14 +1,35 @@
 package org.esimulate.core.pso.simulator.result;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.esimulate.core.pso.simulator.facade.Producer;
+import org.esimulate.core.pso.simulator.facade.Provider;
+import org.esimulate.core.pso.simulator.facade.Storage;
+import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 
+import java.util.List;
+
+@Builder
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SimulateResult {
 
     String message;
 
     SimulateResultType resultType;
+
+    List<Indication> indicationList;
+
+    List<Producer> producerList;
+
+    List<Storage> storageList;
+
+    List<Provider> providerList;
+
 
     private SimulateResult(String message, SimulateResultType resultType) {
         this.message = message;
