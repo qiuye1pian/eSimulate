@@ -71,21 +71,35 @@ public class SimulateApplication {
     ThermalSaverService thermalSaverService;
 
     public SimulateResult doSimulate(SimulateConfigDto simulateConfigDto) {
+        log.info("开始仿真");
+        long startTotal = System.currentTimeMillis();
 
+        log.info("加载负荷数据");
+        long startLoadData = System.currentTimeMillis();
         List<LoadData> loadDataList = simulateConfigDto.getLoadDtoList().stream()
                 .parallel()
                 .map(this::readLoadData)
                 .collect(Collectors.toList());
+        long endLoadData = System.currentTimeMillis();
+        log.info("加载负荷数据耗时： {} ms", (endLoadData - startLoadData));
 
+        log.info("加载环境数据");
+        long startEnvData = System.currentTimeMillis();
         List<EnvironmentData> environmentDataList = simulateConfigDto.getEnvironmentDtoList().stream()
                 .parallel()
                 .map(this::readEnvironmentData)
                 .collect(Collectors.toList());
+        long endEnvData = System.currentTimeMillis();
+        log.info("加载环境数据耗时： {} ms", (endEnvData - startEnvData));
 
+        log.info("加载模型");
+        long startModelData = System.currentTimeMillis();
         List<Device> deviceList = simulateConfigDto.getModelDtoList().stream()
                 .parallel()
                 .map(this::readModelData)
                 .collect(Collectors.toList());
+        long endModelData = System.currentTimeMillis();
+        log.info("加载模型耗时： {} ms", (endModelData - startModelData));
 
         List<Producer> producerList = deviceList.stream()
                 .filter(x -> x instanceof Producer)
@@ -102,7 +116,17 @@ public class SimulateApplication {
                 .map(x -> (Provider) x)
                 .collect(Collectors.toList());
 
-        return Simulator.simulate(loadDataList, environmentDataList, producerList, storageList, providerList, new ArrayList<>());
+        log.info("进入仿真计算");
+        long startSimulation = System.currentTimeMillis();
+        SimulateResult simulate = Simulator.simulate(loadDataList, environmentDataList, producerList, storageList, providerList, new ArrayList<>());
+        long endSimulation = System.currentTimeMillis();
+        log.info("仿真计算耗时： {} ms", (endSimulation - startSimulation));
+
+        log.info("仿真结束");
+        long endTotal = System.currentTimeMillis();
+        log.info("总耗时： {} ms", (endTotal - startTotal));
+
+        return simulate;
     }
 
     private EnvironmentData readEnvironmentData(EnvironmentDto environmentDto) {
