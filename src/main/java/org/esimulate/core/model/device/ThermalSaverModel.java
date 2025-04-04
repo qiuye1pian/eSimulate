@@ -3,6 +3,7 @@ package org.esimulate.core.model.device;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.ThermalSaverModelDto;
 import org.esimulate.core.pso.simulator.facade.Storage;
@@ -15,6 +16,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Data
 @Entity
 @Table(name = "thermal_saver_model")
@@ -55,9 +57,15 @@ public class ThermalSaverModel implements Storage, Device {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @Transient
     // 每个时刻热存储的剩余热量
+    @Transient
     private List<ThermalEnergy> E_ESS_LIST = new ArrayList<>();
+
+    @Transient
+    private List<BigDecimal> chargingList = new ArrayList<>();
+
+    @Transient
+    private List<BigDecimal> disChargingList = new ArrayList<>();
 
     public ThermalSaverModel(ThermalSaverModelDto thermalSaverModelDto) {
         this.id = thermalSaverModelDto.getId();
@@ -73,37 +81,65 @@ public class ThermalSaverModel implements Storage, Device {
 
     @Override
     public Energy storage(List<Energy> differenceList) {
-        // 求和得到热能变化值
+        // 计算热能差值（正值表示有多余热能需储存，负值表示需从储能中释放）
         BigDecimal thermalEnergyDifference = differenceList.stream()
                 .filter(x -> x instanceof ThermalEnergy)
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        // 考虑热损失
-        currentStorage = currentStorage.multiply(BigDecimal.ONE.subtract(thermalLossRate));
+        // 先将参数按个数扩大
+        totalStorageCapacity = totalStorageCapacity.multiply(quantity).setScale(2, RoundingMode.HALF_UP);
+        currentStorage = currentStorage.multiply(quantity).setScale(2, RoundingMode.HALF_UP);
 
-        // 根据能量变化更新当前储热量
+        // 应用热损失
+        currentStorage = currentStorage.multiply(BigDecimal.ONE.subtract(thermalLossRate)).setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal actualChange;
+        BigDecimal effective;
+
         if (thermalEnergyDifference.compareTo(BigDecimal.ZERO) > 0) {
-            // 储热，考虑储热效率
-            BigDecimal effectiveCharge = thermalEnergyDifference.multiply(chargingEfficiency);
-            currentStorage = currentStorage.add(effectiveCharge);
+            // 储热：将热能存入储能中，考虑充热效率
+            BigDecimal potentialChange = thermalEnergyDifference.multiply(chargingEfficiency).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal maxAddable = totalStorageCapacity.subtract(currentStorage);
+            actualChange = potentialChange.min(maxAddable);
+            currentStorage = currentStorage.add(actualChange);
+            // 实际输入热能 = 实际储能 / 效率
+            effective = actualChange.divide(chargingEfficiency, RoundingMode.HALF_UP);
+
+        } else if (thermalEnergyDifference.compareTo(BigDecimal.ZERO) < 0) {
+            // 放热：从储能中释放热能，考虑放热效率
+            BigDecimal potentialChange = thermalEnergyDifference.divide(dischargingEfficiency,2, RoundingMode.HALF_UP);
+            BigDecimal maxReleasable = currentStorage.min(potentialChange.abs());
+            actualChange = maxReleasable.negate();
+            currentStorage = currentStorage.add(actualChange);
+            // 实际输出热能 = 实际放热 × 效率
+            effective = actualChange.multiply(dischargingEfficiency).setScale(2, RoundingMode.HALF_UP);
+
         } else {
-            // 放热，考虑放热效率（注意：thermalEnergyDifference 为负值）
-            BigDecimal effectiveDischarge = thermalEnergyDifference.divide(dischargingEfficiency, RoundingMode.HALF_UP);
-            currentStorage = currentStorage.add(effectiveDischarge);
+            actualChange = BigDecimal.ZERO;
+            effective = actualChange;
         }
 
-        // 限制当前储热量不能超过总容量，也不能低于零
+        chargingList.add(actualChange.compareTo(BigDecimal.ZERO) > 0 ? actualChange : BigDecimal.ZERO);
+        disChargingList.add(actualChange.compareTo(BigDecimal.ZERO) < 0 ? actualChange.abs() : BigDecimal.ZERO);
+
+        // 再次边界控制防止数值精度误差
         if (currentStorage.compareTo(BigDecimal.ZERO) < 0) {
             currentStorage = BigDecimal.ZERO;
-        } else if (currentStorage.compareTo(totalStorageCapacity.multiply(quantity)) > 0) {
-            currentStorage = totalStorageCapacity.multiply(quantity);
+        } else if (currentStorage.compareTo(totalStorageCapacity) > 0) {
+            currentStorage = totalStorageCapacity;
         }
 
-        this.E_ESS_LIST.add(new ThermalEnergy(currentStorage));
+        // 记录当前储能
+        E_ESS_LIST.add(new ThermalEnergy(currentStorage));
 
-        // 返回一个新的 ThermalEnergy 对象（这里仍以热能差值表示，可根据需要调整返回逻辑）
+        // 先将参数按个数扩大
+        totalStorageCapacity = totalStorageCapacity.divide(quantity, 2, RoundingMode.HALF_UP);
+        currentStorage = currentStorage.divide(quantity, 2, RoundingMode.HALF_UP);
+
+        // 返回剩余未处理的热能差值
+        thermalEnergyDifference = thermalEnergyDifference.subtract(effective);
         return new ThermalEnergy(thermalEnergyDifference);
     }
 

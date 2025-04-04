@@ -1,5 +1,6 @@
 package org.esimulate.core.pso.simulator;
 
+import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.MomentResult;
 import org.esimulate.core.model.result.indication.calculator.CarbonEmissionCalculator;
@@ -128,7 +129,7 @@ public class Simulator {
 //            log.info("carbonEmission:{}", JSONObject.toJSONString(carbonEmission));
 //            log.info("momentResultList:{}", JSONObject.toJSONString(momentResultList));
 //            log.info("producerList:{}", JSONObject.toJSONString(producerList));
-//            log.info("storageList:{}", JSONObject.toJSONString(storageList));
+            log.info("storageList:{}", JSONObject.toJSONString(storageList));
 //            log.info("providerList:{}", JSONObject.toJSONString(providerList));
 
             List<Indication> indicationList = Arrays.asList(renewableEnergyPercent, carbonEmission);
