@@ -6,7 +6,6 @@ import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.HydroPowerPlantModelDto;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
-import org.esimulate.core.pso.simulator.facade.result.carbon.CarbonEmitter;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +24,7 @@ import java.util.List;
 @Table(name = "hydro_power_plant_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class HydroPowerPlantModel implements Producer, CarbonEmitter, Device {
+public class HydroPowerPlantModel implements Producer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

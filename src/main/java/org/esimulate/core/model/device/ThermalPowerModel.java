@@ -22,7 +22,7 @@ import java.util.List;
 @Table(name = "thermal_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalPowerModel implements Producer, Device {
+public class ThermalPowerModel implements Producer {
 
     // 常量：用于将 W 转换为 kW
     private static final BigDecimal KW_CONVERSION_FACTOR = new BigDecimal("1000");

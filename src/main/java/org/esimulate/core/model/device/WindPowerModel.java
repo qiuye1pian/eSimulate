@@ -25,7 +25,7 @@ import java.util.List;
 @Table(name = "wind_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class WindPowerModel implements Producer, Device {
+public class WindPowerModel implements Producer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

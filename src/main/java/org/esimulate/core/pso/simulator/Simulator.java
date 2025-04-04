@@ -1,10 +1,10 @@
 package org.esimulate.core.pso.simulator;
 
-import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.MomentResult;
 import org.esimulate.core.model.result.indication.calculator.CarbonEmissionCalculator;
 import org.esimulate.core.model.result.indication.calculator.RenewableEnergyShareCalculator;
+import org.esimulate.core.model.result.indication.calculator.TotalCostCalculator;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.Storage;
@@ -13,7 +13,6 @@ import org.esimulate.core.pso.simulator.facade.constraint.Constraint;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentData;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.load.LoadData;
-import org.esimulate.core.pso.simulator.facade.result.MomentResultFacade;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 import org.esimulate.core.pso.simulator.result.SimulateResult;
@@ -29,7 +28,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class Simulator {
 
-    private static MomentResultFacade calculateAMoment(List<LoadData> loadList, List<EnvironmentData> environmentList, List<Producer> producerList, List<Storage> storageList, List<Provider> providerList, int timeIndex) {
+    private static MomentResult calculateAMoment(List<LoadData> loadList, List<EnvironmentData> environmentList, List<Producer> producerList, List<Storage> storageList, List<Provider> providerList, int timeIndex) {
         final Integer currentTimeIndex = timeIndex;
 
         //准备好环境数据
@@ -102,35 +101,21 @@ public class Simulator {
                                           List<Provider> providerList, List<Constraint> constraintList) {
         try {
 
-            List<MomentResultFacade> momentResultList;
-
             //验证负荷长度和环境长度是否一致，如果一致则返回他们的长度
             int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
 
             //计算某一时刻的情景
-            momentResultList = IntStream.range(0, timeLength)
+            List<MomentResult> momentResultList = IntStream.range(0, timeLength)
                     .mapToObj(timeIndex ->
                             calculateAMoment(loadList, environmentList, producerList, storageList, providerList, timeIndex))
                     .collect(Collectors.toList());
 
 
-            //校验仿真约束
-            //校验是否 100% 满足负荷
-            if (momentResultList.stream().anyMatch(MomentResultFacade::isUnqualified)) {
-                return SimulateResult.fail("不能满足负荷");
-            }
-
             //计算指标
-            //
+
             Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
             Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
-
-//            log.info("renewableEnergyPercent:{}", JSONObject.toJSONString(renewableEnergyPercent));
-//            log.info("carbonEmission:{}", JSONObject.toJSONString(carbonEmission));
-//            log.info("momentResultList:{}", JSONObject.toJSONString(momentResultList));
-//            log.info("producerList:{}", JSONObject.toJSONString(producerList));
-            log.info("storageList:{}", JSONObject.toJSONString(storageList));
-//            log.info("providerList:{}", JSONObject.toJSONString(providerList));
+            Indication totalCost = TotalCostCalculator.calculate(producerList, storageList, providerList);
 
             List<Indication> indicationList = Arrays.asList(renewableEnergyPercent, carbonEmission);
 

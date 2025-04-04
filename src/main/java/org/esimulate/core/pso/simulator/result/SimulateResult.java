@@ -5,10 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.esimulate.core.model.result.MomentResult;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.Storage;
-import org.esimulate.core.pso.simulator.facade.result.MomentResultFacade;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class SimulateResult {
 
     List<Provider> providerList;
 
-    List<MomentResultFacade> momentResultList;
+    List<MomentResult> momentResultList;
 
     private SimulateResult(String message, SimulateResultType resultType) {
         this.message = message;

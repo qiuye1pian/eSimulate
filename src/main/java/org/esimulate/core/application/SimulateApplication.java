@@ -1,7 +1,7 @@
 package org.esimulate.core.application;
 
 import lombok.extern.slf4j.Slf4j;
-import org.esimulate.core.model.device.Device;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pojo.simulate.EnvironmentDto;
 import org.esimulate.core.pojo.simulate.LoadDto;
 import org.esimulate.core.pojo.simulate.ModelDto;

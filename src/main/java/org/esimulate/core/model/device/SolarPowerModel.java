@@ -26,7 +26,7 @@ import java.util.List;
 @Table(name = "solar_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class SolarPowerModel implements Producer, Device {
+public class SolarPowerModel implements Producer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

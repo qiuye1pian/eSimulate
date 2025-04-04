@@ -10,23 +10,22 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RenewableEnergyShare implements Indication {
+public class TotalCost implements Indication {
 
-    BigDecimal renewableEnergyShare;
+    BigDecimal totalCostValue;
 
     @Override
     public String getIndicationName() {
-        return "RenewableEnergyShare";
+        return "TotalCost";
     }
 
     @Override
     public String getDescription() {
-        return "";
+        return "年度总成本";
     }
 
     @Override
     public BigDecimal getIndication() {
-        return renewableEnergyShare;
+        return totalCostValue;
     }
-
 }

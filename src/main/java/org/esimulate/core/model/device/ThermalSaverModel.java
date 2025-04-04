@@ -22,7 +22,7 @@ import java.util.List;
 @Table(name = "thermal_saver_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalSaverModel implements Storage, Device {
+public class ThermalSaverModel implements Storage {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());

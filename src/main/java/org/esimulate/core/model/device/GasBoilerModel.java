@@ -21,7 +21,7 @@ import java.util.List;
 @Table(name = "gas_boiler_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GasBoilerModel implements Provider, Device {
+public class GasBoilerModel implements Provider {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -156,4 +156,6 @@ public class GasBoilerModel implements Provider, Device {
                 .orElse(BigDecimal.ZERO)
                 .multiply(this.carbonEmissionFactor);
     }
+
+
 }
