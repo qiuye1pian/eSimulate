@@ -2,10 +2,12 @@ package org.esimulate.core.model.device;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.wind.WindSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.WindPowerModelDto;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
@@ -20,12 +22,13 @@ import java.util.List;
 /**
  * 风力发电功率计算器
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "wind_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class WindPowerModel implements Producer {
+public class WindPowerModel extends Device implements Producer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,8 +65,7 @@ public class WindPowerModel implements Producer {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
-    @Transient
-    private BigDecimal quantity = BigDecimal.ONE;
+ 
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
@@ -138,6 +140,34 @@ public class WindPowerModel implements Producer {
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.07);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 25;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        return getTotalEnergy()
+                .multiply(quantity)
+                .multiply(cost)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
         return BigDecimal.ZERO;
     }
 }

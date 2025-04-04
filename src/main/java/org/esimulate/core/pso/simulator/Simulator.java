@@ -117,7 +117,7 @@ public class Simulator {
             Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
             Indication totalCost = TotalCostCalculator.calculate(producerList, storageList, providerList);
 
-            List<Indication> indicationList = Arrays.asList(renewableEnergyPercent, carbonEmission);
+            List<Indication> indicationList = Arrays.asList(renewableEnergyPercent, carbonEmission, totalCost);
 
             return SimulateResult.builder()
                     .indicationList(indicationList)

@@ -2,10 +2,12 @@ package org.esimulate.core.model.device;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.ThermalPowerModelDto;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
@@ -17,12 +19,13 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "thermal_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalPowerModel implements Producer {
+public class ThermalPowerModel extends Device implements Producer {
 
     // 常量：用于将 W 转换为 kW
     private static final BigDecimal KW_CONVERSION_FACTOR = new BigDecimal("1000");
@@ -54,8 +57,7 @@ public class ThermalPowerModel implements Producer {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
-    @Transient
-    private BigDecimal quantity = BigDecimal.ONE;
+ 
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
@@ -119,5 +121,33 @@ public class ThermalPowerModel implements Producer {
     @Override
     public BigDecimal calculateCarbonEmissions() {
         return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.07);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 20;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        return getTotalEnergy()
+                .multiply(quantity)
+                .multiply(cost)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return null;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
+        return null;
     }
 }

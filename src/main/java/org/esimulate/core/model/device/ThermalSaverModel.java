@@ -2,10 +2,12 @@ package org.esimulate.core.model.device;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.ThermalSaverModelDto;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
@@ -16,44 +18,55 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Slf4j
 @Data
 @Entity
 @Table(name = "thermal_saver_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalSaverModel implements Storage {
+public class ThermalSaverModel extends Device implements Storage {
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, unique = true)
     private String modelName;
+
     // 总热储能容量（例如单位：kWh）
     @Column(nullable = false)
     private BigDecimal totalStorageCapacity;
+
     // 当前热储能量
     @Column(nullable = false)
     private BigDecimal currentStorage;
+
     // 储热效率（例如：0.9表示90%的储热效率）
     @Column(nullable = false)
     private BigDecimal chargingEfficiency;
+
     // 放热效率（例如：0.85表示85%的放热效率）
     @Column(nullable = false)
     private BigDecimal dischargingEfficiency;
+
     // 热损失率（例如：0.05表示每个时段损失5%的储热能量）
     @Column(nullable = false)
     private BigDecimal thermalLossRate;
+
     // 碳排放因子
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
+
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
-    @Transient
-    private BigDecimal quantity = BigDecimal.ONE;
+
+ 
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
@@ -145,6 +158,37 @@ public class ThermalSaverModel implements Storage {
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.07);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 25;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        BigDecimal chargingTotal = this.chargingList.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        BigDecimal disChargingTotal = this.disChargingList.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+
+        return chargingTotal.add(disChargingTotal)
+                //todo: 也加一个可维护的cost
+                .multiply(BigDecimal.valueOf(0.03))
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
         return BigDecimal.ZERO;
     }
 }

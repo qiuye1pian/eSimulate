@@ -2,9 +2,11 @@ package org.esimulate.core.model.device;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.GasBoilerModelDto;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
@@ -16,12 +18,13 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "gas_boiler_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GasBoilerModel implements Provider {
+public class GasBoilerModel extends Device implements Provider {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,16 +45,13 @@ public class GasBoilerModel implements Provider {
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
 
-    // 发电成本
+    // 单位运行维护成本
     @Column(nullable = false)
     private BigDecimal cost;
 
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
-
-    @Transient
-    private BigDecimal quantity = BigDecimal.ONE;
 
     @Transient
     // 燃气锅炉出力 (kW)
@@ -130,10 +130,10 @@ public class GasBoilerModel implements Provider {
         }
 
         // 计算所需燃气能量 (kWh)
-        BigDecimal gasEnergyNeeded = heatDeficit.divide(this.etaGB, 10, RoundingMode.HALF_UP);
+        BigDecimal gasEnergyNeeded = heatDeficit.divide(this.etaGB, 2, RoundingMode.HALF_UP);
 
         // 转换为燃气体积 (m³)
-        return gasEnergyNeeded.divide(gasEnergyDensity, 10, RoundingMode.HALF_UP);
+        return gasEnergyNeeded.divide(gasEnergyDensity, 2, RoundingMode.HALF_UP);
 
     }
 
@@ -158,4 +158,45 @@ public class GasBoilerModel implements Provider {
     }
 
 
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.08);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 20;
+    }
+
+    /**
+     * 计算年度运行维护费用
+     * @return 年度运行维护费用
+     */
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        // 总产出值，求和，乘以设备数量，乘以单位运行维护成本
+        return getTotalEnergy()
+                .multiply(quantity)
+                .multiply(this.cost)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * 与公共电网交互费用
+     * @return 燃气消耗费用
+     */
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return this.gasConsumptionList.stream()
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO)
+                .multiply(BigDecimal.valueOf(2.5))
+                .setScale(2, RoundingMode.HALF_UP);
+
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
+        return BigDecimal.ZERO;
+    }
 }

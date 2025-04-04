@@ -2,9 +2,11 @@ package org.esimulate.core.model.device;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.BatteryModelDto;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
@@ -19,12 +21,13 @@ import java.util.List;
 /**
  * 蓄电池储能模型
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "battery_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class BatteryModel implements Storage {
+public class BatteryModel extends Device implements Storage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -76,9 +79,6 @@ public class BatteryModel implements Storage {
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
-
-    @Transient
-    private BigDecimal quantity = BigDecimal.ONE;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
@@ -182,4 +182,29 @@ public class BatteryModel implements Storage {
         return this.updateElectricEnergy(remainingDifference);
     }
 
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.07);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 10;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        // todo: 需要一个充电列表和放电列表
+        return BigDecimal.ONE;
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
+        return BigDecimal.ZERO;
+    }
 }

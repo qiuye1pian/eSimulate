@@ -4,6 +4,7 @@ import lombok.*;
 import org.esimulate.core.model.environment.water.WaterSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.HydroPowerPlantModelDto;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
@@ -19,12 +20,13 @@ import java.util.List;
 /**
  * 小水电机组功率计算 (Java 版)
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "hydro_power_plant_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class HydroPowerPlantModel implements Producer {
+public class HydroPowerPlantModel extends Device implements Producer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -99,8 +101,7 @@ public class HydroPowerPlantModel implements Producer {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
-    @Transient
-    private BigDecimal quantity = BigDecimal.ONE;
+
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
@@ -246,4 +247,31 @@ public class HydroPowerPlantModel implements Producer {
     }
 
 
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.05);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 50;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        return getTotalEnergy()
+                .multiply(quantity)
+                .multiply(this.cost)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
+        return BigDecimal.ZERO;
+    }
 }
