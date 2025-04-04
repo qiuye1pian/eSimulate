@@ -19,7 +19,6 @@ import org.esimulate.core.pso.simulator.result.SimulateResult;
 import org.esimulate.core.pso.simulator.result.SimulateResultType;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -102,7 +101,7 @@ public class Simulator {
                                           List<Provider> providerList, List<Constraint> constraintList) {
         try {
 
-            List<MomentResultFacade> momentResultList = new ArrayList<>();
+            List<MomentResultFacade> momentResultList;
 
             //验证负荷长度和环境长度是否一致，如果一致则返回他们的长度
             int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
@@ -139,6 +138,7 @@ public class Simulator {
                     .producerList(producerList)
                     .storageList(storageList)
                     .providerList(providerList)
+                    .momentResultList(momentResultList)
                     .resultType(SimulateResultType.SUCCESS)
                     .build();
 

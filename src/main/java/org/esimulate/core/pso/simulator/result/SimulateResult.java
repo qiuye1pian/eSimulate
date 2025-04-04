@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.Storage;
+import org.esimulate.core.pso.simulator.facade.result.MomentResultFacade;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class SimulateResult {
 
     List<Provider> providerList;
 
+    List<MomentResultFacade> momentResultList;
 
     private SimulateResult(String message, SimulateResultType resultType) {
         this.message = message;
@@ -40,8 +42,4 @@ public class SimulateResult {
         return new SimulateResult(message, SimulateResultType.FAILED);
     }
 
-
-    public static SimulateResult success() {
-        return new SimulateResult("", SimulateResultType.SUCCESS);
-    }
 }
