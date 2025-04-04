@@ -54,7 +54,7 @@ public abstract class Device {
         // 计算 可控机组启停及运行成本 C_con
         BigDecimal c_con = getCostOfControl();
 
-        return C_cap.add(c_grid);
+        return C_cap.add(c_grid).add(c_op).add(c_con);
 
     }
 
@@ -66,6 +66,9 @@ public abstract class Device {
         BigDecimal onePlusRPowerY = onePlusR.pow(y);
         BigDecimal annuityFactor = r.multiply(onePlusRPowerY)
                 .divide(onePlusRPowerY.subtract(BigDecimal.ONE), 2, RoundingMode.HALF_UP);
-        return getPurchaseCost().multiply(quantity).multiply(annuityFactor);
+        return getPurchaseCost()
+                .multiply(quantity)
+                .multiply(annuityFactor)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 }

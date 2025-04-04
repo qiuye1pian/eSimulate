@@ -143,11 +143,11 @@ public class ThermalPowerModel extends Device implements Producer {
 
     @Override
     protected BigDecimal getCostOfGrid() {
-        return null;
+        return BigDecimal.ZERO;
     }
 
     @Override
     protected BigDecimal getCostOfControl() {
-        return null;
+        return BigDecimal.ZERO;
     }
 }

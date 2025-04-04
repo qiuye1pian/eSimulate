@@ -11,6 +11,10 @@ public class ThermalEnergy implements Thermal {
 
     BigDecimal value;
 
+    final String energyType = "Thermal";
+
+    final String energyTypeName = "热能";
+
     public ThermalEnergy(BigDecimal value){
         this.value =  value.setScale(2, RoundingMode.HALF_UP);;
     }

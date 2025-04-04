@@ -6,4 +6,5 @@ public interface Energy {
 
     BigDecimal getValue();
 
+
 }

@@ -21,7 +21,7 @@ public class RenewableEnergyShare implements Indication {
 
     @Override
     public String getDescription() {
-        return "";
+        return "可再生能源占比";
     }
 
     @Override

@@ -11,6 +11,10 @@ public class ElectricEnergy implements Electricity {
 
     BigDecimal value;
 
+    final String energyType = "Electricity";
+
+    final String energyTypeName = "电能";
+
     public ElectricEnergy(BigDecimal value) {
         this.value = value.setScale(2, RoundingMode.HALF_UP);
     }

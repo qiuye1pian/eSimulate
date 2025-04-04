@@ -21,11 +21,11 @@ public class TotalCostCalculator {
         combinedList.addAll(storageList.stream().map(x -> (Device) x).collect(Collectors.toList()));
         combinedList.addAll(providerList.stream().map(x -> (Device) x).collect(Collectors.toList()));
 
-        BigDecimal purchaseCost = combinedList.stream()
+        BigDecimal totalCost = combinedList.stream()
                 .map(Device::getTotalCost)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        return new TotalCost(purchaseCost);
+        return new TotalCost(totalCost);
     }
 }

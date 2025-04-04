@@ -1,15 +1,17 @@
 package org.esimulate.core.model.result;
 
+import lombok.Data;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
 import java.util.List;
 
+@Data
 public class MomentResult {
 
-    List<Energy> momentFinalEnergy;
+    List<Energy> momentDroppedEnergy;
 
     public MomentResult(List<Energy> afterProvideList) {
-        this.momentFinalEnergy = afterProvideList;
+        this.momentDroppedEnergy = afterProvideList;
     }
 
 }
