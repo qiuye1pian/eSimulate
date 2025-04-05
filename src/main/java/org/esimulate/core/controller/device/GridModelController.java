@@ -18,24 +18,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class GridModelController {
 
     @Autowired
-    private GridService gasBoilerService;
+    private GridService gridService;
 
     @PostMapping("/getListByPage")
     public Page<GridModel> findListByPage(@RequestBody GridPageQuery pageQuery) {
-        return gasBoilerService.findListByPage(pageQuery);
+        return gridService.findListByPage(pageQuery);
     }
 
     @PostMapping("/add")
     public GridModel addGridModel(@RequestBody GridModelDto gasBoilerModelDto) {
         if (gasBoilerModelDto.getId() != null) {
-            return gasBoilerService.updateGridModel(gasBoilerModelDto);
+            return gridService.updateGridModel(gasBoilerModelDto);
         }
-        return gasBoilerService.addGridModel(gasBoilerModelDto);
+        return gridService.addGridModel(gasBoilerModelDto);
     }
     
     @PostMapping("/delete")
     public String deleteGridModel(@RequestBody GridModelDto gasBoilerModelDto) {
-        gasBoilerService.deleteById(gasBoilerModelDto.getId());
+        gridService.deleteById(gasBoilerModelDto.getId());
         return "燃气锅炉模型删除成功";
     }
 
