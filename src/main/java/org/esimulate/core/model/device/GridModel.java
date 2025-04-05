@@ -83,7 +83,7 @@ public class GridModel extends Device implements Provider {
         }
 
         // 从电网买电
-        this.gridOutPutList.add(new ElectricEnergy(afterStorageElectricEnergy));
+        this.gridOutPutList.add(new ElectricEnergy(afterStorageElectricEnergy.abs()));
 
         return new ElectricEnergy(BigDecimal.ZERO);
     }
