@@ -1,12 +1,12 @@
 package org.esimulate.core.application;
 
 import lombok.extern.slf4j.Slf4j;
-import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pojo.simulate.EnvironmentDto;
 import org.esimulate.core.pojo.simulate.LoadDto;
 import org.esimulate.core.pojo.simulate.ModelDto;
 import org.esimulate.core.pojo.simulate.SimulateConfigDto;
 import org.esimulate.core.pso.simulator.Simulator;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.Storage;
@@ -69,6 +69,9 @@ public class SimulateApplication {
 
     @Autowired
     ThermalSaverService thermalSaverService;
+
+    @Autowired
+    GridService gridService;
 
     public SimulateResult doSimulate(SimulateConfigDto simulateConfigDto) {
         log.info("开始仿真");
@@ -182,6 +185,11 @@ public class SimulateApplication {
             case ThermalSaver:
                 device = thermalSaverService.findById(modelDto.getId());
                 break;
+
+            case Grid:
+                device = gridService.findById(modelDto.getId());
+                break;
+
             default:
                 log.error("未识别的模型类型: {}", modelDto.getModelTypeEnum());
                 throw new IllegalArgumentException("未知模型类型: " + modelDto.getModelTypeEnum());

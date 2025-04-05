@@ -7,5 +7,6 @@ public enum ModelTypeEnum {
     ThermalPower,
     Battery,
     GasBoiler,
-    ThermalSaver
+    ThermalSaver,
+    Grid
 }

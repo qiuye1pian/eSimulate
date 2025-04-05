@@ -5,11 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.GridModelDto;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.List;
 @Table(name = "grid_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GridModel implements Provider {
+public class GridModel extends Device implements Provider {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,11 +39,11 @@ public class GridModel implements Provider {
 
     // 单位运行维护成本
     @Column(nullable = false)
-    private BigDecimal cost;
+    private BigDecimal cost = BigDecimal.ZERO;
 
     // 建设成本
     @Column(nullable = false)
-    private BigDecimal purchaseCost;
+    private BigDecimal purchaseCost = BigDecimal.ZERO;
 
     @Transient
     // 电网购买记录 (kW)
@@ -58,7 +60,7 @@ public class GridModel implements Provider {
         this.gridPrice = gridModelDto.getGridPrice();
         this.carbonEmissionFactor = gridModelDto.getCarbonEmissionFactor();
         this.cost = gridModelDto.getCost();
-        this.purchaseCost = gridModelDto.getPurchaseCost();
+//        this.purchaseCost = gridModelDto.getPurchaseCost();
     }
 
     /**
@@ -95,6 +97,35 @@ public class GridModel implements Provider {
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
+        return this.getTotalEnergy()
+                .multiply(carbonEmissionFactor)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.ONE;
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 1;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return this.getTotalEnergy()
+                .multiply(gridPrice)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
         return BigDecimal.ZERO;
     }
 }
