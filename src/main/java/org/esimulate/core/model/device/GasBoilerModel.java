@@ -9,7 +9,6 @@ import org.esimulate.core.pojo.model.GasBoilerModelDto;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -76,18 +75,7 @@ public class GasBoilerModel extends Device implements Provider {
         this.purchaseCost = gasBoilerModelDto.getPurchaseCost();
     }
 
-    private static @NotNull BigDecimal getEnergyGapValue(BigDecimal afterStorageThermalEnergy) {
-        if (afterStorageThermalEnergy.compareTo(BigDecimal.ZERO) >= 0) {
-            // 如果热能有冗余则散逸掉
-            return BigDecimal.ZERO;
-        }
-
-        // 如果热能有缺口，则烧燃气补充能量
-        return afterStorageThermalEnergy.abs();
-
-    }
-
-    // 该方法提供能量，根据存储后的能量列表计算热能缺口，如果热能有冗余则返回零热能；
+    // 该方法提供能量，根据存储后的能量列表计算热能缺口，如果热能有冗余则返回；
     // 如果热能有缺口，则通过燃气补充能量，并计算相应的燃气消耗。
     @Override
     public Energy provide(List<Energy> afterStorageEnergyList) {
@@ -98,23 +86,19 @@ public class GasBoilerModel extends Device implements Provider {
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        return getThermalEnergy(afterStorageThermalEnergy);
-    }
+        // 没有缺口，不需要燃气
+        if (afterStorageThermalEnergy.compareTo(BigDecimal.ZERO) >= 0) {
+            this.gasBoilerOutputList.add(new ThermalEnergy(BigDecimal.ZERO));
+            this.gasConsumptionList.add(BigDecimal.ZERO);
+            return new ThermalEnergy(afterStorageThermalEnergy) ;
+        }
 
-    /**
-     * 该方法根据传入的热能值计算能量差，并生成相应的热能对象和气体消耗量。
-     * 然后将这些值添加到气体锅炉输出列表和气体消耗列表中。
-     *
-     * @param afterStorageThermalEnergy 储存后的热能值
-     * @return 计算得到的热能对象
-     */
-    private @NotNull ThermalEnergy getThermalEnergy(BigDecimal afterStorageThermalEnergy) {
-        BigDecimal energyGapValue = getEnergyGapValue(afterStorageThermalEnergy);
-        ThermalEnergy energyGap = new ThermalEnergy(energyGapValue);
+        // 如果热能有缺口，则烧燃气补充能量
+        ThermalEnergy energyGap = new ThermalEnergy(afterStorageThermalEnergy.abs());
         BigDecimal gasConsumption = calculateGasConsumption(energyGap.getValue());
         this.gasBoilerOutputList.add(energyGap);
         this.gasConsumptionList.add(gasConsumption);
-        return energyGap;
+        return new ThermalEnergy(BigDecimal.ZERO);
     }
 
     /**
@@ -124,10 +108,6 @@ public class GasBoilerModel extends Device implements Provider {
      * @return 燃气消耗量 (m³)
      */
     private BigDecimal calculateGasConsumption(BigDecimal heatDeficit) {
-
-        if (heatDeficit.compareTo(BigDecimal.ZERO) <= 0) {
-            return BigDecimal.ZERO; // 没有缺口，不需要燃气
-        }
 
         // 计算所需燃气能量 (kWh)
         BigDecimal gasEnergyNeeded = heatDeficit.divide(this.etaGB, 2, RoundingMode.HALF_UP);

@@ -66,7 +66,6 @@ public class SolarPowerModel extends Device implements Producer {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
- 
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
