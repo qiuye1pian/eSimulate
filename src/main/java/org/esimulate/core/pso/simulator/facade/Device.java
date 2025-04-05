@@ -10,7 +10,7 @@ import java.math.RoundingMode;
 @Data
 public abstract class Device {
 
-    protected BigDecimal quantity;
+    protected BigDecimal quantity = BigDecimal.ONE;
 
     protected abstract BigDecimal getPurchaseCost();
 
