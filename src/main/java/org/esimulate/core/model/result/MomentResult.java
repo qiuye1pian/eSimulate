@@ -8,10 +8,10 @@ import java.util.List;
 @Data
 public class MomentResult {
 
-    List<Energy> momentDroppedEnergy;
+    List<Energy> curtailmentEnergyList;
 
     public MomentResult(List<Energy> afterProvideList) {
-        this.momentDroppedEnergy = afterProvideList;
+        this.curtailmentEnergyList = afterProvideList;
     }
 
 }

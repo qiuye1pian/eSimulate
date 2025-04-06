@@ -29,7 +29,7 @@ public class CurtailmentRateCalculator {
         }
 
         BigDecimal curtailedEnergy = momentResultList.stream()
-                .map(MomentResult::getMomentDroppedEnergy)
+                .map(MomentResult::getCurtailmentEnergyList)
                 .flatMap(List::stream)
                 .filter(x -> x instanceof ElectricEnergy)
                 .map(Energy::getValue)
