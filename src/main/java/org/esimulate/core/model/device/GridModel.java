@@ -2,6 +2,7 @@ package org.esimulate.core.model.device;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.GridModelDto;
@@ -16,6 +17,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "grid_model")
@@ -37,14 +39,6 @@ public class GridModel extends Device implements Provider {
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
 
-    // 单位运行维护成本
-    @Column(nullable = false)
-    private BigDecimal cost = BigDecimal.ZERO;
-
-    // 建设成本
-    @Column(nullable = false)
-    private BigDecimal purchaseCost = BigDecimal.ZERO;
-
     @Transient
     // 电网购买记录 (kW)
     private List<Energy> gridOutPutList = new ArrayList<>();
@@ -59,8 +53,6 @@ public class GridModel extends Device implements Provider {
         this.modelName = gridModelDto.getModelName();
         this.gridPrice = gridModelDto.getGridPrice();
         this.carbonEmissionFactor = gridModelDto.getCarbonEmissionFactor();
-        this.cost = gridModelDto.getCost();
-//        this.purchaseCost = gridModelDto.getPurchaseCost();
     }
 
     /**
@@ -100,6 +92,11 @@ public class GridModel extends Device implements Provider {
         return this.getTotalEnergy()
                 .multiply(carbonEmissionFactor)
                 .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getPurchaseCost() {
+        return BigDecimal.ZERO;
     }
 
     @Override

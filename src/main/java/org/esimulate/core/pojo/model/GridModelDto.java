@@ -23,18 +23,10 @@ public class GridModelDto {
     // 碳排放因子
     private BigDecimal carbonEmissionFactor;
 
-    // 单位运行维护成本
-    private BigDecimal cost;
-
-    // 建设成本
-    private BigDecimal purchaseCost;
-
     public GridModelDto(GridModel gridModel) {
         this.id = gridModel.getId();
         this.modelName = gridModel.getModelName();
         this.gridPrice = gridModel.getGridPrice();
         this.carbonEmissionFactor = gridModel.getCarbonEmissionFactor();
-        this.cost = gridModel.getCost();
-        this.purchaseCost = gridModel.getPurchaseCost();
     }
 }

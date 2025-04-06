@@ -68,8 +68,6 @@ public class GridService {
         gridModel.setModelName(gridModelDto.getModelName());
         gridModel.setGridPrice(gridModelDto.getGridPrice());
         gridModel.setCarbonEmissionFactor(gridModelDto.getCarbonEmissionFactor());
-        gridModel.setCost(gridModelDto.getCost());
-        gridModel.setPurchaseCost(gridModelDto.getPurchaseCost());
         gridModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return gridRepository.save(gridModel);
     }

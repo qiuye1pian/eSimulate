@@ -58,8 +58,7 @@ public abstract class Device {
 
     }
 
-
-    private @NotNull BigDecimal getAnnualInvestmentCost() {
+    protected @NotNull BigDecimal getAnnualInvestmentCost() {
         BigDecimal r = getDiscountRate();
         int y = getLifetimeYears();
         BigDecimal onePlusR = BigDecimal.ONE.add(r);
