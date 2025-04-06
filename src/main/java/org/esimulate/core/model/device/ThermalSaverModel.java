@@ -58,6 +58,10 @@ public class ThermalSaverModel extends Device implements Storage {
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
 
+    // 维护成本
+    @Column(nullable = false)
+    private BigDecimal cost;
+
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
@@ -89,6 +93,7 @@ public class ThermalSaverModel extends Device implements Storage {
         this.dischargingEfficiency = thermalSaverModelDto.getDischargingEfficiency();
         this.thermalLossRate = thermalSaverModelDto.getThermalLossRate();
         this.carbonEmissionFactor = thermalSaverModelDto.getCarbonEmissionFactor();
+        this.cost = thermalSaverModelDto.getCost();
         this.purchaseCost = thermalSaverModelDto.getPurchaseCost();
     }
 

@@ -36,6 +36,9 @@ public class ThermalSaverModelDto {
     // 碳排放因子
     private BigDecimal carbonEmissionFactor;
 
+    // 维护成本
+    private BigDecimal cost;
+
     // 建设成本
     private BigDecimal purchaseCost;
 
