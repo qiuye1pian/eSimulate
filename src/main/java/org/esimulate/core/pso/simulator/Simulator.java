@@ -48,7 +48,8 @@ public class Simulator {
         List<Energy> differenceList = loadList.stream()
                 // 当前时刻的负荷
                 .map(x -> x.getLoadValue(currentTimeIndex))
-                // todo:如果是同种负荷，多个叠加，需要进行group之后求和，这里的逻辑待完善
+                // todo:如果是同种负荷，多个叠加，需要通过Energy.getEnergyType()进行group之后把Energy::add reduce
+
                 // 分别去计算能量冗余/缺口
                 // 冗余/缺口 数据 = 当前时刻能量产出量 - 当前时刻的负荷
                 .map(x -> x.calculateDifference(produceList))

@@ -6,5 +6,7 @@ public interface Energy {
 
     BigDecimal getValue();
 
+    String getEnergyType();
 
+    Energy add(Energy energy);
 }

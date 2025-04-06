@@ -1,6 +1,7 @@
 package org.esimulate.core.model.result.energy;
 
 import lombok.Getter;
+import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.pso.simulator.facade.result.energy.Thermal;
 
 import java.math.BigDecimal;
@@ -19,4 +20,12 @@ public class ThermalEnergy implements Thermal {
         this.value =  value.setScale(2, RoundingMode.HALF_UP);;
     }
 
+    public ThermalEnergy add(BigDecimal param) {
+        return new ThermalEnergy(this.value.add(param));
+    }
+
+    @Override
+    public Energy add(Energy energy) {
+        return this.add(energy.getValue());
+    }
 }
