@@ -3,6 +3,7 @@ package org.esimulate.core.pso.simulator;
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.MomentResult;
 import org.esimulate.core.model.result.indication.calculator.CarbonEmissionCalculator;
+import org.esimulate.core.model.result.indication.calculator.CurtailmentRateCalculator;
 import org.esimulate.core.model.result.indication.calculator.RenewableEnergyShareCalculator;
 import org.esimulate.core.model.result.indication.calculator.TotalCostCalculator;
 import org.esimulate.core.pso.simulator.facade.Producer;
@@ -116,8 +117,8 @@ public class Simulator {
             Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
             Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
             Indication totalCost = TotalCostCalculator.calculate(producerList, storageList, providerList);
-
-            List<Indication> indicationList = Arrays.asList(renewableEnergyPercent, carbonEmission, totalCost);
+            Indication curtailmentRate  = CurtailmentRateCalculator.calculate(producerList, momentResultList);
+            List<Indication> indicationList = Arrays.asList(renewableEnergyPercent, carbonEmission, totalCost, curtailmentRate);
 
             return SimulateResult.builder()
                     .indicationList(indicationList)
