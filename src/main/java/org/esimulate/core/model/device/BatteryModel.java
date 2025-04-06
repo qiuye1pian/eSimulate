@@ -135,6 +135,12 @@ public class BatteryModel extends Device implements Storage {
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
+        //按台数扩容
+        this.C_t = this.C_t.multiply(quantity);
+        this.maxChargePower = this.maxChargePower.multiply(quantity);
+        this.maxDischargePower = this.maxDischargePower.multiply(quantity);
+        this.E_ESS_t = this.E_ESS_t.multiply(quantity);
+
         // 2. 计算自然放电并更新储电量
         // 自然放电损失
         BigDecimal naturalDischarge = this.E_ESS_t.multiply(this.mu);
@@ -144,6 +150,12 @@ public class BatteryModel extends Device implements Storage {
         BigDecimal remainingDifference = updateElectricEnergy(electricEnergyDifference);
 
         this.E_ESS_LIST.add(new ElectricEnergy(E_ESS_t));
+
+        //按台数缩容
+        this.C_t = this.C_t.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.maxChargePower = this.maxChargePower.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.maxDischargePower = this.maxDischargePower.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.E_ESS_t = this.E_ESS_t.divide(quantity, 2, RoundingMode.HALF_UP);
 
         // 4. 返回剩余的电能差值
         return new ElectricEnergy(remainingDifference);
