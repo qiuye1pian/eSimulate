@@ -14,6 +14,7 @@ import org.jetbrains.annotations.TestOnly;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +77,10 @@ public class BatteryModel extends Device implements Storage {
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
 
+    // 维护成本
+    @Column(nullable = false)
+    private BigDecimal cost;
+
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
@@ -90,6 +95,12 @@ public class BatteryModel extends Device implements Storage {
     // 每个时刻电池的剩余电量 (Wh)
     private List<ElectricEnergy> E_ESS_LIST = new ArrayList<>();
 
+    @Transient
+    private List<BigDecimal> chargingList = new ArrayList<>();
+
+    @Transient
+    private List<BigDecimal> disChargingList = new ArrayList<>();
+
     public BatteryModel(BatteryModelDto batteryModelDto) {
         this.modelName = batteryModelDto.getModelName();
         this.C_t = batteryModelDto.getCt();
@@ -102,6 +113,7 @@ public class BatteryModel extends Device implements Storage {
         this.etaHdis = batteryModelDto.getEtaHDis();
         this.E_ESS_t = batteryModelDto.getEESSt();
         this.carbonEmissionFactor = batteryModelDto.getCarbonEmissionFactor();
+        this.cost = batteryModelDto.getCost();
         this.purchaseCost = batteryModelDto.getPurchaseCost();
     }
 
@@ -153,6 +165,7 @@ public class BatteryModel extends Device implements Storage {
             BigDecimal maxChargeCapacity = this.C_t.multiply(this.SOC_max).subtract(this.E_ESS_t);
             // 取出 待充能量，最大可用充电容量，最大充电功率 中最小的值作为实际充电量
             BigDecimal actualCharge = remainingDifference.min(this.maxChargePower).min(maxChargeCapacity); // 实际充电量
+            this.chargingList.add(actualCharge);
             // 更新储电量，剩余电量 += 实际充电量 * 充电效率
             this.E_ESS_t = this.E_ESS_t.add(actualCharge.multiply(this.etaHch));
             // 剩余冗余
@@ -164,6 +177,7 @@ public class BatteryModel extends Device implements Storage {
             BigDecimal maxDischargeCapacity = this.E_ESS_t.subtract(this.C_t.multiply(this.SOC_min));
             // 取出 待放能量，最大可用放电容量，最大放电功率 中最小的值作为实际放电量
             BigDecimal actualDischarge = remainingDifference.abs().min(this.maxDischargePower).min(maxDischargeCapacity);
+            this.disChargingList.add(actualDischarge);
             // 更新储电量，剩余电量 -= 实际放电量 * 放电效率
             this.E_ESS_t = this.E_ESS_t.subtract(actualDischarge.multiply(this.etaHdis));
             // 剩余缺口
@@ -194,8 +208,12 @@ public class BatteryModel extends Device implements Storage {
 
     @Override
     protected BigDecimal getCostOfOperation() {
-        // todo: 需要一个充电列表和放电列表
-        return BigDecimal.ONE;
+        BigDecimal chargingTotal = this.chargingList.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        BigDecimal disChargingTotal = this.disChargingList.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+
+        return chargingTotal.add(disChargingTotal)
+                .multiply(this.cost)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     @Override

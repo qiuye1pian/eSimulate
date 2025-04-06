@@ -182,8 +182,7 @@ public class ThermalSaverModel extends Device implements Storage {
         BigDecimal disChargingTotal = this.disChargingList.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
 
         return chargingTotal.add(disChargingTotal)
-                //todo: 也加一个可维护的cost
-                .multiply(BigDecimal.valueOf(0.03))
+                .multiply(this.cost)
                 .setScale(2, RoundingMode.HALF_UP);
     }
 

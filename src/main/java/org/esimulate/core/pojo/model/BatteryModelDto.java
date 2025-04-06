@@ -48,6 +48,9 @@ public class BatteryModelDto {
     // 碳排放因子
     private BigDecimal carbonEmissionFactor;
 
+    // 维护成本
+    private BigDecimal cost;
+
     // 建设成本
     private BigDecimal purchaseCost;
 
@@ -64,6 +67,7 @@ public class BatteryModelDto {
         this.etaHDis = batteryModel.getEtaHdis();
         this.EESSt = batteryModel.getE_ESS_t();
         this.carbonEmissionFactor = batteryModel.getCarbonEmissionFactor();
+        this.cost = batteryModel.getCost();
         this.purchaseCost = batteryModel.getPurchaseCost();
     }
 }
