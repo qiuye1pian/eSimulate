@@ -160,25 +160,39 @@ public class BatteryModel extends Device implements Storage {
      */
     private @NotNull BigDecimal updateElectricEnergy(BigDecimal remainingDifference) {
         if (remainingDifference.compareTo(BigDecimal.ZERO) > 0) {
+            this.disChargingList.add(BigDecimal.ZERO);
+
             // 3.1 充电逻辑
             // 计算最大可用充电容量 = 最大容量 * SOC_max - 剩余电量
             BigDecimal maxChargeCapacity = this.C_t.multiply(this.SOC_max).subtract(this.E_ESS_t);
+
+            if (maxChargeCapacity.compareTo(BigDecimal.ZERO) < 0) {
+                // 如果没有可充电量了
+                this.chargingList.add(BigDecimal.ZERO);
+                return remainingDifference;
+            }
+
             // 取出 待充能量，最大可用充电容量，最大充电功率 中最小的值作为实际充电量
             BigDecimal actualCharge = remainingDifference.min(this.maxChargePower).min(maxChargeCapacity); // 实际充电量
             this.chargingList.add(actualCharge.setScale(2, RoundingMode.HALF_UP));
-            this.disChargingList.add(BigDecimal.ZERO);
+
             // 更新储电量，剩余电量 += 实际充电量 * 充电效率
             this.E_ESS_t = this.E_ESS_t.add(actualCharge.multiply(this.etaHch).setScale(2, RoundingMode.HALF_UP));
             // 剩余冗余
             return remainingDifference.subtract(actualCharge);
         }
         if (remainingDifference.compareTo(BigDecimal.ZERO) < 0) {
+            this.chargingList.add(BigDecimal.ZERO);
             // 3.2 放电逻辑
             // 计算最大可用放电容量 = 剩余电量 - 最大容量 * SOC_min
             BigDecimal maxDischargeCapacity = this.E_ESS_t.subtract(this.C_t.multiply(this.SOC_min));
+            if (maxDischargeCapacity.compareTo(BigDecimal.ZERO) <= 0) {
+                this.disChargingList.add(BigDecimal.ZERO);
+                // 如果没有可放电量了
+                return remainingDifference;
+            }
             // 取出 待放能量，最大可用放电容量，最大放电功率 中最小的值作为实际放电量
             BigDecimal actualDischarge = remainingDifference.abs().min(this.maxDischargePower).min(maxDischargeCapacity);
-            this.chargingList.add(BigDecimal.ZERO);
             this.disChargingList.add(actualDischarge.setScale(2, RoundingMode.HALF_UP));
             // 更新储电量，剩余电量 -= 实际放电量 * 放电效率
             this.E_ESS_t = this.E_ESS_t.subtract(actualDischarge.multiply(this.etaHdis)).setScale(2, RoundingMode.HALF_UP);
