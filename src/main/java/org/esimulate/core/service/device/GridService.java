@@ -75,7 +75,7 @@ public class GridService {
     @Transactional(readOnly = true)
     public GridModel findById(Long id) {
         return gridRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("未找到对应的燃气锅炉模型，ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的电网电价模型，ID: " + id));
     }
 
 
