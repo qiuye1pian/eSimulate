@@ -24,7 +24,6 @@ public class ThermalEnergy implements Thermal {
         return new ThermalEnergy(this.value.add(param));
     }
 
-    @Override
     public Energy add(Energy energy) {
         return this.add(energy.getValue());
     }

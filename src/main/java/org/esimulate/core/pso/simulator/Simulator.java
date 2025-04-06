@@ -14,6 +14,7 @@ import org.esimulate.core.pso.simulator.facade.constraint.Constraint;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentData;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.load.LoadData;
+import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 import org.esimulate.core.pso.simulator.result.SimulateResult;
@@ -48,8 +49,14 @@ public class Simulator {
         List<Energy> differenceList = loadList.stream()
                 // 当前时刻的负荷
                 .map(x -> x.getLoadValue(currentTimeIndex))
-                // todo:如果是同种负荷，多个叠加，需要通过Energy.getEnergyType()进行group之后把Energy::add reduce
-
+                // 用能量类型来分类
+                .collect(Collectors.toMap(
+                        LoadValue::getClass,
+                        e -> e,
+                        // 求和
+                        LoadValue::add
+                )).values()
+                .stream()
                 // 分别去计算能量冗余/缺口
                 // 冗余/缺口 数据 = 当前时刻能量产出量 - 当前时刻的负荷
                 .map(x -> x.calculateDifference(produceList))

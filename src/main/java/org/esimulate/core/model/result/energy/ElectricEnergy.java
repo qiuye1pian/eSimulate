@@ -56,7 +56,6 @@ public class ElectricEnergy implements Electricity {
         return divide(param.getValue());
     }
 
-    @Override
     public Energy add(Energy energy) {
         this.value = this.value.add(energy.getValue());
         return new ElectricEnergy(this.value);

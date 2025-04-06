@@ -8,5 +8,4 @@ public interface Energy {
 
     String getEnergyType();
 
-    Energy add(Energy energy);
 }

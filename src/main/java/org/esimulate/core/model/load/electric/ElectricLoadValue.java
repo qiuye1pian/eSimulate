@@ -8,7 +8,6 @@ import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.TestOnly;
 
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -42,6 +41,12 @@ public class ElectricLoadValue implements LoadValue {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @TestOnly
+    public ElectricLoadValue(LocalDateTime datetime, BigDecimal loadValue) {
+        this.datetime = datetime;
+        this.loadValue = loadValue;
+    }
+
     @Override
     public Energy calculateDifference(List<Energy> produceList) {
         BigDecimal electricEnergyProduced = produceList.stream()
@@ -54,9 +59,9 @@ public class ElectricLoadValue implements LoadValue {
         return new ElectricEnergy(electricEnergyProduced.subtract(this.loadValue));
     }
 
-    @TestOnly
-    public ElectricLoadValue(LocalDateTime datetime, BigDecimal loadValue) {
-        this.datetime = datetime;
-        this.loadValue = loadValue;
+    @Override
+    public LoadValue add(LoadValue loadValue) {
+        this.loadValue = this.loadValue.add(loadValue.getLoadValue());
+        return this;
     }
 }
