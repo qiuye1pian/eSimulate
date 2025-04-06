@@ -10,6 +10,7 @@ import java.math.RoundingMode;
 @Data
 public abstract class Device {
 
+    @Transient
     protected BigDecimal quantity = BigDecimal.ONE;
 
     protected abstract BigDecimal getPurchaseCost();
