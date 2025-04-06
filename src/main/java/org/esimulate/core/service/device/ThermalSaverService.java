@@ -83,6 +83,6 @@ public class ThermalSaverService {
     @Transactional(readOnly = true)
     public ThermalSaverModel findById(Long id) {
         return thermalSaverRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("未找到对应的电池模型，ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的储热模型，ID: " + id));
     }
 }
