@@ -107,8 +107,8 @@ public class WaterSpeedSchemeService {
     }
 
     @Transactional(readOnly = true)
-    public WaterSpeedScheme findById(Long id) {
-        return waterSpeedSchemeRepository.findById(id)
+    public WaterSpeedScheme findWithValuesById(Long id) {
+        return waterSpeedSchemeRepository.findWithValuesById(id)
                 .orElseThrow(() -> new IllegalArgumentException("未找到对应的水流数据，ID: " + id));
     }
 }

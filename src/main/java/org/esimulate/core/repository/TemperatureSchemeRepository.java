@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.esimulate.core.model.environment.temperature.TemperatureScheme;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +17,6 @@ public interface TemperatureSchemeRepository extends JpaRepository<TemperatureSc
 
     Optional<TemperatureScheme> findBySchemeName(@NonNull String schemeName);
 
+    @EntityGraph(attributePaths = "temperatureValues")
+    Optional<TemperatureScheme> findWithValuesById(Long id);
 }

@@ -107,8 +107,8 @@ public class ThermalLoadSchemeService {
     }
 
     @Transactional(readOnly = true)
-    public ThermalLoadScheme findById(Long id) {
-        return thermalLoadSchemeRepository.findById(id)
+    public ThermalLoadScheme findWithValuesById(Long id) {
+        return thermalLoadSchemeRepository.findWithValuesById(id)
                 .orElseThrow(() -> new IllegalArgumentException("未找到对应的热负荷方案，ID: " + id));
     }
 }

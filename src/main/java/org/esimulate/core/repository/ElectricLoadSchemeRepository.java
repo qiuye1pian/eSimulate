@@ -3,6 +3,7 @@ package org.esimulate.core.repository;
 import org.esimulate.core.model.load.electric.ElectricLoadScheme;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,6 @@ public interface ElectricLoadSchemeRepository extends JpaRepository<ElectricLoad
 
     Optional<ElectricLoadScheme> findBySchemeName(String schemeName);
 
+    @EntityGraph(attributePaths = "electricLoadValues")
+    Optional<ElectricLoadScheme> findWithValuesById(Long id);
 }

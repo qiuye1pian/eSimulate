@@ -135,19 +135,19 @@ public class SimulateApplication {
     private EnvironmentData readEnvironmentData(EnvironmentDto environmentDto) {
         switch (environmentDto.getEnvironmentTypeEnum()) {
             case WindSpeed:
-                return windSpeedSchemeService.findById(environmentDto.getId());
+                return windSpeedSchemeService.findWithValuesById(environmentDto.getId());
 
             case WaterSpeed:
-                return waterSpeedSchemeService.findById(environmentDto.getId());
+                return waterSpeedSchemeService.findWithValuesById(environmentDto.getId());
 
             case Temperature:
-                return temperatureSchemeService.findById(environmentDto.getId());
+                return temperatureSchemeService.findWithValuesById(environmentDto.getId());
 
             case Sunlight:
-                return sunlightIrradianceSchemeService.findById(environmentDto.getId());
+                return sunlightIrradianceSchemeService.findWithValuesById(environmentDto.getId());
 
             case Gas:
-                return gasSchemeService.findById(environmentDto.getId());
+                return gasSchemeService.findWithValuesById(environmentDto.getId());
 
             default:
                 log.error("未识别的环境类型: {}", environmentDto.getEnvironmentTypeEnum());
@@ -201,9 +201,9 @@ public class SimulateApplication {
     private LoadData readLoadData(LoadDto loadDto) {
         switch (loadDto.getLoadTypeEnum()) {
             case ElectricLoad:
-                return electricLoadSchemeService.findById(loadDto.getId());
+                return electricLoadSchemeService.findWithValuesById(loadDto.getId());
             case ThermalLoad:
-                return thermalLoadSchemeService.findById(loadDto.getId());
+                return thermalLoadSchemeService.findWithValuesById(loadDto.getId());
             default:
                 log.error("未识别的负荷类型: {}, ID={}", loadDto.getLoadTypeEnum(), loadDto.getId());
                 throw new IllegalArgumentException("未知负荷类型: " + loadDto.getLoadTypeEnum() +

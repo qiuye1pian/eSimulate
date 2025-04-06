@@ -107,8 +107,8 @@ public class WindSpeedSchemeService {
     }
 
     @Transactional(readOnly = true)
-    public WindSpeedScheme findById(Long id) {
-        return windSpeedSchemeRepository.findById(id)
+    public WindSpeedScheme findWithValuesById(Long id) {
+        return windSpeedSchemeRepository.findWithValuesById(id)
                 .orElseThrow(() -> new IllegalArgumentException("未找到对应的风速数据，ID: " + id));
     }
 }

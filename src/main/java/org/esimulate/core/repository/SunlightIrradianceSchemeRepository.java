@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceScheme;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,5 +17,8 @@ public interface SunlightIrradianceSchemeRepository extends JpaRepository<Sunlig
 
 
     Optional<SunlightIrradianceScheme> findBySchemeName(@NonNull String schemeName);
+
+    @EntityGraph(attributePaths = "sunlightIrradianceValues")
+    Optional<SunlightIrradianceScheme> findWithValuesById(Long id);
 
 }

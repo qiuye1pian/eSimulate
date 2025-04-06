@@ -107,8 +107,8 @@ public class GasSchemeService {
     }
 
     @Transactional(readOnly = true)
-    public GasScheme findById(Long id) {
-        return gasSchemeRepository.findById(id)
+    public GasScheme findWithValuesById(Long id) {
+        return gasSchemeRepository.findWithValuesById(id)
                 .orElseThrow(() -> new IllegalArgumentException("未找到对应的温度数据，ID: " + id));
     }
 }

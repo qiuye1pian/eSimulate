@@ -109,8 +109,8 @@ public class SunlightIrradianceSchemeService {
 
 
     @Transactional(readOnly = true)
-    public SunlightIrradianceScheme findById(Long id) {
-        return sunlightIrradianceSchemeRepository.findById(id)
+    public SunlightIrradianceScheme findWithValuesById(Long id) {
+        return sunlightIrradianceSchemeRepository.findWithValuesById(id)
                 .orElseThrow(() -> new IllegalArgumentException("未找到对应的光照数据，ID: " + id));
     }
 }
