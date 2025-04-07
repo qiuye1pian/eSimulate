@@ -15,6 +15,7 @@ import java.math.RoundingMode;
 import java.util.List;
 
 public class CurtailmentRateCalculator {
+
     public static Indication calculate(List<Producer> producerList, List<MomentResult> momentResultList) {
 
         BigDecimal totalWindAndSolarPower = producerList.stream()
@@ -25,7 +26,7 @@ public class CurtailmentRateCalculator {
                 .orElse(BigDecimal.ZERO);
 
         if (BigDecimal.ZERO.equals(totalWindAndSolarPower)) {
-            return new CurtailmentRate(BigDecimal.ONE);
+            return new CurtailmentRate(BigDecimal.valueOf(100));
         }
 
         BigDecimal curtailedEnergy = momentResultList.stream()
@@ -43,9 +44,9 @@ public class CurtailmentRateCalculator {
         BigDecimal curtailmentRate = curtailedEnergy.divide(totalWindAndSolarPower, 2, RoundingMode.HALF_UP);
 
         if (curtailmentRate.compareTo(BigDecimal.ONE) > 0) {
-            return new CurtailmentRate(BigDecimal.ONE);
+            return new CurtailmentRate(BigDecimal.valueOf(100));
         }
 
-        return new CurtailmentRate(curtailmentRate);
+        return new CurtailmentRate(curtailmentRate.multiply(BigDecimal.valueOf(100).setScale(0, RoundingMode.HALF_UP)));
     }
 }
