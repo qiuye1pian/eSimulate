@@ -16,6 +16,6 @@ public class ModelDto {
 
     Long id;
 
-    BigDecimal quantity;
+    BigDecimal quantity = BigDecimal.ONE;
 
 }
