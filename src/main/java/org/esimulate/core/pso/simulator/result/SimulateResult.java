@@ -9,6 +9,7 @@ import org.esimulate.core.model.result.MomentResult;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.Storage;
+import org.esimulate.core.pso.simulator.facade.load.LoadData;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 
 import java.util.List;
@@ -25,6 +26,8 @@ public class SimulateResult {
 
     List<Indication> indicationList;
 
+    List<LoadData> loadList;
+
     List<Producer> producerList;
 
     List<Storage> storageList;
@@ -32,6 +35,7 @@ public class SimulateResult {
     List<Provider> providerList;
 
     List<MomentResult> momentResultList;
+
 
     private SimulateResult(String message, SimulateResultType resultType) {
         this.message = message;

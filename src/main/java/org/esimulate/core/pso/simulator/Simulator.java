@@ -129,6 +129,7 @@ public class Simulator {
             List<Indication> indicationList = Arrays.asList(renewableEnergyPercent, carbonEmission, totalCost, curtailmentRate);
 
             return SimulateResult.builder()
+                    .loadList(loadList)
                     .indicationList(indicationList)
                     .producerList(producerList)
                     .storageList(storageList)
