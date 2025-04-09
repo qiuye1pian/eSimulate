@@ -104,24 +104,9 @@ public class SimulateApplication {
         long endModelData = System.currentTimeMillis();
         log.info("加载模型耗时： {} ms", (endModelData - startModelData));
 
-        List<Producer> producerList = deviceList.stream()
-                .filter(x -> x instanceof Producer)
-                .map(x -> (Producer) x)
-                .collect(Collectors.toList());
-
-        List<Storage> storageList = deviceList.stream()
-                .filter(x -> x instanceof Storage)
-                .map(x -> (Storage) x)
-                .collect(Collectors.toList());
-
-        List<Provider> providerList = deviceList.stream()
-                .filter(x -> x instanceof Provider)
-                .map(x -> (Provider) x)
-                .collect(Collectors.toList());
-
         log.info("进入仿真计算");
         long startSimulation = System.currentTimeMillis();
-        SimulateResult simulate = Simulator.simulate(loadDataList, environmentDataList, producerList, storageList, providerList, new ArrayList<>());
+        SimulateResult simulate = Simulator.simulate(loadDataList, environmentDataList, deviceList, new ArrayList<>());
         long endSimulation = System.currentTimeMillis();
         log.info("仿真计算耗时： {} ms", (endSimulation - startSimulation));
 

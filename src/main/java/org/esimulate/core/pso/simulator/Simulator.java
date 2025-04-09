@@ -6,6 +6,7 @@ import org.esimulate.core.model.result.indication.calculator.CarbonEmissionCalcu
 import org.esimulate.core.model.result.indication.calculator.CurtailmentRateCalculator;
 import org.esimulate.core.model.result.indication.calculator.RenewableEnergyShareCalculator;
 import org.esimulate.core.model.result.indication.calculator.TotalCostCalculator;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.Storage;
@@ -30,7 +31,13 @@ import java.util.stream.Stream;
 @Slf4j
 public class Simulator {
 
-    private static MomentResult calculateAMoment(List<LoadData> loadList, List<EnvironmentData> environmentList, List<Producer> producerList, List<Storage> storageList, List<Provider> providerList, int timeIndex) {
+    private static MomentResult calculateAMoment(List<LoadData> loadList,
+                                                 List<EnvironmentData> environmentList,
+                                                 List<Producer> producerList,
+                                                 List<Storage> storageList,
+                                                 List<Provider> providerList,
+                                                 int timeIndex) {
+
         final Integer currentTimeIndex = timeIndex;
 
         //准备好环境数据
@@ -99,16 +106,27 @@ public class Simulator {
     /**
      * @param loadList        负荷
      * @param environmentList 环境数据
-     * @param producerList    生产者
-     * @param storageList     储能
-     * @param providerList    供应商
+     * @param deviceList      模型列表
      * @param constraintList  约束
      * @return 仿真结果
      */
     public static SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList,
-                                          List<Producer> producerList, List<Storage> storageList,
-                                          List<Provider> providerList, List<Constraint> constraintList) {
+                                          List<Device> deviceList, List<Constraint> constraintList) {
         try {
+            List<Producer> producerList = deviceList.stream()
+                    .filter(x -> x instanceof Producer)
+                    .map(x -> (Producer) x)
+                    .collect(Collectors.toList());
+
+            List<Storage> storageList = deviceList.stream()
+                    .filter(x -> x instanceof Storage)
+                    .map(x -> (Storage) x)
+                    .collect(Collectors.toList());
+
+            List<Provider> providerList = deviceList.stream()
+                    .filter(x -> x instanceof Provider)
+                    .map(x -> (Provider) x)
+                    .collect(Collectors.toList());
 
             //验证负荷长度和环境长度是否一致，如果一致则返回他们的长度
             int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
