@@ -13,13 +13,19 @@ import java.util.List;
 public abstract class ChartLineDto<X, Y> {
 
     protected XAxis<X> xAxis;
-    protected YAxis<Y> yAxis;
+    protected YAxis yAxis;
     protected List<Series<Y>> series;
 
-    protected void init(List<X> xAxisData, List<Y> seriesData, Y yAxisMax) {
+    protected void init(List<X> xAxisData, List<Y> seriesData, String yAxisMax) {
         this.xAxis = new XAxis<>(xAxisData);
-        this.yAxis = new YAxis<>(yAxisMax);
-        this.series = Collections.singletonList(new Series<>(seriesData));
+        this.yAxis = new YAxis(yAxisMax);
+        this.series = Collections.singletonList(new Series<>("", seriesData));
+    }
+
+    protected void init(List<X> xAxisData, String name, List<Y> seriesData, String yAxisMax) {
+        this.xAxis = new XAxis<>(xAxisData);
+        this.yAxis = new YAxis(yAxisMax);
+        this.series = Collections.singletonList(new Series<>(name, seriesData));
     }
 
     @Getter
@@ -41,15 +47,15 @@ public abstract class ChartLineDto<X, Y> {
     @Getter
     @Setter
     @AllArgsConstructor
-    public static class YAxis<Y> {
-        private Y max;
+    public static class YAxis {
+        private String max;
     }
 
     @Getter
     @Setter
     @AllArgsConstructor
     public static class Series<Y> {
-        private final String name = "";
+        private final String name;
         private final String type = "line";
         private final Boolean smooth = true;
         private final String stack = "Total";

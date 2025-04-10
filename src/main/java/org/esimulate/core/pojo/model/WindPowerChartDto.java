@@ -25,7 +25,7 @@ public class WindPowerChartDto extends ChartLineDto<BigDecimal, BigDecimal> {
                 .multiply(BigDecimal.valueOf(1.33))
                 .setScale(0, RoundingMode.DOWN);
 
-        this.init(xAxisData, seriesData, yAxisMax);
+        this.init(xAxisData, seriesData, yAxisMax.toString());
 
         this.getXAxis().getAxisLabel().setFormatter("{value} m/s");
     }
