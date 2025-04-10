@@ -9,13 +9,16 @@ import org.esimulate.core.pojo.model.GasBoilerModelDto;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.pso.simulator.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -178,5 +181,12 @@ public class GasBoilerModel extends Device implements Provider {
     @Override
     protected BigDecimal getCostOfControl() {
         return BigDecimal.ZERO;
+    }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        List<BigDecimal> collect = this.gasBoilerOutputList.stream().map(Energy::getValue).collect(Collectors.toList());
+        StackedChartData stackedChartData = new StackedChartData(this.modelName,collect,300);
+        return Collections.singletonList(stackedChartData);
     }
 }

@@ -12,13 +12,16 @@ import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.pso.simulator.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 光伏出力计算 (Java 版)
@@ -31,45 +34,34 @@ import java.util.List;
 @NoArgsConstructor
 public class SolarPowerModel extends Device implements Producer {
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false, unique = true)
     private String modelName;
-
     // 光伏系统额定功率 (kW)
     @Column(nullable = false)
     private BigDecimal P_pvN;
-
     // 光伏组件温度系数 (1/℃)，通常为负值
     @Column(nullable = false)
     private BigDecimal t_e;
-
     // 参考温度 (℃)
     @Column(nullable = false)
     private BigDecimal T_ref;
-
     // 参考辐照度 (W/m²)
     @Column(nullable = false)
     private BigDecimal G_ref;
-
     // 碳排放因子
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
-
     // 发电成本
     @Column(nullable = false)
     private BigDecimal cost;
-
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
-
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
-
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
@@ -171,5 +163,12 @@ public class SolarPowerModel extends Device implements Producer {
     @Override
     protected BigDecimal getCostOfControl() {
         return BigDecimal.ZERO;
+    }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
+        StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 500);
+        return Collections.singletonList(stackedChartData);
     }
 }

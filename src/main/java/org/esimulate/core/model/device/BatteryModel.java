@@ -9,6 +9,7 @@ import org.esimulate.core.pojo.model.BatteryModelDto;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.pso.simulator.result.StackedChartData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
@@ -17,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -253,4 +255,12 @@ public class BatteryModel extends Device implements Storage {
     protected BigDecimal getCostOfControl() {
         return BigDecimal.ZERO;
     }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        StackedChartData chargingList = new StackedChartData(String.format("%s 充电", this.modelName), this.chargingList, 600);
+        StackedChartData disChargingList = new StackedChartData(String.format("%s 放电", this.modelName), this.disChargingList, 600);
+        return Arrays.asList(chargingList, disChargingList);
+    }
+
 }

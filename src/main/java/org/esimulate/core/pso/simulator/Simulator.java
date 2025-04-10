@@ -20,9 +20,14 @@ import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 import org.esimulate.core.pso.simulator.result.SimulateResult;
 import org.esimulate.core.pso.simulator.result.SimulateResultType;
+import org.esimulate.core.pso.simulator.result.StackedChartData;
+import org.esimulate.core.pso.simulator.result.StackedChartDto;
+import org.esimulate.util.DateTimeUtil;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -138,21 +143,17 @@ public class Simulator {
                     .collect(Collectors.toList());
 
 
-            //计算指标
 
-            Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
-            Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
-            Indication totalCost = TotalCostCalculator.calculate(producerList, storageList, providerList);
-            Indication curtailmentRate  = CurtailmentRateCalculator.calculate(producerList, momentResultList);
-            List<Indication> indicationList = Arrays.asList(renewableEnergyPercent, carbonEmission, totalCost, curtailmentRate);
+
 
             return SimulateResult.builder()
                     .loadList(loadList)
-                    .indicationList(indicationList)
                     .producerList(producerList)
                     .storageList(storageList)
                     .providerList(providerList)
                     .momentResultList(momentResultList)
+                    .indicationList(getIndications(producerList, providerList, storageList, momentResultList))
+                    .stackedChartDto(getStackedChartDto(loadList, deviceList))
                     .resultType(SimulateResultType.SUCCESS)
                     .build();
 
@@ -163,5 +164,30 @@ public class Simulator {
 
     }
 
-}
+    private static @NotNull StackedChartDto getStackedChartDto(List<LoadData> loadList, List<Device> deviceList) {
+        List<StackedChartData> stackedChartDataList = deviceList.stream()
+                .map(Device::getStackedChartDataList)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
 
+        List<String> sortedLocalDateTimes = loadList.stream()
+                .findFirst()
+                .map(LoadData::getDatetimeList)
+                .map(list -> list.stream()
+                        .sorted()
+                        .map(DateTimeUtil::formatNoYearString)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+
+        return new StackedChartDto(sortedLocalDateTimes, stackedChartDataList);
+    }
+
+    private static @NotNull List<Indication> getIndications(List<Producer> producerList, List<Provider> providerList, List<Storage> storageList, List<MomentResult> momentResultList) {
+        Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
+        Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
+        Indication totalCost = TotalCostCalculator.calculate(producerList, storageList, providerList);
+        Indication curtailmentRate  = CurtailmentRateCalculator.calculate(producerList, momentResultList);
+        return Arrays.asList(renewableEnergyPercent, carbonEmission, totalCost, curtailmentRate);
+    }
+
+}

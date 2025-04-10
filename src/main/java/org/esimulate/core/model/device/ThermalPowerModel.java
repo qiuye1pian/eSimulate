@@ -11,13 +11,16 @@ import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.pso.simulator.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -149,5 +152,12 @@ public class ThermalPowerModel extends Device implements Producer {
     @Override
     protected BigDecimal getCostOfControl() {
         return BigDecimal.ZERO;
+    }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        List<BigDecimal> collect = this.thermalEnergyList.stream().map(ThermalEnergy::getValue).collect(Collectors.toList());
+        StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 200);
+        return Collections.singletonList(stackedChartData);
     }
 }

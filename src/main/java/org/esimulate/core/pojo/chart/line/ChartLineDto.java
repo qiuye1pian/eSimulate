@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -16,17 +15,13 @@ public abstract class ChartLineDto<X, Y> {
     protected YAxis yAxis;
     protected List<Series<Y>> series;
 
-    protected void init(List<X> xAxisData, List<Y> seriesData, String yAxisMax) {
+    protected void init(List<X> xAxisData, List<Series<Y>> seriesData, String yAxisMax) {
         this.xAxis = new XAxis<>(xAxisData);
         this.yAxis = new YAxis(yAxisMax);
-        this.series = Collections.singletonList(new Series<>("", seriesData));
+        this.series = seriesData;
     }
 
-    protected void init(List<X> xAxisData, String name, List<Y> seriesData, String yAxisMax) {
-        this.xAxis = new XAxis<>(xAxisData);
-        this.yAxis = new YAxis(yAxisMax);
-        this.series = Collections.singletonList(new Series<>(name, seriesData));
-    }
+
 
     @Getter
     @Setter

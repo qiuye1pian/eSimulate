@@ -1,11 +1,13 @@
 package org.esimulate.core.pso.simulator.facade;
 
 import lombok.Data;
+import org.esimulate.core.pso.simulator.result.StackedChartData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Transient;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 @Data
 public abstract class Device {
@@ -71,4 +73,6 @@ public abstract class Device {
                 .multiply(annuityFactor)
                 .setScale(2, RoundingMode.HALF_UP);
     }
+
+    public abstract List<StackedChartData> getStackedChartDataList();
 }

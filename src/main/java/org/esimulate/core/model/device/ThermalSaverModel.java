@@ -10,12 +10,14 @@ import org.esimulate.core.pojo.model.ThermalSaverModelDto;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.pso.simulator.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -194,5 +196,12 @@ public class ThermalSaverModel extends Device implements Storage {
     @Override
     protected BigDecimal getCostOfControl() {
         return BigDecimal.ZERO;
+    }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        StackedChartData chargingList = new StackedChartData(String.format("%s 储热", this.modelName), this.chargingList, 600);
+        StackedChartData disChargingList = new StackedChartData(String.format("%s 放热", this.modelName), this.disChargingList, 600);
+        return Arrays.asList(chargingList, disChargingList);
     }
 }

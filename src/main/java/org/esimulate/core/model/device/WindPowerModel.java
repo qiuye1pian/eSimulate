@@ -11,13 +11,16 @@ import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.pso.simulator.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 风力发电功率计算器
@@ -170,4 +173,12 @@ public class WindPowerModel extends Device implements Producer {
     protected BigDecimal getCostOfControl() {
         return BigDecimal.ZERO;
     }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
+        StackedChartData stackedChartData = new StackedChartData(this.modelName,collect,400);
+        return Collections.singletonList(stackedChartData);
+    }
+
 }

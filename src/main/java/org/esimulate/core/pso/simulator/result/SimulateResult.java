@@ -36,6 +36,7 @@ public class SimulateResult {
 
     List<MomentResult> momentResultList;
 
+    StackedChartDto stackedChartDto;
 
     private SimulateResult(String message, SimulateResultType resultType) {
         this.message = message;
