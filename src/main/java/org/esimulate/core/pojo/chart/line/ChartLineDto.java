@@ -18,8 +18,8 @@ public abstract class ChartLineDto<X, Y> {
 
     protected void init(List<X> xAxisData, List<Y> seriesData, Y yAxisMax) {
         this.xAxis = new XAxis<>(xAxisData);
-        this.series = Collections.singletonList(new Series<>(seriesData));
         this.yAxis = new YAxis<>(yAxisMax);
+        this.series = Collections.singletonList(new Series<>(seriesData));
     }
 
     @Getter
@@ -52,7 +52,27 @@ public abstract class ChartLineDto<X, Y> {
         private final String name = "";
         private final String type = "line";
         private final Boolean smooth = true;
+        private final String stack = "Total";
+        private final AreaStyle areaStyle = new AreaStyle();
+        private final Emphasis emphasis = new Emphasis();
         private List<Y> data;
+
+        @Getter
+        @Setter
+        public static class AreaStyle {
+        }
+
+        @Getter
+        @Setter
+        public static class Emphasis {
+            private Focus focus = new Focus();
+
+            @Getter
+            @Setter
+            public static class Focus {
+                private String focus = "series";
+            }
+        }
     }
 
 }
