@@ -142,10 +142,6 @@ public class Simulator {
                             calculateAMoment(loadList, environmentList, producerList, storageList, providerList, timeIndex))
                     .collect(Collectors.toList());
 
-
-
-
-
             return SimulateResult.builder()
                     .loadList(loadList)
                     .producerList(producerList)
