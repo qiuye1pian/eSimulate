@@ -171,4 +171,31 @@ public class SolarPowerModel extends Device implements Producer {
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 500);
         return Collections.singletonList(stackedChartData);
     }
+
+    @Override
+    public SolarPowerModel clone() {
+        SolarPowerModel clone = (SolarPowerModel) super.clone();
+
+        // 深拷贝 BigDecimal 类型字段
+        clone.P_pvN = new BigDecimal(this.P_pvN.toString());
+        clone.t_e = new BigDecimal(this.t_e.toString());
+        clone.T_ref = new BigDecimal(this.T_ref.toString());
+        clone.G_ref = new BigDecimal(this.G_ref.toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 深拷贝 Timestamp
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 字符串字段直接赋值（不可变类型）
+        clone.modelName = this.modelName;
+
+        // id 字段直接复制（若不希望保留可移除）
+        clone.id = this.id;
+
+        // electricEnergyList 不拷贝（@Transient）
+
+        return clone;
+    }
 }

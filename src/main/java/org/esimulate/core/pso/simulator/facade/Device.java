@@ -10,7 +10,7 @@ import java.math.RoundingMode;
 import java.util.List;
 
 @Data
-public abstract class Device {
+public abstract class Device implements Cloneable {
 
     @Transient
     protected BigDecimal quantity = BigDecimal.ONE;
@@ -75,4 +75,14 @@ public abstract class Device {
     }
 
     public abstract List<StackedChartData> getStackedChartDataList();
+
+    @Override
+    public Device clone() {
+        try {
+            return (Device) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError("Cloning not supported", e);
+        }
+    }
+
 }

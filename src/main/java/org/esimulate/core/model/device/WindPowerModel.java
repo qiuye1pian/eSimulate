@@ -68,8 +68,6 @@ public class WindPowerModel extends Device implements Producer {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
- 
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
@@ -179,6 +177,33 @@ public class WindPowerModel extends Device implements Producer {
         List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName,collect,400);
         return Collections.singletonList(stackedChartData);
+    }
+
+    @Override
+    public WindPowerModel clone() {
+        WindPowerModel clone = (WindPowerModel) super.clone();
+
+        // 深拷贝 BigDecimal 字段
+        clone.v_in = new BigDecimal(this.v_in.toString());
+        clone.v_n = new BigDecimal(this.v_n.toString());
+        clone.v_out = new BigDecimal(this.v_out.toString());
+        clone.P_r = new BigDecimal(this.P_r.toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 深拷贝 Timestamp
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 字符串字段直接复制
+        clone.modelName = this.modelName;
+
+        // id 字段保留
+        clone.id = this.id;
+
+        // electricEnergyList 为 @Transient 字段，不拷贝
+
+        return clone;
     }
 
 }

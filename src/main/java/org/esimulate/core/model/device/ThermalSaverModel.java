@@ -68,8 +68,6 @@ public class ThermalSaverModel extends Device implements Storage {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
- 
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
@@ -204,4 +202,33 @@ public class ThermalSaverModel extends Device implements Storage {
         StackedChartData disChargingList = new StackedChartData(String.format("%s 放热", this.modelName), this.disChargingList, 600);
         return Arrays.asList(chargingList, disChargingList);
     }
+
+    @Override
+    public ThermalSaverModel clone() {
+        ThermalSaverModel clone = (ThermalSaverModel) super.clone();
+
+        // 深拷贝 BigDecimal 字段
+        clone.totalStorageCapacity = new BigDecimal(this.totalStorageCapacity.toString());
+        clone.currentStorage = new BigDecimal(this.currentStorage.toString());
+        clone.chargingEfficiency = new BigDecimal(this.chargingEfficiency.toString());
+        clone.dischargingEfficiency = new BigDecimal(this.dischargingEfficiency.toString());
+        clone.thermalLossRate = new BigDecimal(this.thermalLossRate.toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 深拷贝 Timestamp
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 字符串字段直接赋值
+        clone.modelName = this.modelName;
+
+        // id 字段赋值（可选）
+        clone.id = this.id;
+
+        // 忽略 @Transient 字段：chargingList, disChargingList, E_ESS_LIST
+
+        return clone;
+    }
+
 }

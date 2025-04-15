@@ -189,4 +189,20 @@ public class GasBoilerModel extends Device implements Provider {
         StackedChartData stackedChartData = new StackedChartData(this.modelName,collect,300);
         return Collections.singletonList(stackedChartData);
     }
+
+    @Override
+    public GasBoilerModel clone() {
+        GasBoilerModel clone = (GasBoilerModel) super.clone();
+
+        // 深拷贝可变对象字段
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.etaGB = new BigDecimal(this.etaGB.toString());
+        clone.gasEnergyDensity = new BigDecimal(this.gasEnergyDensity.toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+        clone.modelName = this.modelName;
+
+        return clone;
+    }
 }

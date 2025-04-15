@@ -104,8 +104,6 @@ public class HydroPowerPlantModel extends Device implements Producer {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
-
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
@@ -283,5 +281,39 @@ public class HydroPowerPlantModel extends Device implements Producer {
         List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 100);
         return Collections.singletonList(stackedChartData);
+    }
+
+    @Override
+    public HydroPowerPlantModel clone() {
+        HydroPowerPlantModel clone = (HydroPowerPlantModel) super.clone();
+
+        // 深拷贝 BigDecimal 类型字段
+        clone.eta1 = new BigDecimal(this.eta1.toString());
+        clone.eta2 = new BigDecimal(this.eta2.toString());
+        clone.eta3 = new BigDecimal(this.eta3.toString());
+        clone.eta = new BigDecimal(this.eta.toString());
+        clone.z1 = new BigDecimal(this.z1.toString());
+        clone.z2 = new BigDecimal(this.z2.toString());
+        clone.v1 = new BigDecimal(this.v1.toString());
+        clone.v2 = new BigDecimal(this.v2.toString());
+        clone.p1 = new BigDecimal(this.p1.toString());
+        clone.p2 = new BigDecimal(this.p2.toString());
+        clone.pg = new BigDecimal(this.pg.toString());
+        clone.g = new BigDecimal(this.g.toString());
+        clone.head = new BigDecimal(this.head.toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 深拷贝 Timestamp
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // String 字段直接赋值（不可变）
+        clone.modelName = this.modelName;
+
+        // id 字段直接复制
+        clone.id = this.id;
+
+        return clone;
     }
 }

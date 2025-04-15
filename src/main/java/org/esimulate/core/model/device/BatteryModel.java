@@ -263,4 +263,30 @@ public class BatteryModel extends Device implements Storage {
         return Arrays.asList(chargingList, disChargingList);
     }
 
+    @Override
+    public BatteryModel clone() {
+        BatteryModel batteryModel = (BatteryModel) super.clone();
+
+        // 深拷贝 Timestamp（可变类型必须拷贝）
+        batteryModel.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 深拷贝 BigDecimal（不可变类型，为防御性复制仍重新构造）
+        batteryModel.C_t = new BigDecimal(this.C_t.toString());
+        batteryModel.SOC_min = new BigDecimal(this.SOC_min.toString());
+        batteryModel.SOC_max = new BigDecimal(this.SOC_max.toString());
+        batteryModel.mu = new BigDecimal(this.mu.toString());
+        batteryModel.maxChargePower = new BigDecimal(this.maxChargePower.toString());
+        batteryModel.maxDischargePower = new BigDecimal(this.maxDischargePower.toString());
+        batteryModel.etaHch = new BigDecimal(this.etaHch.toString());
+        batteryModel.etaHdis = new BigDecimal(this.etaHdis.toString());
+        batteryModel.E_ESS_t = new BigDecimal(this.E_ESS_t.toString());
+        batteryModel.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        batteryModel.cost = new BigDecimal(this.cost.toString());
+        batteryModel.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 字符串字段直接赋值（不可变类型）
+        batteryModel.modelName = this.modelName;
+
+        return batteryModel;
+    }
 }

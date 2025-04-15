@@ -10,6 +10,7 @@ import java.util.Random;
 
 
 public class Particle {
+
     @Setter
     private Position position; // 粒子的位置
     @Setter

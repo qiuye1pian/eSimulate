@@ -60,8 +60,6 @@ public class ThermalPowerModel extends Device implements Producer {
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
- 
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
@@ -79,7 +77,6 @@ public class ThermalPowerModel extends Device implements Producer {
         this.carbonEmissionFactor = thermalPowerModelDto.getCarbonEmissionFactor();
         this.cost = thermalPowerModelDto.getCost();
         this.purchaseCost = thermalPowerModelDto.getPurchaseCost();
-
     }
 
     /**
@@ -97,7 +94,6 @@ public class ThermalPowerModel extends Device implements Producer {
 
     @Override
     public Energy produce(List<EnvironmentValue> environmentValueList) {
-
         BigDecimal output = environmentValueList.stream()
                 .filter(x -> x instanceof SunlightIrradianceValue)
                 .map(EnvironmentValue::getValue)
@@ -107,9 +103,7 @@ public class ThermalPowerModel extends Device implements Producer {
                 .multiply(this.quantity);
 
         ThermalEnergy thermalEnergy = new ThermalEnergy(output);
-
         this.thermalEnergyList.add(thermalEnergy);
-
         return thermalEnergy;
     }
 
@@ -159,5 +153,30 @@ public class ThermalPowerModel extends Device implements Producer {
         List<BigDecimal> collect = this.thermalEnergyList.stream().map(ThermalEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 200);
         return Collections.singletonList(stackedChartData);
+    }
+
+    @Override
+    public ThermalPowerModel clone() {
+        ThermalPowerModel clone = (ThermalPowerModel) super.clone();
+
+        // 深拷贝 BigDecimal 字段
+        clone.etaSF = new BigDecimal(this.etaSF.toString());
+        clone.SSF = new BigDecimal(this.SSF.toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 深拷贝 Timestamp
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 字符串字段直接赋值（不可变类型）
+        clone.modelName = this.modelName;
+
+        // id 字段复制（如需排除可移除）
+        clone.id = this.id;
+
+        // thermalEnergyList 为 @Transient 字段，不拷贝
+
+        return clone;
     }
 }
