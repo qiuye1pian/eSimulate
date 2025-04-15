@@ -1,4 +1,4 @@
-package org.esimulate.core.pso.simulator.result;
+package org.esimulate.core.pojo.simulate.result;
 
 public enum SimulateResultType {
     SUCCESS,

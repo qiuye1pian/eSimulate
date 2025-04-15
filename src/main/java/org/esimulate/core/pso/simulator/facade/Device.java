@@ -1,7 +1,7 @@
 package org.esimulate.core.pso.simulator.facade;
 
 import lombok.Data;
-import org.esimulate.core.pso.simulator.result.StackedChartData;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Transient;

@@ -8,7 +8,7 @@ import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.esimulate.core.pso.simulator.result.StackedChartData;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;

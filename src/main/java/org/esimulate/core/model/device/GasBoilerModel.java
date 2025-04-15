@@ -9,7 +9,7 @@ import org.esimulate.core.pojo.model.GasBoilerModelDto;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.esimulate.core.pso.simulator.result.StackedChartData;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
