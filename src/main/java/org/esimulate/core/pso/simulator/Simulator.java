@@ -36,6 +36,76 @@ import java.util.stream.Stream;
 @Slf4j
 public class Simulator {
 
+
+    /**
+     * @param loadList        负荷
+     * @param environmentList 环境数据
+     * @param deviceList      模型列表
+     * @param constraintList  约束
+     * @return 仿真结果
+     */
+    public static SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList,
+                                          List<Device> deviceList, List<Constraint> constraintList) {
+        try {
+            List<Producer> producerList = deviceList.stream()
+                    .filter(x -> x instanceof Producer)
+                    .map(x -> (Producer) x)
+                    .collect(Collectors.toList());
+
+            List<Storage> storageList = deviceList.stream()
+                    .filter(x -> x instanceof Storage)
+                    .map(x -> (Storage) x)
+                    .collect(Collectors.toList());
+
+            List<Provider> providerList = deviceList.stream()
+                    .filter(x -> x instanceof Provider)
+                    .map(x -> (Provider) x)
+                    .collect(Collectors.toList());
+
+            //验证负荷长度和环境长度是否一致，如果一致则返回他们的长度
+            int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
+
+            //计算某一时刻的情景
+            List<MomentResult> momentResultList = IntStream.range(0, timeLength)
+                    .mapToObj(timeIndex ->
+                            calculateAMoment(loadList, environmentList, producerList, storageList, providerList, timeIndex))
+                    .collect(Collectors.toList());
+
+            return SimulateResult.builder()
+                    .loadList(loadList)
+                    .producerList(producerList)
+                    .storageList(storageList)
+                    .providerList(providerList)
+                    .momentResultList(momentResultList)
+                    .indicationList(getIndications(producerList, providerList, storageList, momentResultList))
+                    .stackedChartDto(getStackedChartDto(loadList, deviceList))
+                    .resultType(SimulateResultType.SUCCESS)
+                    .build();
+
+        } catch (Exception ex) {
+            log.info("仿真失败", ex);
+            return SimulateResult.fail(ex.getMessage());
+        }
+
+    }
+
+    @SafeVarargs
+    private static Integer validateDataLengthAndGetDataLength(List<? extends TimeSeriesData>... dataLists) {
+
+        final List<Integer> distinct = Stream.of(dataLists)
+                .flatMap(List::stream)
+                .map(TimeSeriesData::getDataLength)
+                .distinct()
+                .collect(Collectors.toList());
+
+        boolean isLengthMismatch = distinct.size() > 1;
+
+        if (isLengthMismatch) {
+            throw new RuntimeException("环境数据、负荷数据长度不一致");
+        }
+        return distinct.stream().findAny().orElse(-1);
+    }
+
     private static MomentResult calculateAMoment(List<LoadData> loadList,
                                                  List<EnvironmentData> environmentList,
                                                  List<Producer> producerList,
@@ -89,75 +159,6 @@ public class Simulator {
 
         //剩余的能源将被丢弃，电能为弃风弃光，热能为自然散逸
         return new MomentResult(afterProvideList);
-    }
-
-    @SafeVarargs
-    private static Integer validateDataLengthAndGetDataLength(List<? extends TimeSeriesData>... dataLists) {
-
-        final List<Integer> distinct = Stream.of(dataLists)
-                .flatMap(List::stream)
-                .map(TimeSeriesData::getDataLength)
-                .distinct()
-                .collect(Collectors.toList());
-
-        boolean isLengthMismatch = distinct.size() > 1;
-
-        if (isLengthMismatch) {
-            throw new RuntimeException("环境数据、负荷数据长度不一致");
-        }
-        return distinct.stream().findAny().orElse(-1);
-    }
-
-    /**
-     * @param loadList        负荷
-     * @param environmentList 环境数据
-     * @param deviceList      模型列表
-     * @param constraintList  约束
-     * @return 仿真结果
-     */
-    public static SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList,
-                                          List<Device> deviceList, List<Constraint> constraintList) {
-        try {
-            List<Producer> producerList = deviceList.stream()
-                    .filter(x -> x instanceof Producer)
-                    .map(x -> (Producer) x)
-                    .collect(Collectors.toList());
-
-            List<Storage> storageList = deviceList.stream()
-                    .filter(x -> x instanceof Storage)
-                    .map(x -> (Storage) x)
-                    .collect(Collectors.toList());
-
-            List<Provider> providerList = deviceList.stream()
-                    .filter(x -> x instanceof Provider)
-                    .map(x -> (Provider) x)
-                    .collect(Collectors.toList());
-
-            //验证负荷长度和环境长度是否一致，如果一致则返回他们的长度
-            int timeLength = validateDataLengthAndGetDataLength(loadList, environmentList);
-
-            //计算某一时刻的情景
-            List<MomentResult> momentResultList = IntStream.range(0, timeLength)
-                    .mapToObj(timeIndex ->
-                            calculateAMoment(loadList, environmentList, producerList, storageList, providerList, timeIndex))
-                    .collect(Collectors.toList());
-
-            return SimulateResult.builder()
-                    .loadList(loadList)
-                    .producerList(producerList)
-                    .storageList(storageList)
-                    .providerList(providerList)
-                    .momentResultList(momentResultList)
-                    .indicationList(getIndications(producerList, providerList, storageList, momentResultList))
-                    .stackedChartDto(getStackedChartDto(loadList, deviceList))
-                    .resultType(SimulateResultType.SUCCESS)
-                    .build();
-
-        } catch (Exception ex) {
-            log.info("仿真失败", ex);
-            return SimulateResult.fail(ex.getMessage());
-        }
-
     }
 
     private static @NotNull StackedChartDto getStackedChartDto(List<LoadData> loadList, List<Device> deviceList) {
