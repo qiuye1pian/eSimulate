@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -13,8 +14,18 @@ public class PsoConfig {
 
     List<LoadDto> loadDtoList;
 
-    List<ModelDto> modelDtoList;
+    List<ModelDimensionDto> modelDimensionDtoList;
 
     List<EnvironmentDto> environmentDtoList;
+
+    Integer particleCount;
+
+    Integer maxIterations;
+
+    BigDecimal inertiaWeight;
+
+    BigDecimal c1;
+
+    BigDecimal c2;
 
 }

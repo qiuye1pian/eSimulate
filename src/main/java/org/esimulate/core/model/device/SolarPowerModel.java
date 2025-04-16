@@ -8,6 +8,7 @@ import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.environment.temperature.TemperatureValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.SolarPowerModelDto;
+import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
@@ -32,42 +33,58 @@ import java.util.stream.Collectors;
 @Table(name = "solar_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class SolarPowerModel extends Device implements Producer {
+public class SolarPowerModel extends Device implements Producer, Dimension {
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, unique = true)
     private String modelName;
+
     // 光伏系统额定功率 (kW)
     @Column(nullable = false)
     private BigDecimal P_pvN;
+
     // 光伏组件温度系数 (1/℃)，通常为负值
     @Column(nullable = false)
     private BigDecimal t_e;
+
     // 参考温度 (℃)
     @Column(nullable = false)
     private BigDecimal T_ref;
+
     // 参考辐照度 (W/m²)
     @Column(nullable = false)
     private BigDecimal G_ref;
+
     // 碳排放因子
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
+
     // 发电成本
     @Column(nullable = false)
     private BigDecimal cost;
+
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
     // 每个时刻所发的电量 (kWh)
     @Transient
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
+
+    @Transient
+    BigDecimal lowerBound;
+
+    @Transient
+    BigDecimal upperBound;
 
     public SolarPowerModel(SolarPowerModelDto solarPowerModelDto) {
         this.modelName = solarPowerModelDto.getModelName();

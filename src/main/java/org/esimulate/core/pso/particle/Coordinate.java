@@ -8,21 +8,21 @@ import java.math.BigDecimal;
 /**
  * 位置中某个维度的值
  */
+@Setter
 @Getter
 public class Coordinate implements Dimension, Cloneable {
 
     /**
      * 维度最小值
      */
-    private final BigDecimal lowerBound;
+    private BigDecimal lowerBound;
     /**
      * 维度最大值
      */
-    private final BigDecimal upperBound;
+    private BigDecimal upperBound;
     /**
      * 当前值
      */
-    @Setter
     private BigDecimal value;
 
     public Coordinate(Dimension x) {

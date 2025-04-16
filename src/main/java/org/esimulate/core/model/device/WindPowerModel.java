@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.wind.WindSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.WindPowerModelDto;
+import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 @Table(name = "wind_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class WindPowerModel extends Device implements Producer {
+public class WindPowerModel extends Device implements Producer, Dimension {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -77,6 +78,12 @@ public class WindPowerModel extends Device implements Producer {
     // 每个时刻所发的电量 (kWh)
     @Transient
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
+
+    @Transient
+    BigDecimal lowerBound;
+
+    @Transient
+    BigDecimal upperBound;
 
     public WindPowerModel(WindPowerModelDto windPowerModelDto) {
         this.modelName = windPowerModelDto.getModelName();

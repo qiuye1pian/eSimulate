@@ -6,10 +6,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.GasBoilerModelDto;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
+import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 @Table(name = "gas_boiler_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GasBoilerModel extends Device implements Provider {
+public class GasBoilerModel extends Device implements Provider, Dimension {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,6 +69,12 @@ public class GasBoilerModel extends Device implements Provider {
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
+
+    @Transient
+    BigDecimal lowerBound;
+
+    @Transient
+    BigDecimal upperBound;
 
     public GasBoilerModel(GasBoilerModelDto gasBoilerModelDto) {
         this.modelName = gasBoilerModelDto.getModelName();

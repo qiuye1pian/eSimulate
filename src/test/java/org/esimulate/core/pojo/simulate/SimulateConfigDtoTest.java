@@ -7,6 +7,7 @@ import org.esimulate.core.pojo.simulate.enums.ModelTypeEnum;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,9 +25,9 @@ class SimulateConfigDtoTest {
         simulateConfigDto.setLoadDtoList(loadDtoList);
 
         List<ModelDto> modelDtoList = Arrays.asList(
-                new ModelDto(ModelTypeEnum.WindPower, 2L, 1),
-                new ModelDto(ModelTypeEnum.SolarPower, 3L, 2),
-                new ModelDto(ModelTypeEnum.HydroPower, 4L, 1)
+                new ModelDto(ModelTypeEnum.WindPower, 2L, BigDecimal.ONE),
+                new ModelDto(ModelTypeEnum.SolarPower, 3L, BigDecimal.valueOf(2)),
+                new ModelDto(ModelTypeEnum.HydroPower, 4L, BigDecimal.ONE)
         );
         simulateConfigDto.setModelDtoList(modelDtoList);
 

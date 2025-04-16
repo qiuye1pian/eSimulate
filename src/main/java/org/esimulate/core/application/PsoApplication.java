@@ -3,7 +3,7 @@ package org.esimulate.core.application;
 
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.pojo.pso.OptimizeResult;
-import org.esimulate.core.pojo.simulate.ModelDto;
+import org.esimulate.core.pojo.simulate.ModelLoadDto;
 import org.esimulate.core.pojo.simulate.PsoConfig;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentData;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -44,8 +45,7 @@ public class PsoApplication {
 
         log.info("加载模型");
         long startModelData = System.currentTimeMillis();
-        List<ModelDto> modelDtoList = psoConfig.getModelDtoList();
-        List<Device> deviceList = deviceComponent.getDeviceList(modelDtoList);
+        List<Device> deviceList = deviceComponent.getDeviceList(psoConfig.getModelDimensionDtoList().stream().map(x-> (ModelLoadDto) x).collect(Collectors.toList()));
         long endModelData = System.currentTimeMillis();
         log.info("加载模型耗时： {} ms", (endModelData - startModelData));
 

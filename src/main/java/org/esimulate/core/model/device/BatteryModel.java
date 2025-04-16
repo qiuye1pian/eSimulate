@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.BatteryModelDto;
+import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
@@ -30,7 +31,7 @@ import java.util.List;
 @Table(name = "battery_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class BatteryModel extends Device implements Storage {
+public class BatteryModel extends Device implements Storage, Dimension {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -102,6 +103,12 @@ public class BatteryModel extends Device implements Storage {
 
     @Transient
     private List<BigDecimal> disChargingList = new ArrayList<>();
+
+    @Transient
+    BigDecimal lowerBound;
+
+    @Transient
+    BigDecimal upperBound;
 
     public BatteryModel(BatteryModelDto batteryModelDto) {
         this.modelName = batteryModelDto.getModelName();
@@ -289,4 +296,6 @@ public class BatteryModel extends Device implements Storage {
 
         return batteryModel;
     }
+
+
 }

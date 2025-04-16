@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ModelDto {
+public class ModelDto implements ModelLoadDto {
 
     ModelTypeEnum modelTypeEnum;
 

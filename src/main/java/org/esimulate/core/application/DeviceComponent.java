@@ -1,7 +1,8 @@
 package org.esimulate.core.application;
 
 import lombok.extern.slf4j.Slf4j;
-import org.esimulate.core.pojo.simulate.ModelDto;
+import org.esimulate.core.pojo.simulate.ModelLoadDto;
+import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.service.device.*;
 import org.jetbrains.annotations.NotNull;
@@ -39,14 +40,14 @@ public class DeviceComponent {
     @Autowired
     GridService gridService;
 
-    public @NotNull List<Device> getDeviceList(List<ModelDto> modelDtoList) {
+    public @NotNull List<Device> getDeviceList(List<ModelLoadDto> modelDtoList) {
         return modelDtoList.stream()
                 .parallel()
                 .map(this::readModelData)
                 .collect(Collectors.toList());
     }
 
-    private Device readModelData(ModelDto modelDto) {
+    private Device readModelData(ModelLoadDto modelDto) {
         Device device;
         switch (modelDto.getModelTypeEnum()) {
             case WindPower:
@@ -86,6 +87,11 @@ public class DeviceComponent {
                 throw new IllegalArgumentException("未知模型类型: " + modelDto.getModelTypeEnum());
         }
         device.setQuantity(modelDto.getQuantity());
+        if (device instanceof Dimension && modelDto instanceof Dimension) {
+            Dimension modelDimensionDto = (Dimension) modelDto;
+            ((Dimension) device).setLowerBound(modelDimensionDto.getLowerBound());
+            ((Dimension) device).setUpperBound(modelDimensionDto.getUpperBound());
+        }
         return device;
     }
 

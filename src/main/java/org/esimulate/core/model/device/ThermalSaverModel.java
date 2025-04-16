@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.ThermalSaverModelDto;
+import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
@@ -27,7 +28,7 @@ import java.util.List;
 @Table(name = "thermal_saver_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalSaverModel extends Device implements Storage {
+public class ThermalSaverModel extends Device implements Storage, Dimension {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -83,6 +84,12 @@ public class ThermalSaverModel extends Device implements Storage {
 
     @Transient
     private List<BigDecimal> disChargingList = new ArrayList<>();
+
+    @Transient
+    BigDecimal lowerBound;
+
+    @Transient
+    BigDecimal upperBound;
 
     public ThermalSaverModel(ThermalSaverModelDto thermalSaverModelDto) {
         this.id = thermalSaverModelDto.getId();

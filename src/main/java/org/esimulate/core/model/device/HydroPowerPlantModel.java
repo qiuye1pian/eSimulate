@@ -4,6 +4,7 @@ import lombok.*;
 import org.esimulate.core.model.environment.water.WaterSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.HydroPowerPlantModelDto;
+import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 @Table(name = "hydro_power_plant_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class HydroPowerPlantModel extends Device implements Producer {
+public class HydroPowerPlantModel extends Device implements Producer, Dimension {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -112,6 +113,12 @@ public class HydroPowerPlantModel extends Device implements Producer {
 
     @Transient
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
+
+    @Transient
+    BigDecimal lowerBound;
+
+    @Transient
+    BigDecimal upperBound;
 
     public HydroPowerPlantModel(HydroPowerPlantModelDto hydroPowerPlantModelDto) {
         this.modelName = hydroPowerPlantModelDto.getModelName();

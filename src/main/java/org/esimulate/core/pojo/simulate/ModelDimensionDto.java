@@ -11,14 +11,18 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ModelDimensionDto implements Dimension {
+public class ModelDimensionDto implements Dimension, ModelLoadDto {
 
     ModelTypeEnum modelTypeEnum;
 
     Long id;
 
-    BigDecimal lowerBound;
+    BigDecimal lowerBound = BigDecimal.ONE;
 
-    BigDecimal upperBound;
+    BigDecimal upperBound = BigDecimal.valueOf(1000);
 
+    @Override
+    public BigDecimal getQuantity() {
+        return lowerBound;
+    }
 }
