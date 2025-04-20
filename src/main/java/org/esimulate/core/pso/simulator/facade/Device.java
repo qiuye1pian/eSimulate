@@ -1,13 +1,11 @@
 package org.esimulate.core.pso.simulator.facade;
 
 import lombok.Data;
-import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Transient;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 
 @Data
 public abstract class Device implements Cloneable {
@@ -73,8 +71,6 @@ public abstract class Device implements Cloneable {
                 .multiply(annuityFactor)
                 .setScale(2, RoundingMode.HALF_UP);
     }
-
-
 
     @Override
     public Device clone() {

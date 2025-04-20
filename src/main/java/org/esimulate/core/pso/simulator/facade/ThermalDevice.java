@@ -5,5 +5,5 @@ import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import java.util.List;
 
 public interface ThermalDevice {
-    public abstract List<StackedChartData> getStackedChartDataList();
+    List<StackedChartData> getStackedChartDataList();
 }
