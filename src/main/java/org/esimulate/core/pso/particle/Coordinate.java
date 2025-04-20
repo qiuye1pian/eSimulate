@@ -28,7 +28,7 @@ public class Coordinate implements Dimension, Cloneable {
     public Coordinate(Dimension x) {
         this.lowerBound = x.getLowerBound();
         this.upperBound = x.getUpperBound();
-        this.value = BigDecimal.ZERO;
+        this.value = BigDecimal.ONE;
     }
 
     /**

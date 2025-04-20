@@ -14,7 +14,6 @@ public class Position implements Cloneable {
     /**
      * 粒子在各维度的坐标
      */
-
     private final List<Coordinate> coordinateList;
 
     public Position(List<Dimension> dimensionsList) {
