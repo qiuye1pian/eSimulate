@@ -6,8 +6,10 @@ import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -43,6 +45,11 @@ public class ThermalLoadScheme implements ThermalLoadData {
     @Override
     public LoadValue getLoadValue(Integer timeIndex) {
         return thermalLoadValues.get(timeIndex);
+    }
+
+    @Override
+    public List<LocalDateTime> getDatetimeList() {
+        return thermalLoadValues.stream().map(ThermalLoadValue::getDatetime).collect(Collectors.toList());
     }
 
 

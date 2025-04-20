@@ -6,8 +6,10 @@ import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -43,6 +45,11 @@ public class ElectricLoadScheme implements ElectricLoadData {
     @Override
     public LoadValue getLoadValue(Integer timeIndex) {
         return electricLoadValues.get(timeIndex);
+    }
+
+    @Override
+    public List<LocalDateTime> getDatetimeList() {
+        return electricLoadValues.stream().map(ElectricLoadValue::getDatetime).collect(Collectors.toList());
     }
 
 

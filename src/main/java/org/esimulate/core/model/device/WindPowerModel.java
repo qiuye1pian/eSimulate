@@ -2,30 +2,37 @@ package org.esimulate.core.model.device;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.wind.WindSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.WindPowerModelDto;
+import org.esimulate.core.pso.particle.Dimension;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 风力发电功率计算器
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "wind_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class WindPowerModel implements Producer {
+public class WindPowerModel extends Device implements Producer, Dimension {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -72,6 +79,12 @@ public class WindPowerModel implements Producer {
     @Transient
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
+    @Transient
+    BigDecimal lowerBound;
+
+    @Transient
+    BigDecimal upperBound;
+
     public WindPowerModel(WindPowerModelDto windPowerModelDto) {
         this.modelName = windPowerModelDto.getModelName();
         this.v_in = windPowerModelDto.getV_in();
@@ -116,7 +129,8 @@ public class WindPowerModel implements Producer {
                 .filter(x -> x instanceof WindSpeedValue)
                 .findAny()
                 .map(EnvironmentValue::getValue)
-                .orElse(BigDecimal.ZERO);
+                .orElse(BigDecimal.ZERO)
+                .multiply(this.quantity);
 
         ElectricEnergy currentEnergy = calculatePower(windSpeed);
 
@@ -136,4 +150,67 @@ public class WindPowerModel implements Producer {
     public BigDecimal calculateCarbonEmissions() {
         return BigDecimal.ZERO;
     }
+
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.07);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 25;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        return getTotalEnergy()
+                .multiply(quantity)
+                .multiply(cost)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
+        StackedChartData stackedChartData = new StackedChartData(this.modelName,collect,400);
+        return Collections.singletonList(stackedChartData);
+    }
+
+    @Override
+    public WindPowerModel clone() {
+        WindPowerModel clone = (WindPowerModel) super.clone();
+
+        // 深拷贝 BigDecimal 字段
+        clone.v_in = new BigDecimal(this.v_in.toString());
+        clone.v_n = new BigDecimal(this.v_n.toString());
+        clone.v_out = new BigDecimal(this.v_out.toString());
+        clone.P_r = new BigDecimal(this.P_r.toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 深拷贝 Timestamp
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 字符串字段直接复制
+        clone.modelName = this.modelName;
+
+        // id 字段保留
+        clone.id = this.id;
+
+        // electricEnergyList 为 @Transient 字段，不拷贝
+
+        return clone;
+    }
+
 }

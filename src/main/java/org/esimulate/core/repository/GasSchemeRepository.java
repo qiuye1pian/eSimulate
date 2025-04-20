@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.esimulate.core.model.environment.gas.GasScheme;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +17,6 @@ public interface GasSchemeRepository extends JpaRepository<GasScheme, Long> {
 
     Optional<GasScheme> findBySchemeName(@NonNull String schemeName);
 
+    @EntityGraph(attributePaths = "gasValues")
+    Optional<GasScheme> findWithValuesById(Long id);
 }

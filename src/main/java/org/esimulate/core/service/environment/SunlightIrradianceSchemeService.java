@@ -106,4 +106,11 @@ public class SunlightIrradianceSchemeService {
                 .sorted(Comparator.comparing(SunlightIrradianceValue::getDatetime))
                 .collect(Collectors.toList());
     }
+
+
+    @Transactional(readOnly = true)
+    public SunlightIrradianceScheme findWithValuesById(Long id) {
+        return sunlightIrradianceSchemeRepository.findWithValuesById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的光照数据，ID: " + id));
+    }
 }

@@ -2,27 +2,33 @@ package org.esimulate.core.model.device;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.ThermalPowerModelDto;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "thermal_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalPowerModel implements Producer {
+public class ThermalPowerModel extends Device implements Producer {
 
     // 常量：用于将 W 转换为 kW
     private static final BigDecimal KW_CONVERSION_FACTOR = new BigDecimal("1000");
@@ -71,7 +77,6 @@ public class ThermalPowerModel implements Producer {
         this.carbonEmissionFactor = thermalPowerModelDto.getCarbonEmissionFactor();
         this.cost = thermalPowerModelDto.getCost();
         this.purchaseCost = thermalPowerModelDto.getPurchaseCost();
-
     }
 
     /**
@@ -89,18 +94,16 @@ public class ThermalPowerModel implements Producer {
 
     @Override
     public Energy produce(List<EnvironmentValue> environmentValueList) {
-
         BigDecimal output = environmentValueList.stream()
                 .filter(x -> x instanceof SunlightIrradianceValue)
                 .map(EnvironmentValue::getValue)
                 .map(this::calculateThermalPower)
                 .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
+                .orElse(BigDecimal.ZERO)
+                .multiply(this.quantity);
 
         ThermalEnergy thermalEnergy = new ThermalEnergy(output);
-
         this.thermalEnergyList.add(thermalEnergy);
-
         return thermalEnergy;
     }
 
@@ -115,5 +118,65 @@ public class ThermalPowerModel implements Producer {
     @Override
     public BigDecimal calculateCarbonEmissions() {
         return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.07);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 20;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        return getTotalEnergy()
+                .multiply(quantity)
+                .multiply(cost)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        List<BigDecimal> collect = this.thermalEnergyList.stream().map(ThermalEnergy::getValue).collect(Collectors.toList());
+        StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 200);
+        return Collections.singletonList(stackedChartData);
+    }
+
+    @Override
+    public ThermalPowerModel clone() {
+        ThermalPowerModel clone = (ThermalPowerModel) super.clone();
+
+        // 深拷贝 BigDecimal 字段
+        clone.etaSF = new BigDecimal(this.etaSF.toString());
+        clone.SSF = new BigDecimal(this.SSF.toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 深拷贝 Timestamp
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 字符串字段直接赋值（不可变类型）
+        clone.modelName = this.modelName;
+
+        // id 字段复制（如需排除可移除）
+        clone.id = this.id;
+
+        // thermalEnergyList 为 @Transient 字段，不拷贝
+
+        return clone;
     }
 }

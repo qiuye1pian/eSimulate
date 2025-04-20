@@ -74,4 +74,11 @@ public class ThermalPowerService {
         return thermalPowerRepository.save(thermalPowerModel);
 
     }
+
+    @Transactional(readOnly = true)
+    public ThermalPowerModel findById(Long id) {
+        return thermalPowerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的光热模型，ID: " + id));
+    }
+
 }

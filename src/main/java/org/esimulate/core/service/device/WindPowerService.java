@@ -104,5 +104,9 @@ public class WindPowerService {
 
     }
 
-
+    @Transactional(readOnly = true)
+    public WindPowerModel findById(Long id) {
+        return windPowerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的风电模型，ID: " + id));
+    }
 }

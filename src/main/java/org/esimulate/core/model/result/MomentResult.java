@@ -1,22 +1,17 @@
 package org.esimulate.core.model.result;
 
-import org.esimulate.core.pso.simulator.facade.result.MomentResultFacade;
+import lombok.Data;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
-import java.math.BigDecimal;
 import java.util.List;
 
+@Data
+public class MomentResult {
 
-public class MomentResult implements MomentResultFacade {
-
-    List<Energy> momentFinalEnergy;
+    List<Energy> curtailmentEnergyList;
 
     public MomentResult(List<Energy> afterProvideList) {
-        this.momentFinalEnergy = afterProvideList;
+        this.curtailmentEnergyList = afterProvideList;
     }
 
-    @Override
-    public Boolean isUnqualified() {
-        return momentFinalEnergy.stream().anyMatch(x -> x.getValue().compareTo(BigDecimal.ZERO) < 0);
-    }
 }

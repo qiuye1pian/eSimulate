@@ -51,4 +51,10 @@ public class ThermalLoadValue implements LoadValue {
         // 用之前产出的热量 减去 当前负荷
         return new ThermalEnergy(thermalEnergyProduced.subtract(this.loadValue));
     }
+
+    @Override
+    public LoadValue add(LoadValue loadValue) {
+        this.loadValue = this.loadValue.add(loadValue.getLoadValue());
+        return this;
+    }
 }

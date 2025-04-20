@@ -1,7 +1,9 @@
 package org.esimulate.core.pso.particle;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import org.esimulate.core.pso.simulator.facade.Device;
+import org.esimulate.core.pso.simulator.facade.environment.EnvironmentData;
+import org.esimulate.core.pso.simulator.facade.load.LoadData;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,18 +11,31 @@ import java.util.List;
 import java.util.Random;
 
 
+@Data
 public class Particle {
-    @Setter
-    private Position position; // 粒子的位置
-    @Setter
-    private Velocity velocity; // 粒子的速度
-    private Position bestPosition; // 粒子的历史最优位置
+    // 粒子的位置
+    private Position position;
 
-    @Getter
-    @Setter
-    private BigDecimal fitnessValue; //当前适应度值
-    @Getter
-    private BigDecimal bestFitnessValue; //历史最优适应度值
+    // 粒子的速度
+    private Velocity velocity;
+
+    // 粒子的历史最优位置
+    private Position bestPosition;
+
+    //当前适应度值
+    private BigDecimal fitnessValue;
+
+    //历史最优适应度值
+    private BigDecimal bestFitnessValue;
+
+    //负荷列表
+    List<LoadData> loadDataList;
+
+    //环境数据列表
+    List<EnvironmentData> environmentDataList;
+
+    //设备列表
+    List<Device> deviceList;
 
     public Particle(List<Dimension> dimensionsList) {
         int dimension = dimensionsList.size();

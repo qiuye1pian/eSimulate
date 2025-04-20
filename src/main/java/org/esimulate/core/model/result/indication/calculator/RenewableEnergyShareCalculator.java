@@ -18,7 +18,7 @@ public class RenewableEnergyShareCalculator {
      * @return 可再生能源占比
      */
     public static Indication calculate(List<Producer> producerList, List<Provider> providerList) {
-
+        //todo: 这里逻辑需要改，各模型需要标记能源是否为可再生能源
         BigDecimal cleanEnergy = producerList.stream()
                 .map(Producer::getTotalEnergy)
                 .reduce(BigDecimal::add)

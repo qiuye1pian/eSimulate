@@ -106,4 +106,10 @@ public class ElectricLoadSchemeService {
                 .sorted(Comparator.comparing(ElectricLoadValue::getDatetime))
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public ElectricLoadScheme findWithValuesById(Long id) {
+        return electricLoadSchemeRepository.findWithValuesById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的电负荷方案，ID: " + id));
+    }
 }

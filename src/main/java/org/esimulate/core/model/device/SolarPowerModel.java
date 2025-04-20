@@ -2,31 +2,38 @@ package org.esimulate.core.model.device;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.environment.temperature.TemperatureValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.SolarPowerModelDto;
+import org.esimulate.core.pso.particle.Dimension;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 光伏出力计算 (Java 版)
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "solar_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class SolarPowerModel implements Producer {
+public class SolarPowerModel extends Device implements Producer, Dimension {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,6 +80,12 @@ public class SolarPowerModel implements Producer {
     @Transient
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
+    @Transient
+    BigDecimal lowerBound;
+
+    @Transient
+    BigDecimal upperBound;
+
     public SolarPowerModel(SolarPowerModelDto solarPowerModelDto) {
         this.modelName = solarPowerModelDto.getModelName();
         this.P_pvN = solarPowerModelDto.getPpvN();
@@ -104,6 +117,7 @@ public class SolarPowerModel implements Producer {
         return new ElectricEnergy(P_pvN
                 .multiply(temperatureFactor)
                 .multiply(irradianceRatio)
+                .multiply(this.quantity)
                 .setScale(10, RoundingMode.HALF_UP));
     }
 
@@ -140,4 +154,65 @@ public class SolarPowerModel implements Producer {
     }
 
 
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.07);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 25;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        return getTotalEnergy()
+                .multiply(quantity)
+                .multiply(cost)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
+        StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 500);
+        return Collections.singletonList(stackedChartData);
+    }
+
+    @Override
+    public SolarPowerModel clone() {
+        SolarPowerModel clone = (SolarPowerModel) super.clone();
+
+        // 深拷贝 BigDecimal 类型字段
+        clone.P_pvN = new BigDecimal(this.P_pvN.toString());
+        clone.t_e = new BigDecimal(this.t_e.toString());
+        clone.T_ref = new BigDecimal(this.T_ref.toString());
+        clone.G_ref = new BigDecimal(this.G_ref.toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 深拷贝 Timestamp
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 字符串字段直接赋值（不可变类型）
+        clone.modelName = this.modelName;
+
+        // id 字段直接复制（若不希望保留可移除）
+        clone.id = this.id;
+
+        // electricEnergyList 不拷贝（@Transient）
+
+        return clone;
+    }
 }

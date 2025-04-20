@@ -36,9 +36,16 @@ public class TimeValueCsvConverter {
             return null;
         }
 
-        if (split[0] == null || split[1] == null
-                || DateTimeUtil.isNotValidDateTime(split[0])
-                || !split[1].matches("-?\\d+(\\.\\d+)?")) {
+        if (split[0] == null || split[1] == null) {
+            log.error("这行不是2列，内容:{}", line);
+            return null;
+        }
+        if (DateTimeUtil.isNotValidDateTime(split[0])) {
+            log.error("这行日期不合格，内容:{}", line);
+            return null;
+        }
+        if (!split[1].matches("-?\\d+(\\.\\d+)?")) {
+            log.error("这行数值不合格，内容:{}", line);
             return null;
         }
 

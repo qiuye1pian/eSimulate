@@ -4,6 +4,10 @@ import java.math.BigDecimal;
 
 public interface Indication {
 
+    String getIndicationName();
+
+    String getDescription();
+
     BigDecimal getIndication();
 
 }

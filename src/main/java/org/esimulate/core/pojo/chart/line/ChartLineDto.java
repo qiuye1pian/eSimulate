@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -13,14 +12,16 @@ import java.util.List;
 public abstract class ChartLineDto<X, Y> {
 
     protected XAxis<X> xAxis;
-    protected YAxis<Y> yAxis;
+    protected YAxis yAxis;
     protected List<Series<Y>> series;
 
-    protected void init(List<X> xAxisData, List<Y> seriesData, Y yAxisMax) {
+    protected void init(List<X> xAxisData, List<Series<Y>> seriesData, String yAxisMax) {
         this.xAxis = new XAxis<>(xAxisData);
-        this.series = Collections.singletonList(new Series<>(seriesData));
-        this.yAxis = new YAxis<>(yAxisMax);
+        this.yAxis = new YAxis(yAxisMax);
+        this.series = seriesData;
     }
+
+
 
     @Getter
     @Setter
@@ -41,18 +42,38 @@ public abstract class ChartLineDto<X, Y> {
     @Getter
     @Setter
     @AllArgsConstructor
-    public static class YAxis<Y> {
-        private Y max;
+    public static class YAxis {
+        private String max;
     }
 
     @Getter
     @Setter
     @AllArgsConstructor
     public static class Series<Y> {
-        private final String name = "";
+        private final String name;
         private final String type = "line";
         private final Boolean smooth = true;
+        private final String stack = "Total";
+        private final AreaStyle areaStyle = new AreaStyle();
+        private final Emphasis emphasis = new Emphasis();
         private List<Y> data;
+
+        @Getter
+        @Setter
+        public static class AreaStyle {
+        }
+
+        @Getter
+        @Setter
+        public static class Emphasis {
+            private Focus focus = new Focus();
+
+            @Getter
+            @Setter
+            public static class Focus {
+                private String focus = "series";
+            }
+        }
     }
 
 }

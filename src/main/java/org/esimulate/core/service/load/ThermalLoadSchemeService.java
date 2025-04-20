@@ -105,4 +105,10 @@ public class ThermalLoadSchemeService {
                 .sorted(Comparator.comparing(ThermalLoadValue::getDatetime))
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public ThermalLoadScheme findWithValuesById(Long id) {
+        return thermalLoadSchemeRepository.findWithValuesById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的热负荷方案，ID: " + id));
+    }
 }

@@ -1,21 +1,37 @@
 package org.esimulate.core.model.device;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.pojo.model.BatteryModelDto;
+import org.esimulate.core.pso.particle.Dimension;
+import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * 蓄电池储能模型
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class BatteryModel implements Storage {
+@Entity
+@Table(name = "battery_model")
+@AllArgsConstructor
+@NoArgsConstructor
+public class BatteryModel extends Device implements Storage, Dimension {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +42,7 @@ public class BatteryModel implements Storage {
 
     // 蓄电池总容量 (Wh)
     @Column(nullable = false)
-    private ElectricEnergy C_t;
+    private BigDecimal C_t;
 
     // SOC 最小值 (0~1)
     @Column(nullable = false)
@@ -42,27 +58,73 @@ public class BatteryModel implements Storage {
 
     // 最大充电功率 (W)
     @Column(nullable = false)
-    private BigDecimal eta_hch;
+    private BigDecimal maxChargePower;
 
     // 最大放电功率 (W)
     @Column(nullable = false)
-    private BigDecimal eta_hdis;
+    private BigDecimal maxDischargePower;
+
+    // 充电效率 (0~1)
+    @Column(nullable = false)
+    private BigDecimal etaHch;
+
+    // 放电效率 (0~1)
+    @Column(nullable = false)
+    private BigDecimal etaHdis;
 
     // 当前储电量 (Wh)
     @Column(nullable = false)
-    private ElectricEnergy E_ESS_t;
+    private BigDecimal E_ESS_t;
 
     // 碳排放因子
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
 
+    // 维护成本
+    @Column(nullable = false)
+    private BigDecimal cost;
+
     // 建设成本
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
+
     @Transient
     // 每个时刻电池的剩余电量 (Wh)
     private List<ElectricEnergy> E_ESS_LIST = new ArrayList<>();
+
+    @Transient
+    private List<BigDecimal> chargingList = new ArrayList<>();
+
+    @Transient
+    private List<BigDecimal> disChargingList = new ArrayList<>();
+
+    @Transient
+    BigDecimal lowerBound;
+
+    @Transient
+    BigDecimal upperBound;
+
+    public BatteryModel(BatteryModelDto batteryModelDto) {
+        this.modelName = batteryModelDto.getModelName();
+        this.C_t = batteryModelDto.getCt();
+        this.SOC_min = batteryModelDto.getSOCMin();
+        this.SOC_max = batteryModelDto.getSOCMax();
+        this.mu = batteryModelDto.getMu();
+        this.maxChargePower = batteryModelDto.getMaxChargePower();
+        this.maxDischargePower = batteryModelDto.getMaxDischargePower();
+        this.etaHch = batteryModelDto.getEtaHch();
+        this.etaHdis = batteryModelDto.getEtaHDis();
+        this.E_ESS_t = batteryModelDto.getEESSt();
+        this.carbonEmissionFactor = batteryModelDto.getCarbonEmissionFactor();
+        this.cost = batteryModelDto.getCost();
+        this.purchaseCost = batteryModelDto.getPurchaseCost();
+    }
 
     /**
      * 电池根据传入的能源 冗余/缺口 中的电力能源数据数据计算充放电
@@ -76,20 +138,33 @@ public class BatteryModel implements Storage {
     @Override
     public Energy storage(List<Energy> differenceList) {
         // 1. 计算输入的电能冗余/缺口
-        ElectricEnergy electricEnergyDifference = differenceList.stream()
+        BigDecimal electricEnergyDifference = differenceList.stream()
                 .filter(x -> x instanceof ElectricEnergy)
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
-                .map(ElectricEnergy::new)
-                .orElse(new ElectricEnergy(BigDecimal.ZERO));
+                .orElse(BigDecimal.ZERO);
+
+        //按台数扩容
+        this.C_t = this.C_t.multiply(quantity);
+        this.maxChargePower = this.maxChargePower.multiply(quantity);
+        this.maxDischargePower = this.maxDischargePower.multiply(quantity);
+        this.E_ESS_t = this.E_ESS_t.multiply(quantity);
 
         // 2. 计算自然放电并更新储电量
         // 自然放电损失
-        BigDecimal naturalDischarge = this.E_ESS_t.multiply(this.mu).getValue();
+        BigDecimal naturalDischarge = this.E_ESS_t.multiply(this.mu);
         this.E_ESS_t = this.E_ESS_t.subtract(naturalDischarge);
 
         // 3. 充放电逻辑处理
         BigDecimal remainingDifference = updateElectricEnergy(electricEnergyDifference);
+
+        this.E_ESS_LIST.add(new ElectricEnergy(E_ESS_t));
+
+        //按台数缩容
+        this.C_t = this.C_t.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.maxChargePower = this.maxChargePower.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.maxDischargePower = this.maxDischargePower.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.E_ESS_t = this.E_ESS_t.divide(quantity, 2, RoundingMode.HALF_UP);
 
         // 4. 返回剩余的电能差值
         return new ElectricEnergy(remainingDifference);
@@ -101,30 +176,126 @@ public class BatteryModel implements Storage {
      * 接着，如果剩余差值为负，则计算可用的放电容量，并确定实际放电量，更新储电量。
      * 。
      *
-     * @param electricEnergyDifference 电能差值
+     * @param remainingDifference 剩余差额值
      * @return 最后返回剩余的电能差值
      */
-    private @NotNull BigDecimal updateElectricEnergy(ElectricEnergy electricEnergyDifference) {
-        BigDecimal remainingDifference = electricEnergyDifference.getValue(); // 剩余差值
+    private @NotNull BigDecimal updateElectricEnergy(BigDecimal remainingDifference) {
         if (remainingDifference.compareTo(BigDecimal.ZERO) > 0) {
+            this.disChargingList.add(BigDecimal.ZERO);
+
             // 3.1 充电逻辑
-            BigDecimal maxChargeCapacity = this.C_t.multiply(this.SOC_max).subtract(this.E_ESS_t).getValue(); // 可用充电容量
-            BigDecimal actualCharge = remainingDifference.min(this.eta_hch).min(maxChargeCapacity); // 实际充电量
-            this.E_ESS_t = this.E_ESS_t.add(actualCharge); // 更新储电量
-            remainingDifference = remainingDifference.subtract(actualCharge); // 剩余冗余
+            // 计算最大可用充电容量 = 最大容量 * SOC_max - 剩余电量
+            BigDecimal maxChargeCapacity = this.C_t.multiply(this.SOC_max).subtract(this.E_ESS_t);
+
+            if (maxChargeCapacity.compareTo(BigDecimal.ZERO) < 0) {
+                // 如果没有可充电量了
+                this.chargingList.add(BigDecimal.ZERO);
+                return remainingDifference;
+            }
+
+            // 取出 待充能量，最大可用充电容量，最大充电功率 中最小的值作为实际充电量
+            BigDecimal actualCharge = remainingDifference.min(this.maxChargePower).min(maxChargeCapacity); // 实际充电量
+            this.chargingList.add(actualCharge.setScale(2, RoundingMode.HALF_UP));
+
+            // 更新储电量，剩余电量 += 实际充电量 * 充电效率
+            this.E_ESS_t = this.E_ESS_t.add(actualCharge.multiply(this.etaHch).setScale(2, RoundingMode.HALF_UP));
+            // 剩余冗余
+            return remainingDifference.subtract(actualCharge);
         }
         if (remainingDifference.compareTo(BigDecimal.ZERO) < 0) {
+            this.chargingList.add(BigDecimal.ZERO);
             // 3.2 放电逻辑
-            BigDecimal maxDischargeCapacity = this.E_ESS_t.subtract(this.C_t.multiply(this.SOC_min)).getValue(); // 可用放电容量
-            BigDecimal actualDischarge = remainingDifference.abs().min(this.eta_hdis).min(maxDischargeCapacity); // 实际放电量
-            this.E_ESS_t = this.E_ESS_t.subtract(actualDischarge); // 更新储电量
-            remainingDifference = remainingDifference.add(actualDischarge); // 剩余缺口
+            // 计算最大可用放电容量 = 剩余电量 - 最大容量 * SOC_min
+            BigDecimal maxDischargeCapacity = this.E_ESS_t.subtract(this.C_t.multiply(this.SOC_min));
+            if (maxDischargeCapacity.compareTo(BigDecimal.ZERO) <= 0) {
+                this.disChargingList.add(BigDecimal.ZERO);
+                // 如果没有可放电量了
+                return remainingDifference;
+            }
+            // 取出 待放能量，最大可用放电容量，最大放电功率 中最小的值作为实际放电量
+            BigDecimal actualDischarge = remainingDifference.abs().min(this.maxDischargePower).min(maxDischargeCapacity);
+            this.disChargingList.add(actualDischarge.setScale(2, RoundingMode.HALF_UP));
+            // 更新储电量，剩余电量 -= 实际放电量 * 放电效率
+            this.E_ESS_t = this.E_ESS_t.subtract(actualDischarge.multiply(this.etaHdis)).setScale(2, RoundingMode.HALF_UP);
+            // 剩余缺口
+            return remainingDifference.add(actualDischarge);
         }
-        return remainingDifference;
+        return BigDecimal.ZERO;
     }
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
         return BigDecimal.ZERO;
     }
+
+    @TestOnly
+    public BigDecimal testUpdateElectricEnergy(BigDecimal remainingDifference) {
+        return this.updateElectricEnergy(remainingDifference);
+    }
+
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.07);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 10;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        BigDecimal chargingTotal = this.chargingList.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        BigDecimal disChargingTotal = this.disChargingList.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+
+        return chargingTotal.add(disChargingTotal)
+                .multiply(this.cost)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        StackedChartData chargingList = new StackedChartData(String.format("%s 充电", this.modelName), this.chargingList, 600);
+        StackedChartData disChargingList = new StackedChartData(String.format("%s 放电", this.modelName), this.disChargingList, 600);
+        return Arrays.asList(chargingList, disChargingList);
+    }
+
+    @Override
+    public BatteryModel clone() {
+        BatteryModel batteryModel = (BatteryModel) super.clone();
+
+        // 深拷贝 Timestamp（可变类型必须拷贝）
+        batteryModel.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 深拷贝 BigDecimal（不可变类型，为防御性复制仍重新构造）
+        batteryModel.C_t = new BigDecimal(this.C_t.toString());
+        batteryModel.SOC_min = new BigDecimal(this.SOC_min.toString());
+        batteryModel.SOC_max = new BigDecimal(this.SOC_max.toString());
+        batteryModel.mu = new BigDecimal(this.mu.toString());
+        batteryModel.maxChargePower = new BigDecimal(this.maxChargePower.toString());
+        batteryModel.maxDischargePower = new BigDecimal(this.maxDischargePower.toString());
+        batteryModel.etaHch = new BigDecimal(this.etaHch.toString());
+        batteryModel.etaHdis = new BigDecimal(this.etaHdis.toString());
+        batteryModel.E_ESS_t = new BigDecimal(this.E_ESS_t.toString());
+        batteryModel.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        batteryModel.cost = new BigDecimal(this.cost.toString());
+        batteryModel.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 字符串字段直接赋值（不可变类型）
+        batteryModel.modelName = this.modelName;
+
+        return batteryModel;
+    }
+
+
 }

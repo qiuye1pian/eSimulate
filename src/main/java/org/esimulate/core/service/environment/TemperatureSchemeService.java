@@ -105,4 +105,10 @@ public class TemperatureSchemeService {
                 .sorted(Comparator.comparing(TemperatureValue::getDatetime))
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public TemperatureScheme findWithValuesById(Long id) {
+        return temperatureSchemeRepository.findWithValuesById(id)
+                .orElseThrow(() -> new IllegalArgumentException("未找到对应的温度数据，ID: " + id));
+    }
 }
