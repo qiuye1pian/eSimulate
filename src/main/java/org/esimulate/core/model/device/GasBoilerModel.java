@@ -10,6 +10,7 @@ import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Provider;
+import org.esimulate.core.pso.simulator.facade.ThermalDevice;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
 import javax.persistence.*;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 @Table(name = "gas_boiler_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GasBoilerModel extends Device implements Provider, Dimension {
+public class GasBoilerModel extends Device implements Provider, Dimension, ThermalDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

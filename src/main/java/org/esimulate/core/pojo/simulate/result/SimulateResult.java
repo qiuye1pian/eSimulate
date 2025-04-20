@@ -36,7 +36,9 @@ public class SimulateResult {
 
     List<MomentResult> momentResultList;
 
-    StackedChartDto stackedChartDto;
+    StackedChartDto electricStackedChartDto;
+
+    StackedChartDto thermalStackedChartDto;
 
     private SimulateResult(String message, SimulateResultType resultType) {
         this.message = message;

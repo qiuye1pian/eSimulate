@@ -74,7 +74,7 @@ public abstract class Device implements Cloneable {
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
-    public abstract List<StackedChartData> getStackedChartDataList();
+
 
     @Override
     public Device clone() {
