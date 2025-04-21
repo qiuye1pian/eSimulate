@@ -2,6 +2,7 @@ package org.esimulate.core.pojo;
 
 
 import com.alibaba.fastjson2.JSONObject;
+import org.esimulate.core.pojo.chart.line.ChartLineDto;
 import org.esimulate.core.pojo.model.WindPowerChartDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -41,15 +42,15 @@ class WindPowerChartDtoTest {
         // 检查 series，只有一个 Series 对象
         Assertions.assertNotNull(dto.getSeries(), "series 不应为 null");
         Assertions.assertEquals(1, dto.getSeries().size(), "series 内对象个数应为 1");
-        WindPowerChartDto.Series series = dto.getSeries().get(0);
-        Assertions.assertEquals("", series.getName(), "Series的name应为空字符串");
+        ChartLineDto.Series<BigDecimal> series = dto.getSeries().get(0);
+        Assertions.assertEquals("风机出力", series.getName(), "Series的name应为风机出力");
         Assertions.assertEquals("line", series.getType(), "Series的type应为 'line'");
         Assertions.assertTrue(series.getSmooth(), "Series 的 smooth 应为 true");
         Assertions.assertEquals(seriesData, series.getData(), "Series 数据不一致");
         // 检查 yAxis，最大值计算
         Assertions.assertNotNull(dto.getYAxis(), "yAxis 不应为 null");
         // 10 * 1.33 = 13.3，setScale(0, RoundingMode.DOWN) 后为 13
-        Assertions.assertEquals(new BigDecimal("13"), dto.getYAxis().getMax(), "yAxis max 计算不正确");
+        Assertions.assertEquals("13", dto.getYAxis().getMax(), "yAxis max 计算不正确");
     }
 
     /**
@@ -70,7 +71,7 @@ class WindPowerChartDtoTest {
         Assertions.assertEquals(1, dto.getSeries().size(), "series 内对象个数应为 1");
         Assertions.assertTrue(dto.getSeries().get(0).getData().isEmpty(), "Series 数据列表应为空");
         // 验证 yAxis，由于 seriesData为空，所以最大值默认为 0，然后乘以1.33之后仍然为 0
-        Assertions.assertEquals(BigDecimal.ZERO, dto.getYAxis().getMax(), "yAxis max 应该为 0");
+        Assertions.assertEquals("0", dto.getYAxis().getMax(), "yAxis max 应该为 0");
     }
 
     /**
@@ -116,7 +117,7 @@ class WindPowerChartDtoTest {
                 .multiply(new BigDecimal("1.33"))
                 .setScale(0, RoundingMode.DOWN)
                 .intValue();
-        Assertions.assertEquals(new BigDecimal(expectedMaxInt), dto.getYAxis().getMax(), "yAxis max 计算不正确");
+        Assertions.assertEquals(String.valueOf(expectedMaxInt), dto.getYAxis().getMax(), "yAxis max 计算不正确");
     }
 
     @Test
@@ -135,7 +136,7 @@ class WindPowerChartDtoTest {
         // 将对象转换为 JSON 字符串
         String jsonString = JSONObject.toJSONString(dto);
         // 断言 JSON 字符串是否符合预期
-        Assertions.assertEquals("{\"XAxis\":{\"axisLabel\":{\"formatter\":\"{value} m/s\"},\"boundaryGap\":false,\"data\":[1.0,2.0,3.0],\"type\":\"category\"},\"YAxis\":{\"max\":13},\"series\":[{\"data\":[5.0,10.0,7.5],\"name\":\"\",\"smooth\":true,\"type\":\"line\"}]}", jsonString);
+        Assertions.assertEquals("{\"XAxis\":{\"axisLabel\":{\"formatter\":\"{value} m/s\"},\"boundaryGap\":false,\"data\":[1.0,2.0,3.0],\"type\":\"category\"},\"YAxis\":{\"max\":\"13\"},\"series\":[{\"areaStyle\":{},\"data\":[5.0,10.0,7.5],\"emphasis\":{\"focus\":{\"focus\":\"series\"}},\"name\":\"风机出力\",\"smooth\":true,\"stack\":\"Total\",\"type\":\"line\"}]}", jsonString);
     }
 
 }
