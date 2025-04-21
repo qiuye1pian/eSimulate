@@ -1,5 +1,6 @@
 package org.esimulate.core.pojo.simulate.result;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +9,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class StackedChartData {
 
     String name;

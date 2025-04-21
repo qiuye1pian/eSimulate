@@ -180,7 +180,7 @@ public class Simulator {
 
         List<StackedChartData> loadStackedChartDataList = loadList.stream()
                 .filter(x -> x instanceof ElectricLoadData)
-                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200))
+                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200, "Load"))
                 .collect(Collectors.toList());
 
         List<StackedChartData> mergedStackedChartDataList = new java.util.ArrayList<>();
@@ -209,7 +209,7 @@ public class Simulator {
 
         List<StackedChartData> loadStackedChartDataList = loadList.stream()
                 .filter(x -> x instanceof ThermalDevice)
-                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200))
+                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200, "Load"))
                 .collect(Collectors.toList());
 
         List<StackedChartData> mergedStackedChartDataList = new java.util.ArrayList<>();
