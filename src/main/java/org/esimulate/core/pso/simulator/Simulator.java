@@ -1,15 +1,17 @@
 package org.esimulate.core.pso.simulator;
 
 import lombok.extern.slf4j.Slf4j;
+import org.esimulate.core.model.load.electric.ElectricLoadData;
 import org.esimulate.core.model.result.MomentResult;
 import org.esimulate.core.model.result.indication.calculator.CarbonEmissionCalculator;
 import org.esimulate.core.model.result.indication.calculator.CurtailmentRateCalculator;
 import org.esimulate.core.model.result.indication.calculator.RenewableEnergyShareCalculator;
 import org.esimulate.core.model.result.indication.calculator.TotalCostCalculator;
-import org.esimulate.core.pso.simulator.facade.Device;
-import org.esimulate.core.pso.simulator.facade.Producer;
-import org.esimulate.core.pso.simulator.facade.Provider;
-import org.esimulate.core.pso.simulator.facade.Storage;
+import org.esimulate.core.pojo.simulate.result.SimulateResult;
+import org.esimulate.core.pojo.simulate.result.SimulateResultType;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
+import org.esimulate.core.pojo.simulate.result.StackedChartDto;
+import org.esimulate.core.pso.simulator.facade.*;
 import org.esimulate.core.pso.simulator.facade.base.TimeSeriesData;
 import org.esimulate.core.pso.simulator.facade.constraint.Constraint;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentData;
@@ -18,10 +20,6 @@ import org.esimulate.core.pso.simulator.facade.load.LoadData;
 import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
-import org.esimulate.core.pojo.simulate.result.SimulateResult;
-import org.esimulate.core.pojo.simulate.result.SimulateResultType;
-import org.esimulate.core.pojo.simulate.result.StackedChartData;
-import org.esimulate.core.pojo.simulate.result.StackedChartDto;
 import org.esimulate.util.DateTimeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.CollectionUtils;
@@ -78,7 +76,8 @@ public class Simulator {
                     .providerList(providerList)
                     .momentResultList(momentResultList)
                     .indicationList(getIndications(producerList, providerList, storageList, momentResultList))
-                    .stackedChartDto(getStackedChartDto(loadList, deviceList))
+                    .electricStackedChartDto(getElectricStackedChartDto(loadList, deviceList))
+                    .thermalStackedChartDto(getThermalStackedChartDto(loadList, deviceList))
                     .resultType(SimulateResultType.SUCCESS)
                     .build();
 
@@ -161,9 +160,41 @@ public class Simulator {
         return new MomentResult(afterProvideList);
     }
 
-    private static @NotNull StackedChartDto getStackedChartDto(List<LoadData> loadList, List<Device> deviceList) {
-        List<StackedChartData> stackedChartDataList = deviceList.stream()
-                .map(Device::getStackedChartDataList)
+    private static @NotNull StackedChartDto getElectricStackedChartDto(List<LoadData> loadList, List<Device> deviceList) {
+        List<StackedChartData> deviceStackedChartDataList = deviceList.stream()
+                .filter(x -> x instanceof ElectricDevice)
+                .map(x -> (ElectricDevice) x)
+                .map(ElectricDevice::getStackedChartDataList)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+        List<String> sortedLocalDateTimes = loadList.stream()
+                .filter(x -> x instanceof ElectricLoadData)
+                .findFirst()
+                .map(LoadData::getDatetimeList)
+                .map(list -> list.stream()
+                        .sorted()
+                        .map(DateTimeUtil::formatNoYearString)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+
+        List<StackedChartData> loadStackedChartDataList = loadList.stream()
+                .filter(x -> x instanceof ElectricLoadData)
+                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200))
+                .collect(Collectors.toList());
+
+        List<StackedChartData> mergedStackedChartDataList = new java.util.ArrayList<>();
+        mergedStackedChartDataList.addAll(deviceStackedChartDataList);
+        mergedStackedChartDataList.addAll(loadStackedChartDataList);
+
+        return new StackedChartDto(sortedLocalDateTimes, mergedStackedChartDataList);
+    }
+
+    private static @NotNull StackedChartDto getThermalStackedChartDto(List<LoadData> loadList, List<Device> deviceList) {
+        List<StackedChartData> deviceStackedChartDataList = deviceList.stream()
+                .filter(x -> x instanceof ThermalDevice)
+                .map(x -> (ThermalDevice) x)
+                .map(ThermalDevice::getStackedChartDataList)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
@@ -176,7 +207,16 @@ public class Simulator {
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
 
-        return new StackedChartDto(sortedLocalDateTimes, stackedChartDataList);
+        List<StackedChartData> loadStackedChartDataList = loadList.stream()
+                .filter(x -> x instanceof ThermalDevice)
+                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200))
+                .collect(Collectors.toList());
+
+        List<StackedChartData> mergedStackedChartDataList = new java.util.ArrayList<>();
+        mergedStackedChartDataList.addAll(deviceStackedChartDataList);
+        mergedStackedChartDataList.addAll(loadStackedChartDataList);
+
+        return new StackedChartDto(sortedLocalDateTimes, mergedStackedChartDataList);
     }
 
     private static @NotNull List<Indication> getIndications(List<Producer> producerList, List<Provider> providerList, List<Storage> storageList, List<MomentResult> momentResultList) {

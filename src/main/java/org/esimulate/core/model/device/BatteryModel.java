@@ -8,6 +8,7 @@ import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.BatteryModelDto;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
+import org.esimulate.core.pso.simulator.facade.ElectricDevice;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
@@ -31,7 +32,7 @@ import java.util.List;
 @Table(name = "battery_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class BatteryModel extends Device implements Storage, Dimension {
+public class BatteryModel extends Device implements Storage, Dimension, ElectricDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

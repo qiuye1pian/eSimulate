@@ -10,6 +10,7 @@ import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.SolarPowerModelDto;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
+import org.esimulate.core.pso.simulator.facade.ElectricDevice;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 @Table(name = "solar_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class SolarPowerModel extends Device implements Producer, Dimension {
+public class SolarPowerModel extends Device implements Producer, Dimension, ElectricDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

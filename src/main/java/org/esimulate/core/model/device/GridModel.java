@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.GridModelDto;
 import org.esimulate.core.pso.simulator.facade.Device;
+import org.esimulate.core.pso.simulator.facade.ElectricDevice;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 @Table(name = "grid_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GridModel extends Device implements Provider {
+public class GridModel extends Device implements Provider, ElectricDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

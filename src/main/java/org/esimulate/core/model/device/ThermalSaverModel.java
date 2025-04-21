@@ -10,6 +10,7 @@ import org.esimulate.core.pojo.model.ThermalSaverModelDto;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Storage;
+import org.esimulate.core.pso.simulator.facade.ThermalDevice;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
@@ -28,7 +29,7 @@ import java.util.List;
 @Table(name = "thermal_saver_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalSaverModel extends Device implements Storage, Dimension {
+public class ThermalSaverModel extends Device implements Storage, Dimension, ThermalDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
