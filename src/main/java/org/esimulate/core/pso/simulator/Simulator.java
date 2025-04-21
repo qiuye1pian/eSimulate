@@ -161,7 +161,7 @@ public class Simulator {
     }
 
     private static @NotNull StackedChartDto getElectricStackedChartDto(List<LoadData> loadList, List<Device> deviceList) {
-        List<StackedChartData> stackedChartDataList = deviceList.stream()
+        List<StackedChartData> deviceStackedChartDataList = deviceList.stream()
                 .filter(x -> x instanceof ElectricDevice)
                 .map(x -> (ElectricDevice) x)
                 .map(ElectricDevice::getStackedChartDataList)
@@ -178,11 +178,20 @@ public class Simulator {
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
 
-        return new StackedChartDto(sortedLocalDateTimes, stackedChartDataList);
+        List<StackedChartData> loadStackedChartDataList = loadList.stream()
+                .filter(x -> x instanceof ElectricLoadData)
+                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200))
+                .collect(Collectors.toList());
+
+        List<StackedChartData> mergedStackedChartDataList = new java.util.ArrayList<>();
+        mergedStackedChartDataList.addAll(deviceStackedChartDataList);
+        mergedStackedChartDataList.addAll(loadStackedChartDataList);
+
+        return new StackedChartDto(sortedLocalDateTimes, mergedStackedChartDataList);
     }
 
     private static @NotNull StackedChartDto getThermalStackedChartDto(List<LoadData> loadList, List<Device> deviceList) {
-        List<StackedChartData> stackedChartDataList = deviceList.stream()
+        List<StackedChartData> deviceStackedChartDataList = deviceList.stream()
                 .filter(x -> x instanceof ThermalDevice)
                 .map(x -> (ThermalDevice) x)
                 .map(ThermalDevice::getStackedChartDataList)
@@ -198,7 +207,16 @@ public class Simulator {
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
 
-        return new StackedChartDto(sortedLocalDateTimes, stackedChartDataList);
+        List<StackedChartData> loadStackedChartDataList = loadList.stream()
+                .filter(x -> x instanceof ThermalDevice)
+                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200))
+                .collect(Collectors.toList());
+
+        List<StackedChartData> mergedStackedChartDataList = new java.util.ArrayList<>();
+        mergedStackedChartDataList.addAll(deviceStackedChartDataList);
+        mergedStackedChartDataList.addAll(loadStackedChartDataList);
+
+        return new StackedChartDto(sortedLocalDateTimes, mergedStackedChartDataList);
     }
 
     private static @NotNull List<Indication> getIndications(List<Producer> producerList, List<Provider> providerList, List<Storage> storageList, List<MomentResult> momentResultList) {

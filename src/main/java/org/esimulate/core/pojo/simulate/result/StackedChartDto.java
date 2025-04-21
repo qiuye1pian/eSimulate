@@ -24,7 +24,7 @@ public class StackedChartDto extends ChartLineDto<String, BigDecimal> {
         }
 
         List<Series<BigDecimal>> seriesData = stackedChartData.stream()
-                .map(x -> new Series<>(x.getName(), x.getSeriesData()))
+                .map(x -> new Series<>(x.getName(), x.getStack(), x.getSeriesData()))
                 .collect(Collectors.toList());
 
         this.init(xAxisData, seriesData, "dataMax");

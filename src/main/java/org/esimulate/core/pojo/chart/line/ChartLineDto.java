@@ -1,6 +1,6 @@
 package org.esimulate.core.pojo.chart.line;
 
-
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,8 +20,6 @@ public abstract class ChartLineDto<X, Y> {
         this.yAxis = new YAxis(yAxisMax);
         this.series = seriesData;
     }
-
-
 
     @Getter
     @Setter
@@ -53,7 +51,8 @@ public abstract class ChartLineDto<X, Y> {
         private final String name;
         private final String type = "line";
         private final Boolean smooth = true;
-        private final String stack = "Total";
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        private final String stack;
         private final AreaStyle areaStyle = new AreaStyle();
         private final Emphasis emphasis = new Emphasis();
         private List<Y> data;

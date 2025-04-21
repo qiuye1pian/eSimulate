@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -52,5 +53,13 @@ public class ThermalLoadScheme implements ThermalLoadData {
         return thermalLoadValues.stream().map(ThermalLoadValue::getDatetime).collect(Collectors.toList());
     }
 
+    @Override
+    public String getLoadName() {
+        return this.schemeName;
+    }
 
+    @Override
+    public List<BigDecimal> getLoadValueList() {
+        return thermalLoadValues.stream().map(ThermalLoadValue::getLoadValue).collect(Collectors.toList());
+    }
 }
