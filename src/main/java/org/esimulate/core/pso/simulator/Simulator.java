@@ -2,6 +2,7 @@ package org.esimulate.core.pso.simulator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.load.electric.ElectricLoadData;
+import org.esimulate.core.model.load.heat.ThermalLoadData;
 import org.esimulate.core.model.result.MomentResult;
 import org.esimulate.core.model.result.indication.calculator.CarbonEmissionCalculator;
 import org.esimulate.core.model.result.indication.calculator.CurtailmentRateCalculator;
@@ -208,7 +209,7 @@ public class Simulator {
                 .orElse(Collections.emptyList());
 
         List<StackedChartData> loadStackedChartDataList = loadList.stream()
-                .filter(x -> x instanceof ThermalDevice)
+                .filter(x -> x instanceof ThermalLoadData)
                 .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200, "Load"))
                 .collect(Collectors.toList());
 
