@@ -43,9 +43,9 @@ public class ThermalPowerService {
     }
 
     /**
-     * 根据 ID 删除风机模型
+     * 根据 ID 删除光热模型
      *
-     * @param id 风机模型 ID
+     * @param id 光热模型 ID
      */
     @Transactional
     public void deleteById(Long id) {
