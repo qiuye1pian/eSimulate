@@ -131,12 +131,12 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     }
 
     @Override
-    public Energy produce(List<EnvironmentValue> environmentValueList) {
+    public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
         ElectricEnergy electricEnergy = this.runningStatus == false ?
                 new ElectricEnergy(BigDecimal.ZERO) :
                 new ElectricEnergy(minPower);
         this.electricEnergyList.add(electricEnergy);
-        return electricEnergy;
+        return Collections.singletonList(electricEnergy);
     }
 
     @Override

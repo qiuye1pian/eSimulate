@@ -94,7 +94,7 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
     }
 
     @Override
-    public Energy produce(List<EnvironmentValue> environmentValueList) {
+    public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
         BigDecimal output = environmentValueList.stream()
                 .filter(x -> x instanceof SunlightIrradianceValue)
                 .map(EnvironmentValue::getValue)
@@ -105,7 +105,7 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
 
         ThermalEnergy thermalEnergy = new ThermalEnergy(output);
         this.thermalEnergyList.add(thermalEnergy);
-        return thermalEnergy;
+        return Collections.singletonList(thermalEnergy);
     }
 
     @Override

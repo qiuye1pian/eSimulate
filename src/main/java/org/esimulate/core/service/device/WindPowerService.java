@@ -41,6 +41,7 @@ public class WindPowerService {
                 .map(x -> (EnvironmentValue) x)
                 .map(Collections::singletonList)
                 .map(model::produce)
+                .flatMap(List::stream)
                 .map(Energy::getValue)
                 .collect(Collectors.toList());
     }

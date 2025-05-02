@@ -131,6 +131,7 @@ public class Simulator {
         // 列表里根据仿真参与的模型，结果可能混合了电能和热能
         List<Energy> produceList = producerList.stream()
                 .map(x -> x.produce(environmentListAtAMount))
+                .flatMap(List::stream)
                 .collect(Collectors.toList());
 
         //用负荷数据减去已生产的能源，电能和热能分开计算的，获得能源 冗余/缺口 数据

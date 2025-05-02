@@ -199,7 +199,7 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
     }
 
     @Override
-    public Energy produce(List<EnvironmentValue> environmentValueList) {
+    public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
         // 1. 提取环境变量中的流量 Q
         BigDecimal Q = environmentValueList.stream()
                 .filter(env -> env instanceof WaterSpeedValue)
@@ -215,7 +215,7 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
         this.electricEnergyList.add(generatedEnergy);
 
         // 4. 返回当前时间点的发电量
-        return generatedEnergy;
+        return Collections.singletonList(generatedEnergy);
     }
 
     @Override

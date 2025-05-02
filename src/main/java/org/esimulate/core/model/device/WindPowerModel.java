@@ -125,7 +125,7 @@ public class WindPowerModel extends Device implements Producer, Dimension, Elect
 
 
     @Override
-    public Energy produce(List<EnvironmentValue> environmentValueList) {
+    public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
         BigDecimal windSpeed = environmentValueList.stream()
                 .filter(x -> x instanceof WindSpeedValue)
                 .findAny()
@@ -137,7 +137,7 @@ public class WindPowerModel extends Device implements Producer, Dimension, Elect
 
         this.electricEnergyList.add(currentEnergy);
 
-        return currentEnergy;
+        return Collections.singletonList(currentEnergy);
     }
 
     @Override

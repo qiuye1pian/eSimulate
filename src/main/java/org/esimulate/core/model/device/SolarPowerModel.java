@@ -123,7 +123,7 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
     }
 
     @Override
-    public Energy produce(List<EnvironmentValue> environmentValueList) {
+    public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
         BigDecimal sunlight = environmentValueList.stream()
                 .filter(x -> x instanceof SunlightIrradianceValue)
                 .map(EnvironmentValue::getValue)
@@ -138,7 +138,7 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
 
         Energy energy = calculatePower(temperature, sunlight);
         this.electricEnergyList.add((ElectricEnergy) energy);
-        return energy;
+        return Collections.singletonList(energy);
     }
 
     @Override
