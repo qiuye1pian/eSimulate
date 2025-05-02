@@ -47,6 +47,9 @@ public class ThermalPowerUnitModelDto {
     // 最小停机时间（小时）
     private int minShutdownTime;
 
+    // 当前运行状态：true 表示运行中，false 表示停机
+    private Boolean runningStatus;
+
     // 碳排放因子
     private BigDecimal carbonEmissionFactor;
 

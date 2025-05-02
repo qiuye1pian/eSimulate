@@ -56,6 +56,11 @@ public class Simulator {
                     .map(x -> (Storage) x)
                     .collect(Collectors.toList());
 
+            List<Adjustable> adjustableList = deviceList.stream()
+                    .filter(x -> x instanceof Adjustable)
+                    .map(x -> (Adjustable) x)
+                    .collect(Collectors.toList());
+
             List<Provider> providerList = deviceList.stream()
                     .filter(x -> x instanceof Provider)
                     .map(x -> (Provider) x)
@@ -67,7 +72,7 @@ public class Simulator {
             //计算某一时刻的情景
             List<MomentResult> momentResultList = IntStream.range(0, timeLength)
                     .mapToObj(timeIndex ->
-                            calculateAMoment(loadList, environmentList, producerList, storageList, providerList, timeIndex))
+                            calculateAMoment(loadList, environmentList, producerList, adjustableList, storageList, providerList, timeIndex))
                     .collect(Collectors.toList());
 
             return SimulateResult.builder()
@@ -109,6 +114,7 @@ public class Simulator {
     private static MomentResult calculateAMoment(List<LoadData> loadList,
                                                  List<EnvironmentData> environmentList,
                                                  List<Producer> producerList,
+                                                 List<Adjustable> adjustableList,
                                                  List<Storage> storageList,
                                                  List<Provider> providerList,
                                                  int timeIndex) {
@@ -152,9 +158,14 @@ public class Simulator {
                 //通过储能计算后，各能源的 冗余/缺口
                 .collect(Collectors.toList());
 
+        List<Energy> afterAdjustableEnergyList = CollectionUtils.isEmpty(adjustableList)? afterStorageEnergyList: adjustableList.stream()
+                .map(x->x.adjustable(afterStorageEnergyList))
+                .collect(Collectors.toList());
+
+
         //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
         List<Energy> afterProvideList = providerList.stream()
-                .map(x -> x.provide(afterStorageEnergyList))
+                .map(x -> x.provide(afterAdjustableEnergyList))
                 .collect(Collectors.toList());
 
         //剩余的能源将被丢弃，电能为弃风弃光，热能为自然散逸

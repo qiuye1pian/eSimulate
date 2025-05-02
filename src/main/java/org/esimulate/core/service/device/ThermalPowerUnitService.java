@@ -75,6 +75,7 @@ public class ThermalPowerUnitService {
         thermalPowerUnitModel.setEmissionRate(thermalPowerUnitModelDto.getEmissionRate());
         thermalPowerUnitModel.setMinStartupTime(thermalPowerUnitModelDto.getMinStartupTime());
         thermalPowerUnitModel.setMinShutdownTime(thermalPowerUnitModelDto.getMinShutdownTime());
+        thermalPowerUnitModel.setRunningStatus(thermalPowerUnitModelDto.getRunningStatus());
 
         thermalPowerUnitModel.setCarbonEmissionFactor(thermalPowerUnitModelDto.getCarbonEmissionFactor());
         thermalPowerUnitModel.setCost(thermalPowerUnitModelDto.getCost());

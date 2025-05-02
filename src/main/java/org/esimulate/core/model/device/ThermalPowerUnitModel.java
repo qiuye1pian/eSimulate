@@ -4,9 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.esimulate.core.model.result.energy.ThermalEnergy;
+import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.ThermalPowerUnitModelDto;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
+import org.esimulate.core.pso.simulator.facade.Adjustable;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.ElectricDevice;
 import org.esimulate.core.pso.simulator.facade.Producer;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @Table(name = "thermal_power_unit_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalPowerUnitModel extends Device implements Producer, ElectricDevice {
+public class ThermalPowerUnitModel extends Device implements Producer, Adjustable, ElectricDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -89,6 +90,10 @@ public class ThermalPowerUnitModel extends Device implements Producer, ElectricD
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
+    // 当前运行状态：true 表示运行中，false 表示停机
+    @Column(nullable = false)
+    private Boolean runningStatus;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
@@ -96,12 +101,30 @@ public class ThermalPowerUnitModel extends Device implements Producer, ElectricD
     private Timestamp updatedAt;
 
     @Transient
-    // 每小时光热电站出力列表 (单位: kW)
-    private List<ThermalEnergy> thermalEnergyList = new ArrayList<>();
+    // 每小时火电站基础出力列表 (单位: kW)
+    private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
+
+    @Transient
+    // 每小时火电站可调出力列表 (单位: kW)
+    private List<ElectricEnergy> adjustElectricEnergyList = new ArrayList<>();
+
+    // 状态持续时长
+    @Transient
+    private Integer stateDurationHours = 0;
 
     public ThermalPowerUnitModel(ThermalPowerUnitModelDto thermalPowerModelDto) {
         this.modelName = thermalPowerModelDto.getModelName();
-
+        this.maxPower = thermalPowerModelDto.getMaxPower();
+        this.minPower = thermalPowerModelDto.getMinPower();
+        this.startupCost = thermalPowerModelDto.getStartupCost();
+        this.a = thermalPowerModelDto.getA();
+        this.b = thermalPowerModelDto.getB();
+        this.c = thermalPowerModelDto.getC();
+        this.auxiliaryRate = thermalPowerModelDto.getAuxiliaryRate();
+        this.emissionRate = thermalPowerModelDto.getEmissionRate();
+        this.minStartupTime = thermalPowerModelDto.getMinStartupTime();
+        this.minShutdownTime = thermalPowerModelDto.getMinShutdownTime();
+        this.runningStatus = thermalPowerModelDto.getRunningStatus();
         this.carbonEmissionFactor = thermalPowerModelDto.getCarbonEmissionFactor();
         this.cost = thermalPowerModelDto.getCost();
         this.purchaseCost = thermalPowerModelDto.getPurchaseCost();
@@ -109,17 +132,16 @@ public class ThermalPowerUnitModel extends Device implements Producer, ElectricD
 
     @Override
     public Energy produce(List<EnvironmentValue> environmentValueList) {
-
-        //todo:需要完善
-
-        ThermalEnergy thermalEnergy = new ThermalEnergy(BigDecimal.ZERO);
-        this.thermalEnergyList.add(thermalEnergy);
-        return thermalEnergy;
+        ElectricEnergy electricEnergy = this.runningStatus == false ?
+                new ElectricEnergy(BigDecimal.ZERO) :
+                new ElectricEnergy(minPower);
+        this.electricEnergyList.add(electricEnergy);
+        return electricEnergy;
     }
 
     @Override
     public BigDecimal getTotalEnergy() {
-        return thermalEnergyList.stream()
+        return electricEnergyList.stream()
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
@@ -160,9 +182,28 @@ public class ThermalPowerUnitModel extends Device implements Producer, ElectricD
 
     @Override
     public List<StackedChartData> getStackedChartDataList() {
-        List<BigDecimal> collect = this.thermalEnergyList.stream().map(ThermalEnergy::getValue).collect(Collectors.toList());
+        List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 200);
         return Collections.singletonList(stackedChartData);
+    }
+
+    @Override
+    public Energy adjustable(List<Energy> afterStorageEnergyList) {
+        BigDecimal electricEnergyDifference = afterStorageEnergyList.stream()
+                .filter(x -> x instanceof ElectricEnergy)
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+        if (electricEnergyDifference.compareTo(BigDecimal.ZERO) > 0) {
+            // 如果有能量缺口
+        }
+
+        return null;
+    }
+
+    @Override
+    public BigDecimal getAdjustTotalEnergy() {
+        return null;
     }
 
     @Override
@@ -200,4 +241,5 @@ public class ThermalPowerUnitModel extends Device implements Producer, ElectricD
 
         return clone;
     }
+
 }
