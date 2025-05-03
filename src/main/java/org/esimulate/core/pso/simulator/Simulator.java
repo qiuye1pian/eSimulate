@@ -159,10 +159,11 @@ public class Simulator {
                 //通过储能计算后，各能源的 冗余/缺口
                 .collect(Collectors.toList());
 
+        //可调节设备
         List<Energy> afterAdjustableEnergyList = CollectionUtils.isEmpty(adjustableList)? afterStorageEnergyList: adjustableList.stream()
-                .map(x->x.adjustable(afterStorageEnergyList))
+                .map(adjustableDevice->adjustableDevice.adjustable(afterStorageEnergyList))
+                .flatMap(List::stream)
                 .collect(Collectors.toList());
-
 
         //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
         List<Energy> afterProvideList = providerList.stream()

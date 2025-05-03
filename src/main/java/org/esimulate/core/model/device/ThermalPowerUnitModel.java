@@ -46,9 +46,9 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     @Column(nullable = false)
     private BigDecimal minPower;
 
-    // 启动成本（元）
+    // 启停成本（元）
     @Column(nullable = false)
-    private BigDecimal startupCost;
+    private BigDecimal startStopCost;
 
     // 成本函数系数 a
     @Column(nullable = false)
@@ -77,6 +77,14 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     // 最小停机时间（小时）
     @Column(nullable = false)
     private int minShutdownTime;
+
+    // 向上爬坡速率（单位：MW/h）
+    @Column(nullable = false)
+    private BigDecimal rampUpRate;
+
+    // 向下爬坡速率（单位：MW/h）
+    @Column(nullable = false)
+    private BigDecimal rampDownRate;
 
     // 碳排放因子
     @Column(nullable = false)
@@ -112,11 +120,15 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     @Transient
     private Integer stateDurationHours = 0;
 
+    // 当前浮动工作功率
+    @Transient
+    private BigDecimal currentAdjustablePower = BigDecimal.ZERO;
+
     public ThermalPowerUnitModel(ThermalPowerUnitModelDto thermalPowerModelDto) {
         this.modelName = thermalPowerModelDto.getModelName();
         this.maxPower = thermalPowerModelDto.getMaxPower();
         this.minPower = thermalPowerModelDto.getMinPower();
-        this.startupCost = thermalPowerModelDto.getStartupCost();
+        this.startStopCost = thermalPowerModelDto.getStartStopCost();
         this.a = thermalPowerModelDto.getA();
         this.b = thermalPowerModelDto.getB();
         this.c = thermalPowerModelDto.getC();
@@ -128,6 +140,8 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
         this.carbonEmissionFactor = thermalPowerModelDto.getCarbonEmissionFactor();
         this.cost = thermalPowerModelDto.getCost();
         this.purchaseCost = thermalPowerModelDto.getPurchaseCost();
+        this.rampUpRate = thermalPowerModelDto.getRampUpRate();
+        this.rampDownRate = thermalPowerModelDto.getRampDownRate();
     }
 
     @Override
@@ -188,17 +202,34 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     }
 
     @Override
-    public Energy adjustable(List<Energy> afterStorageEnergyList) {
+    public List<Energy> adjustable(List<Energy> afterStorageEnergyList) {
+
+        /*
+         * 计算电力能量缺口/冗余值 electricEnergyDifference
+         */
         BigDecimal electricEnergyDifference = afterStorageEnergyList.stream()
                 .filter(x -> x instanceof ElectricEnergy)
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
-        if (electricEnergyDifference.compareTo(BigDecimal.ZERO) > 0) {
-            // 如果有能量缺口
-        }
+        /*
+         * 如果设备是关闭状态
+         *    如果能量有冗余（electricEnergyDifference 大于等于0），则返回 afterStorageEnergyList
+         *     如果能量有缺口（electricEnergyDifference 小于0），则进入尝试开机方法，方法返回实际输出功率值
+         * 如果设备是开启状态
+         *    如果能量有冗余，则进入尝试关机方法，方法返回实际输出功率值
+         *    如果能量有缺口，则根据当前功率currentAdjustablePower计算是否满足，
+         *        不能满足则调用向上爬坡方法，向上爬坡方法返回实际输出功率值。
+         *       能满足则调用向下爬坡方法，向下爬坡方法返回实际输出功率值。
+         */
 
-        return null;
+        /*
+         * 计算剩余缺口/冗余
+         * BigDecimal finalElectricEnergyDifference =  electricEnergyDifference - 实际输出功率值;
+         */
+        BigDecimal finalElectricEnergyDifference = BigDecimal.ZERO;
+
+        return Collections.singletonList(new ElectricEnergy(finalElectricEnergyDifference));
     }
 
     @Override
@@ -213,7 +244,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
         // 深拷贝 BigDecimal 字段
         clone.maxPower = new BigDecimal(this.maxPower.toString());
         clone.minPower = new BigDecimal(this.minPower.toString());
-        clone.startupCost = new BigDecimal(this.startupCost.toString());
+        clone.startStopCost = new BigDecimal(this.startStopCost.toString());
         clone.a = new BigDecimal(this.a.toString());
         clone.b = new BigDecimal(this.b.toString());
         clone.c = new BigDecimal(this.c.toString());
@@ -223,6 +254,9 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
         clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
         clone.cost = new BigDecimal(this.cost.toString());
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        clone.rampUpRate = new BigDecimal(this.rampUpRate.toString());
+        clone.rampDownRate = new BigDecimal(this.rampDownRate.toString());
 
         // int 类型字段直接赋值
         clone.minStartupTime = this.minStartupTime;

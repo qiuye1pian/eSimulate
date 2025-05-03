@@ -23,8 +23,8 @@ public class ThermalPowerUnitModelDto {
     // 最小出力 PMin
     private BigDecimal minPower;
 
-    // 启动成本（元）
-    private BigDecimal startupCost;
+    // 启停成本（元）
+    private BigDecimal startStopCost;
 
     // 成本函数系数 a
     private BigDecimal a;
@@ -49,6 +49,12 @@ public class ThermalPowerUnitModelDto {
 
     // 当前运行状态：true 表示运行中，false 表示停机
     private Boolean runningStatus;
+
+    // 向上爬坡速率（单位：MW/h）
+    private BigDecimal rampUpRate;
+
+    // 向下爬坡速率（单位：MW/h）
+    private BigDecimal rampDownRate;
 
     // 碳排放因子
     private BigDecimal carbonEmissionFactor;
