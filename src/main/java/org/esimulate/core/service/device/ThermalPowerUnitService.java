@@ -67,7 +67,7 @@ public class ThermalPowerUnitService {
         thermalPowerUnitModel.setModelName(thermalPowerUnitModelDto.getModelName());
         thermalPowerUnitModel.setMaxPower(thermalPowerUnitModelDto.getMaxPower());
         thermalPowerUnitModel.setMinPower(thermalPowerUnitModelDto.getMinPower());
-        thermalPowerUnitModel.setStartupCost(thermalPowerUnitModelDto.getStartStopCost());
+        thermalPowerUnitModel.setStartStopCost(thermalPowerUnitModelDto.getStartStopCost());
         thermalPowerUnitModel.setA(thermalPowerUnitModelDto.getA());
         thermalPowerUnitModel.setB(thermalPowerUnitModelDto.getB());
         thermalPowerUnitModel.setC(thermalPowerUnitModelDto.getC());

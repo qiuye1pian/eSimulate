@@ -160,14 +160,11 @@ public class Simulator {
                 .collect(Collectors.toList());
 
         //可调节设备
-        List<Energy> afterAdjustableEnergyList = CollectionUtils.isEmpty(adjustableList)? afterStorageEnergyList: adjustableList.stream()
-                .map(adjustableDevice->adjustableDevice.adjustable(afterStorageEnergyList))
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+        adjustableList.forEach(adjustableDevice -> adjustableDevice.adjustable(afterStorageEnergyList));
 
         //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
         List<Energy> afterProvideList = providerList.stream()
-                .map(x -> x.provide(afterAdjustableEnergyList))
+                .map(x -> x.provide(afterStorageEnergyList))
                 .collect(Collectors.toList());
 
         //剩余的能源将被丢弃，电能为弃风弃光，热能为自然散逸

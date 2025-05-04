@@ -13,6 +13,7 @@ import org.esimulate.core.pso.simulator.facade.ElectricDevice;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -116,6 +117,9 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     // 每小时火电站可调出力列表 (单位: kW)
     private List<ElectricEnergy> adjustElectricEnergyList = new ArrayList<>();
 
+    @Transient
+    private List<Integer> startStopRecord = new ArrayList<>();
+
     // 状态持续时长
     @Transient
     private Integer stateDurationHours = 0;
@@ -146,9 +150,11 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
 
     @Override
     public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
-        ElectricEnergy electricEnergy = this.runningStatus == false ?
+        ElectricEnergy electricEnergy = (this.runningStatus == false ?
                 new ElectricEnergy(BigDecimal.ZERO) :
-                new ElectricEnergy(minPower);
+                new ElectricEnergy(minPower))
+                .multiply(quantity);
+
         this.electricEnergyList.add(electricEnergy);
         return Collections.singletonList(electricEnergy);
     }
@@ -196,13 +202,18 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
 
     @Override
     public List<StackedChartData> getStackedChartDataList() {
+        //todo:需要重写
         List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 200);
         return Collections.singletonList(stackedChartData);
     }
 
+    /**
+     *
+     * @param afterStorageEnergyList 能量 冗余/缺口，如果是缺口，值为负数
+     */
     @Override
-    public List<Energy> adjustable(List<Energy> afterStorageEnergyList) {
+    public void adjustable(List<Energy> afterStorageEnergyList) {
 
         /*
          * 计算电力能量缺口/冗余值 electricEnergyDifference
@@ -212,24 +223,138 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
-        /*
-         * 如果设备是关闭状态
-         *    如果能量有冗余（electricEnergyDifference 大于等于0），则返回 afterStorageEnergyList
-         *     如果能量有缺口（electricEnergyDifference 小于0），则进入尝试开机方法，方法返回实际输出功率值
-         * 如果设备是开启状态
-         *    如果能量有冗余，则进入尝试关机方法，方法返回实际输出功率值
-         *    如果能量有缺口，则根据当前功率currentAdjustablePower计算是否满足，
-         *        不能满足则调用向上爬坡方法，向上爬坡方法返回实际输出功率值。
-         *       能满足则调用向下爬坡方法，向下爬坡方法返回实际输出功率值。
-         */
 
+        BigDecimal realTimePower;
+
+        if (this.runningStatus == false) {
+            realTimePower = workWithPowerOff(electricEnergyDifference);
+        } else {
+            realTimePower = workWithPowerOn(electricEnergyDifference);
+        }
+
+        this.adjustElectricEnergyList.add(new ElectricEnergy(realTimePower));
         /*
          * 计算剩余缺口/冗余
-         * BigDecimal finalElectricEnergyDifference =  electricEnergyDifference - 实际输出功率值;
          */
-        BigDecimal finalElectricEnergyDifference = BigDecimal.ZERO;
+        BigDecimal finalElectricEnergyDifference = electricEnergyDifference.subtract(realTimePower);
+        afterStorageEnergyList.removeIf(x -> x instanceof ElectricEnergy);
+        afterStorageEnergyList.add(new ElectricEnergy(finalElectricEnergyDifference));
+    }
 
-        return Collections.singletonList(new ElectricEnergy(finalElectricEnergyDifference));
+    /**
+     *  设备是开启状态
+     *    如果能量有冗余，则进入尝试关机方法，方法返回实际输出功率值
+     *    如果能量有缺口，则调整当前功率
+     * @param electricEnergyDifference 能量冗余(+)/缺口(-)
+     * @return 实际输出功率值
+     */
+    private BigDecimal workWithPowerOn(BigDecimal electricEnergyDifference) {
+        if (electricEnergyDifference.compareTo(BigDecimal.ZERO) >= 0) {
+            return tryToTurnOff(electricEnergyDifference);
+        } else {
+            return adjustPower(electricEnergyDifference);
+        }
+    }
+
+    /**
+     *  设备是关闭状态
+     *    如果能量有冗余（electricEnergyDifference 大于等于0），则返回
+     *    如果能量有缺口（electricEnergyDifference 小于0），则进入尝试开机方法，方法返回实际输出功率值
+     * @param electricEnergyDifference 能量冗余/缺口
+     * @return 实际输出功率值
+     */
+    private BigDecimal workWithPowerOff(BigDecimal electricEnergyDifference) {
+
+        if (electricEnergyDifference.compareTo(BigDecimal.ZERO) >= 0) {
+            return BigDecimal.ZERO;
+        } else {
+            return tryToTurnOn();
+        }
+    }
+
+    /**
+     * 根据当前功率currentAdjustablePower计算是否满足
+     *   不能满足则调用向上爬坡方法，向上爬坡方法返回实际输出功率值。
+     *   能满足则调用向下爬坡方法，向下爬坡方法返回实际输出功率值。
+     * @param electricEnergyDifference 能量缺口(-) 一定是负数
+     * @return 实际输出功率值
+     */
+    private BigDecimal adjustPower(BigDecimal electricEnergyDifference) {
+        if (currentAdjustablePower.compareTo(electricEnergyDifference.abs()) < 0) {
+            //向上爬坡
+            rampUp(electricEnergyDifference);
+        } else {
+            //向下爬坡
+            rampDown(electricEnergyDifference);
+        }
+        return currentAdjustablePower;
+    }
+
+    /**
+     * 向下爬坡
+     * @param electricEnergyDifference 能量缺口(-)，一定是负数
+     * @return 当前浮动工作功率
+     */
+    private BigDecimal rampDown(BigDecimal electricEnergyDifference) {
+        if (currentAdjustablePower.subtract(rampDownRate).multiply(quantity)
+                .compareTo(electricEnergyDifference.abs()) >= 0) {
+            currentAdjustablePower = currentAdjustablePower.subtract(rampDownRate);
+        } else {
+            currentAdjustablePower = electricEnergyDifference.abs().divide(quantity, 2, RoundingMode.HALF_UP);
+        }
+        return currentAdjustablePower;
+    }
+
+    /**
+     * 向上爬坡
+     *
+     * @param electricEnergyDifference 能量缺口(-)，一定是负数
+     * @return 当前浮动工作功率
+     */
+    private BigDecimal rampUp(BigDecimal electricEnergyDifference) {
+        if (currentAdjustablePower.add(rampUpRate).multiply(quantity)
+                .compareTo(electricEnergyDifference.abs()) > 0) {
+            currentAdjustablePower = electricEnergyDifference.abs().divide(quantity, 2, RoundingMode.HALF_UP);
+        } else {
+            currentAdjustablePower = currentAdjustablePower.add(rampUpRate);
+        }
+        return currentAdjustablePower;
+    }
+
+    /**
+     * 尝试开机
+     *
+     * @return 实际输出功率值，如果成功开机，则返回最小功率值
+     */
+    private BigDecimal tryToTurnOn() {
+        if (stateDurationHours < minShutdownTime) {
+            stateDurationHours++;
+            startStopRecord.add(0);
+            return BigDecimal.ZERO;
+        }
+        this.runningStatus = true;
+        this.stateDurationHours = 0;
+        this.currentAdjustablePower = BigDecimal.ZERO;
+        startStopRecord.add(1);
+        return this.minPower.multiply(quantity);
+    }
+
+    /**
+     * 尝试关机
+     * @param electricEnergyDifference 能量冗余，一定是正数或者0
+     * @return 实际输出功率值，如果成功关机，则返回0，如果没有关机成功，向下爬坡
+     */
+    private BigDecimal tryToTurnOff(BigDecimal electricEnergyDifference){
+        if(this.stateDurationHours < minStartupTime){
+            stateDurationHours++;
+            startStopRecord.add(0);
+            return rampDown(electricEnergyDifference);
+        }
+        this.runningStatus = false;
+        this.stateDurationHours = 0;
+        this.currentAdjustablePower = BigDecimal.ZERO;
+        startStopRecord.add(1);
+        return BigDecimal.ZERO;
     }
 
     @Override
@@ -276,4 +401,13 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
         return clone;
     }
 
+    @TestOnly
+    public BigDecimal rampDownForTest(BigDecimal electricEnergyDifference){
+        return rampDown(electricEnergyDifference);
+    }
+
+    @TestOnly
+    public BigDecimal rampUpForTest(BigDecimal electricEnergyDifference){
+        return rampUp(electricEnergyDifference);
+    }
 }
