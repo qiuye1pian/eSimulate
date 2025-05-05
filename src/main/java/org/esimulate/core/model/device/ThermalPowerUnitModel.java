@@ -203,9 +203,13 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
 
     @Override
     public List<StackedChartData> getStackedChartDataList() {
-        //todo:需要重写
-        List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
-        StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 200);
+        List<BigDecimal> adjustList = this.adjustElectricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
+        List<BigDecimal> electricList = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
+        List<BigDecimal> totalList = new ArrayList<>();
+        for (int i = 0; i < adjustList.size(); i++) {
+            totalList.add(adjustList.get(i).add(electricList.get(i)));
+        }
+        StackedChartData stackedChartData = new StackedChartData(this.modelName, totalList, 200);
         return Collections.singletonList(stackedChartData);
     }
 
