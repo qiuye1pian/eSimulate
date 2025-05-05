@@ -31,7 +31,7 @@ class ThermalPowerUnitModelTest {
         BigDecimal result = model.rampUpForTest(new BigDecimal("-50")); // 差额 < rampUpRate
 
         // 爬到30
-        assertEquals(new BigDecimal("30"), result);
+        assertEquals(new BigDecimal("30.00"), result);
     }
 
 
@@ -45,7 +45,7 @@ class ThermalPowerUnitModelTest {
         BigDecimal result = model.rampDownForTest(new BigDecimal("-25"));
 
         // 爬到30
-        assertEquals(new BigDecimal("30"), result);
+        assertEquals(new BigDecimal("30.00"), result);
     }
 
     @Test
@@ -71,7 +71,7 @@ class ThermalPowerUnitModelTest {
         BigDecimal result = model.rampDownForTest(new BigDecimal("0"));
 
         // 爬到满足要求即可
-        assertEquals(new BigDecimal("0"), result);
+        assertEquals(new BigDecimal("0.00"), result);
     }
 
     @Test
@@ -84,7 +84,7 @@ class ThermalPowerUnitModelTest {
         BigDecimal result = model.rampDownForTest(new BigDecimal("0"));
 
         // 爬到满足要求即可
-        assertEquals(new BigDecimal("10"), result);
+        assertEquals(new BigDecimal("10.00"), result);
     }
 
     @Test
@@ -92,6 +92,20 @@ class ThermalPowerUnitModelTest {
         // 当前50kW, 最大下坡20kW，能量缺口45kW
         ThermalPowerUnitModel model = new ThermalPowerUnitModel();
         model.setQuantity(BigDecimal.valueOf(2));
+        model.setCurrentAdjustablePower(new BigDecimal("25"));
+        model.setRampDownRate(new BigDecimal("10"));
+        // 爬坡
+        BigDecimal result = model.rampDownForTest(new BigDecimal("-45"));
+
+        // 爬到满足要求即可
+        assertEquals(new BigDecimal("22.50"), result);
+    }
+
+    @Test
+    public void testRampDownForTest_case6() {
+        // 当前50kW, 最大下坡20kW，能量缺口45kW
+        ThermalPowerUnitModel model = new ThermalPowerUnitModel();
+        model.setQuantity(BigDecimal.valueOf(1));
         model.setCurrentAdjustablePower(new BigDecimal("50"));
         model.setRampDownRate(new BigDecimal("20"));
         // 爬坡

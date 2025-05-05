@@ -298,7 +298,8 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     private BigDecimal rampDown(BigDecimal electricEnergyDifference) {
         if (currentAdjustablePower.subtract(rampDownRate).multiply(quantity)
                 .compareTo(electricEnergyDifference.abs()) >= 0) {
-            currentAdjustablePower = currentAdjustablePower.subtract(rampDownRate);
+            currentAdjustablePower = currentAdjustablePower.subtract(rampDownRate)
+                    .divide(quantity, 2, RoundingMode.HALF_UP);
         } else {
             currentAdjustablePower = electricEnergyDifference.abs().divide(quantity, 2, RoundingMode.HALF_UP);
         }
@@ -316,7 +317,8 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
                 .compareTo(electricEnergyDifference.abs()) > 0) {
             currentAdjustablePower = electricEnergyDifference.abs().divide(quantity, 2, RoundingMode.HALF_UP);
         } else {
-            currentAdjustablePower = currentAdjustablePower.add(rampUpRate);
+            currentAdjustablePower = currentAdjustablePower.add(rampUpRate)
+                    .divide(quantity, 2, RoundingMode.HALF_UP);
         }
         return currentAdjustablePower;
     }
