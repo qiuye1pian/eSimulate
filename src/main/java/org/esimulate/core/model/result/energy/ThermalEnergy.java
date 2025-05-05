@@ -20,11 +20,44 @@ public class ThermalEnergy implements Thermal {
         this.value =  value.setScale(2, RoundingMode.HALF_UP);;
     }
 
+    public ThermalEnergy subtract(BigDecimal param) {
+        this.value = this.value.subtract(param);
+        return new ThermalEnergy(this.value);
+    }
+
+    public ThermalEnergy subtract(ThermalEnergy param) {
+        return subtract(param.getValue());
+    }
+
+    public ThermalEnergy multiply(BigDecimal param) {
+        this.value = this.value.multiply(param);
+        return new ThermalEnergy(this.value);
+    }
+
+    public ThermalEnergy multiply(ThermalEnergy param) {
+        return multiply(param.getValue());
+    }
+
     public ThermalEnergy add(BigDecimal param) {
-        return new ThermalEnergy(this.value.add(param));
+        this.value = this.value.add(param);
+        return new ThermalEnergy(this.value);
+    }
+
+    public ThermalEnergy add(ThermalEnergy param) {
+        return add(param.getValue());
+    }
+
+    public ThermalEnergy divide(BigDecimal param) {
+        this.value = this.value.divide(param, 2, RoundingMode.HALF_UP);
+        return new ThermalEnergy(this.value);
+    }
+
+    public ThermalEnergy divide(ThermalEnergy param) {
+        return divide(param.getValue());
     }
 
     public Energy add(Energy energy) {
-        return this.add(energy.getValue());
+        this.value = this.value.add(energy.getValue());
+        return new ThermalEnergy(this.value);
     }
 }

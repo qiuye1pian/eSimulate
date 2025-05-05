@@ -118,7 +118,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     private List<ElectricEnergy> adjustElectricEnergyList = new ArrayList<>();
 
     @Transient
-    private List<Integer> startStopRecord = new ArrayList<>();
+    private List<Integer> startStopRecordList = new ArrayList<>();
 
     // 状态持续时长
     @Transient
@@ -184,7 +184,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
 
     @Override
     protected BigDecimal getCostOfOperation() {
-        return getTotalEnergy()
+        return getTotalEnergy().add(getAdjustTotalEnergy())
                 .multiply(quantity)
                 .multiply(cost)
                 .setScale(2, RoundingMode.HALF_UP);
@@ -197,7 +197,8 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
 
     @Override
     protected BigDecimal getCostOfControl() {
-        return BigDecimal.ZERO;
+        Integer startStopTimes = this.startStopRecordList.stream().reduce(Integer::sum).orElse(0);
+        return this.startStopCost.multiply(BigDecimal.valueOf(startStopTimes)).multiply(quantity);
     }
 
     @Override
@@ -214,7 +215,6 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
      */
     @Override
     public void adjustable(List<Energy> afterStorageEnergyList) {
-
         /*
          * 计算电力能量缺口/冗余值 electricEnergyDifference
          */
@@ -331,13 +331,13 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     private BigDecimal tryToTurnOn() {
         if (stateDurationHours < minShutdownTime) {
             stateDurationHours++;
-            startStopRecord.add(0);
+            startStopRecordList.add(0);
             return BigDecimal.ZERO;
         }
         this.runningStatus = true;
         this.stateDurationHours = 0;
         this.currentAdjustablePower = BigDecimal.ZERO;
-        startStopRecord.add(1);
+        startStopRecordList.add(1);
         return this.minPower.multiply(quantity);
     }
 
@@ -349,19 +349,22 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     private BigDecimal tryToTurnOff(BigDecimal electricEnergyDifference){
         if(this.stateDurationHours < minStartupTime){
             stateDurationHours++;
-            startStopRecord.add(0);
+            startStopRecordList.add(0);
             return rampDown(electricEnergyDifference);
         }
         this.runningStatus = false;
         this.stateDurationHours = 0;
         this.currentAdjustablePower = BigDecimal.ZERO;
-        startStopRecord.add(1);
+        startStopRecordList.add(1);
         return BigDecimal.ZERO;
     }
 
     @Override
     public BigDecimal getAdjustTotalEnergy() {
-        return null;
+        return adjustElectricEnergyList.stream()
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
     }
 
     @Override
