@@ -8,8 +8,8 @@ import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RenewableEnergyShareCalculator {
 
@@ -19,13 +19,12 @@ public class RenewableEnergyShareCalculator {
      * @param providerList 供应商(非可再生能源)
      * @return 可再生能源占比
      */
-    @SuppressWarnings("unchecked")
     public static Indication calculate(List<Producer> producerList, List<Provider> providerList) {
-        List<Device> deviceList = new java.util.ArrayList<>();
-        deviceList.addAll((Collection<? extends Device>) producerList);
-        deviceList.addAll((Collection<? extends Device>) providerList);
+        List<Device> combinedList = new java.util.ArrayList<>();
+        combinedList.addAll(producerList.stream().map(x -> (Device) x).collect(Collectors.toList()));
+        combinedList.addAll(providerList.stream().map(x -> (Device) x).collect(Collectors.toList()));
 
-        BigDecimal cleanEnergy = deviceList.stream()
+        BigDecimal cleanEnergy = combinedList.stream()
                 .filter(x -> x instanceof RenewableEnergyDevice)
                 .map(x -> (RenewableEnergyDevice) x)
                 .map(RenewableEnergyDevice::getTotalRenewableEnergy)

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
 import org.esimulate.core.pojo.model.GridModelDto;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.ElectricDevice;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 @Table(name = "grid_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GridModel extends Device implements Provider, ElectricDevice {
+public class GridModel extends Device implements Provider, ElectricDevice, NonRenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -155,5 +156,10 @@ public class GridModel extends Device implements Provider, ElectricDevice {
         clone.id = this.id;
 
         return clone;
+    }
+
+    @Override
+    public BigDecimal getTotalNonRenewableEnergy() {
+        return getTotalEnergy();
     }
 }

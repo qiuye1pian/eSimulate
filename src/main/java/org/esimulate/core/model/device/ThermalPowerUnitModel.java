@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
 import org.esimulate.core.pojo.model.ThermalPowerUnitModelDto;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pso.simulator.facade.Adjustable;
@@ -13,6 +14,7 @@ import org.esimulate.core.pso.simulator.facade.ElectricDevice;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
 import javax.persistence.*;
@@ -30,7 +32,7 @@ import java.util.stream.Collectors;
 @Table(name = "thermal_power_unit_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalPowerUnitModel extends Device implements Producer, Adjustable, ElectricDevice {
+public class ThermalPowerUnitModel extends Device implements Producer, Adjustable, ElectricDevice, NonRenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -203,14 +205,19 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
 
     @Override
     public List<StackedChartData> getStackedChartDataList() {
+        List<BigDecimal> totalList = getElectricAndAdjustableList();
+        StackedChartData stackedChartData = new StackedChartData(this.modelName, totalList, 200);
+        return Collections.singletonList(stackedChartData);
+    }
+
+    private @NotNull List<BigDecimal> getElectricAndAdjustableList() {
         List<BigDecimal> adjustList = this.adjustElectricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         List<BigDecimal> electricList = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         List<BigDecimal> totalList = new ArrayList<>();
         for (int i = 0; i < adjustList.size(); i++) {
             totalList.add(adjustList.get(i).add(electricList.get(i)));
         }
-        StackedChartData stackedChartData = new StackedChartData(this.modelName, totalList, 200);
-        return Collections.singletonList(stackedChartData);
+        return totalList;
     }
 
     /**
@@ -410,6 +417,11 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
         return clone;
     }
 
+    @Override
+    public BigDecimal getTotalNonRenewableEnergy() {
+        return getElectricAndAdjustableList().stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+    }
+
     @TestOnly
     public BigDecimal rampDownForTest(BigDecimal electricEnergyDifference){
         return rampDown(electricEnergyDifference);
@@ -419,4 +431,5 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     public BigDecimal rampUpForTest(BigDecimal electricEnergyDifference){
         return rampUp(electricEnergyDifference);
     }
+
 }

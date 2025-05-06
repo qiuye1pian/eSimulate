@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
+import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
 import org.esimulate.core.pojo.model.GasBoilerModelDto;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pso.particle.Dimension;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @Table(name = "gas_boiler_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GasBoilerModel extends Device implements Provider, Dimension, ThermalDevice {
+public class GasBoilerModel extends Device implements Provider, Dimension, ThermalDevice, NonRenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -212,5 +213,10 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
         clone.modelName = this.modelName;
 
         return clone;
+    }
+
+    @Override
+    public BigDecimal getTotalNonRenewableEnergy() {
+        return getTotalEnergy();
     }
 }
