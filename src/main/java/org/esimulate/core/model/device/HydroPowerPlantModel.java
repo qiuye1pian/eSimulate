@@ -3,14 +3,15 @@ package org.esimulate.core.model.device;
 import lombok.*;
 import org.esimulate.core.model.environment.water.WaterSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.indication.calculator.RenewableEnergyDevice;
 import org.esimulate.core.pojo.model.HydroPowerPlantModelDto;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.ElectricDevice;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 @Table(name = "hydro_power_plant_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class HydroPowerPlantModel extends Device implements Producer, Dimension, ElectricDevice {
+public class HydroPowerPlantModel extends Device implements Producer, Dimension, ElectricDevice, RenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -285,6 +286,11 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
     }
 
     @Override
+    public BigDecimal getTotalRenewableEnergy() {
+        return getTotalEnergy();
+    }
+
+    @Override
     public List<StackedChartData> getStackedChartDataList() {
         List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 100);
@@ -324,4 +330,5 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
 
         return clone;
     }
+
 }

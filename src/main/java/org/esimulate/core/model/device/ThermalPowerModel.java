@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
+import org.esimulate.core.model.result.indication.calculator.RenewableEnergyDevice;
 import org.esimulate.core.pojo.model.ThermalPowerModelDto;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 @Table(name = "thermal_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalPowerModel extends Device implements Producer, ThermalDevice {
+public class ThermalPowerModel extends Device implements Producer, ThermalDevice, RenewableEnergyDevice {
 
     // 常量：用于将 W 转换为 kW
     private static final BigDecimal KW_CONVERSION_FACTOR = new BigDecimal("1000");
@@ -179,5 +180,10 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
         // thermalEnergyList 为 @Transient 字段，不拷贝
 
         return clone;
+    }
+
+    @Override
+    public BigDecimal getTotalRenewableEnergy() {
+        return getTotalEnergy();
     }
 }

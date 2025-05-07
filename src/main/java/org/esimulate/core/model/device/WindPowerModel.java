@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.wind.WindSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.indication.calculator.RenewableEnergyDevice;
 import org.esimulate.core.pojo.model.WindPowerModelDto;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 @Table(name = "wind_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class WindPowerModel extends Device implements Producer, Dimension, ElectricDevice {
+public class WindPowerModel extends Device implements Producer, Dimension, ElectricDevice, RenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -184,6 +185,11 @@ public class WindPowerModel extends Device implements Producer, Dimension, Elect
         List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName,collect,400);
         return Collections.singletonList(stackedChartData);
+    }
+
+    @Override
+    public BigDecimal getTotalRenewableEnergy() {
+        return getTotalEnergy();
     }
 
     @Override

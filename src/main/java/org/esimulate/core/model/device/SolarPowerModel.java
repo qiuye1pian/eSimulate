@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.environment.temperature.TemperatureValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.indication.calculator.RenewableEnergyDevice;
 import org.esimulate.core.pojo.model.SolarPowerModelDto;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 @Table(name = "solar_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class SolarPowerModel extends Device implements Producer, Dimension, ElectricDevice {
+public class SolarPowerModel extends Device implements Producer, Dimension, ElectricDevice, RenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -191,6 +192,11 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
     }
 
     @Override
+    public BigDecimal getTotalRenewableEnergy() {
+        return getTotalEnergy();
+    }
+
+    @Override
     public SolarPowerModel clone() {
         SolarPowerModel clone = (SolarPowerModel) super.clone();
 
@@ -216,4 +222,5 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
 
         return clone;
     }
+
 }
