@@ -63,6 +63,9 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     private List<BigDecimal> chargingList = new ArrayList<>();
 
     @Transient
+    private List<BigDecimal> chargingCostList = new ArrayList<>();
+
+    @Transient
     private List<BigDecimal> disChargingList = new ArrayList<>();
 
     @Transient
@@ -156,29 +159,47 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
 
     // 蓄能
     private @NotNull BigDecimal charging(BigDecimal remainingDifference) {
+        BigDecimal needToCharging = remainingDifference.compareTo(Pmax) > 0 ? Pmax : remainingDifference;
         // 如果超出了最大范围，则停止蓄能
-        if (stateOfCharge.add(remainingDifference).compareTo(this.Emax) > 0) {
+        if (stateOfCharge.add(needToCharging).compareTo(this.Emax) > 0) {
             BigDecimal chargeValue = this.Emax.subtract(stateOfCharge).divide(etaCh, 2, RoundingMode.HALF_UP);
             this.stateOfCharge = this.Emax;
-
-            return remainingDifference.subtract(chargeValue).multiply(BigDecimal.valueOf(1.1));
+            this.chargingList.add(chargeValue);
+            this.disChargingList.add(BigDecimal.ZERO);
+            BigDecimal chargeCost = chargeValue.multiply(BigDecimal.valueOf(0.1));
+            this.chargingCostList.add(chargeCost);
+            return remainingDifference.subtract(chargeValue.add(chargeCost));
         }
 
-        return remainingDifference.multiply(BigDecimal.valueOf(1.1)).negate();
+        this.stateOfCharge = this.stateOfCharge.add(needToCharging);
+        this.chargingList.add(remainingDifference);
+        this.disChargingList.add(BigDecimal.ZERO);
+        BigDecimal chargeCost = remainingDifference.multiply(BigDecimal.valueOf(0.1));
+        this.chargingCostList.add(chargeCost);
+        return chargeCost.negate();
     }
 
-    // 放电
+    /**
+     * 放电
+     * @param remainingDifference 剩余差额，只可能是负值
+     * @return 经过放电之后的差额
+     */
     private @NotNull BigDecimal disCharging(BigDecimal remainingDifference) {
-        // 如果小于0，则停止放电
-        // todo: 这里得重写
-        if (stateOfCharge.add(remainingDifference).compareTo(this.Emax) > 0) {
-            BigDecimal chargeValue = this.Emax.subtract(stateOfCharge).divide(etaCh, 2, RoundingMode.HALF_UP);
-            this.stateOfCharge = this.Emax;
+        this.chargingCostList.add(BigDecimal.ZERO);
 
-            return remainingDifference.subtract(chargeValue).multiply(BigDecimal.valueOf(1.1));
+        BigDecimal needToDisCharging = remainingDifference.abs().compareTo(Pmax) > 0 ? Pmax.negate() : remainingDifference;
+        if (this.stateOfCharge.add(needToDisCharging).compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal disChargeValue = (this.stateOfCharge.add(remainingDifference)).multiply(etaDis);
+            this.stateOfCharge = this.stateOfCharge.subtract(disChargeValue);
+            this.chargingList.add(BigDecimal.ZERO);
+            this.disChargingList.add(disChargeValue);
+            return remainingDifference.subtract(disChargeValue);
         }
-
-        return remainingDifference.multiply(BigDecimal.valueOf(1.1)).negate();
+        // 如果小于0，则有多少放多少
+        BigDecimal disChargeValue = this.stateOfCharge.multiply(etaDis);
+        this.chargingList.add(BigDecimal.ZERO);
+        this.disChargingList.add(disChargeValue);
+        return remainingDifference.subtract(disChargeValue);
     }
 
     @Override
