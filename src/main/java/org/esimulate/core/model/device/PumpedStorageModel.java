@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.pojo.model.PumpedStorageModelDto;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -71,6 +73,12 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     @Column(nullable = false)
     private BigDecimal purchaseCost;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private final Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
+
     @Transient
     private List<BigDecimal> chargingList = new ArrayList<>();
 
@@ -86,9 +94,24 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     @Transient
     private BigDecimal upperBound;
 
+    public PumpedStorageModel(PumpedStorageModelDto pumpedStorageModelDto) {
+        this.id = pumpedStorageModelDto.getId();
+        this.modelName = pumpedStorageModelDto.getModelName();
+        this.Pmax = pumpedStorageModelDto.getPmax();
+        this.Emax = pumpedStorageModelDto.getEmax();
+        this.etaCh = pumpedStorageModelDto.getEtaCh();
+        this.etaDis = pumpedStorageModelDto.getEtaDis();
+        this.lambda = pumpedStorageModelDto.getLambda();
+        this.stateOfCharge = pumpedStorageModelDto.getStateOfCharge();
+        this.carbonEmissionFactor = pumpedStorageModelDto.getCarbonEmissionFactor();
+        this.cost = pumpedStorageModelDto.getCost();
+        this.purchaseCost = pumpedStorageModelDto.getPurchaseCost();
+    }
+
+
     //抽水蓄能，初始投资成本: 7000元人民币/千瓦，使用年限: 50年，折现率: 6%
     @Override
-    protected BigDecimal getPurchaseCost() {
+    public BigDecimal getPurchaseCost() {
         return Pmax.multiply(purchaseCost);
     }
 

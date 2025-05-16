@@ -36,7 +36,7 @@ public class GridModelController {
     @PostMapping("/delete")
     public String deleteGridModel(@RequestBody GridModelDto gasBoilerModelDto) {
         gridService.deleteById(gasBoilerModelDto.getId());
-        return "燃气锅炉模型删除成功";
+        return "电网电价模型删除成功";
     }
 
 }
