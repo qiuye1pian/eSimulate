@@ -59,6 +59,18 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     @Column(nullable = false)
     private BigDecimal stateOfCharge;
 
+    // 碳排放因子
+    @Column(nullable = false)
+    private BigDecimal carbonEmissionFactor;
+
+    // 发电成本
+    @Column(nullable = false)
+    private BigDecimal cost;
+
+    // 建设成本
+    @Column(nullable = false)
+    private BigDecimal purchaseCost;
+
     @Transient
     private List<BigDecimal> chargingList = new ArrayList<>();
 
@@ -77,33 +89,36 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     //抽水蓄能，初始投资成本: 7000元人民币/千瓦，使用年限: 50年，折现率: 6%
     @Override
     protected BigDecimal getPurchaseCost() {
-        return null;
+        return Pmax.multiply(purchaseCost);
     }
 
     @Override
     protected BigDecimal getDiscountRate() {
-        return null;
+        return BigDecimal.valueOf(0.06);
     }
 
     @Override
     protected Integer getLifetimeYears() {
-        return 0;
+        return 50;
     }
 
     //抽水蓄能  单位运行维护成本：0.07元/kWh
     @Override
     protected BigDecimal getCostOfOperation() {
-        return null;
+        return this.chargingCostList.stream().reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO)
+                .multiply(quantity)
+                .multiply(cost);
     }
 
     @Override
     protected BigDecimal getCostOfGrid() {
-        return null;
+        return BigDecimal.ZERO;
     }
 
     @Override
     protected BigDecimal getCostOfControl() {
-        return null;
+        return BigDecimal.ZERO;
     }
 
     @Override
@@ -206,6 +221,9 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
-        return null;
+        return this.chargingCostList.stream()
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO)
+                .multiply(this.carbonEmissionFactor);
     }
 }
