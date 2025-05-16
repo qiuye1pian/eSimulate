@@ -195,11 +195,13 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
             this.disChargingList.add(disChargeValue);
             return remainingDifference.subtract(disChargeValue);
         }
-        // 如果小于0，则有多少放多少
+        // 如果小于0，则全放掉
         BigDecimal disChargeValue = this.stateOfCharge.multiply(etaDis);
         this.chargingList.add(BigDecimal.ZERO);
         this.disChargingList.add(disChargeValue);
-        return remainingDifference.subtract(disChargeValue);
+        this.stateOfCharge = BigDecimal.ZERO;
+        // 负值加正值
+        return remainingDifference.add(disChargeValue);
     }
 
     @Override
