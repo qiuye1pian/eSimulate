@@ -81,11 +81,11 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     @Column(nullable = false)
     private int minShutdownTime;
 
-    // 向上爬坡速率（单位：MW/h）
+    // 向上爬坡速率（单位：kW）
     @Column(nullable = false)
     private BigDecimal rampUpRate;
 
-    // 向下爬坡速率（单位：MW/h）
+    // 向下爬坡速率（单位：kW）
     @Column(nullable = false)
     private BigDecimal rampDownRate;
 
