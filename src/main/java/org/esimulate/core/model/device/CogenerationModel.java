@@ -4,13 +4,23 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.*;
+import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
+import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -32,7 +42,7 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     @Column(nullable = false)
     private BigDecimal Pmax;
 
-    //最小发电功率 Pmin (kW)
+    //最小供热功率 Pmin (kW)
     @Column(nullable = false)
     private BigDecimal Pmin;
 
@@ -98,6 +108,208 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @Transient
+    // 每小时电基础出力列表 (单位: kW)
+    private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
+    @Transient
+    // 每小时电可调出力列表 (单位: kW)
+    private List<ElectricEnergy> adjustElectricEnergyList = new ArrayList<>();
+
+    @Transient
+    // 每小时热基础出力列表 (单位: kW)
+    private List<ThermalEnergy> thermalEnergyList = new ArrayList<>();
+
+    @Transient
+    // 每小时热可调出力列表 (单位: kW)
+    private List<ThermalEnergy> adjustThermalEnergyList = new ArrayList<>();
+
+    @Transient
+    BigDecimal lowerBound;
+
+    @Transient
+    BigDecimal upperBound;
+
+    // 当前浮动工作功率
+    @Transient
+    private BigDecimal currentAdjustableThermalPower = BigDecimal.ZERO;
+
+    @Override
+    public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
+        //按照最小产热值生产热能：制热量 = 最小产热值
+        BigDecimal heatingPower = this.Pmin;
+        // 排气余热量
+        BigDecimal exhaustHeat = calculateExhaustHeat(heatingPower);
+        // 计算生成的电能
+        BigDecimal electricPower = calculateElectricPower(exhaustHeat);
+
+        ThermalEnergy thermalEnergy = new ThermalEnergy(heatingPower);
+        ElectricEnergy electricEnergy = new ElectricEnergy(electricPower);
+
+        this.thermalEnergyList.add(thermalEnergy);
+        this.electricEnergyList.add(electricEnergy);
+
+        return Arrays.asList(thermalEnergy, electricEnergy);
+    }
+
+    /**
+     * 计算排气余热量
+     * 根据文档中的公式：制热量 = 排气余热量 * 制热系数 * 烟气回收率
+     * 排气余热量 = 制热量 / (制热系数 * 烟气回收率）
+     * @param heatingPower 制热量
+     * @return 排气余热量
+     */
+    private BigDecimal calculateExhaustHeat(BigDecimal heatingPower) {
+        return heatingPower.divide(this.COP.multiply(this.flueGasRecoveryRate), 2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * 计算排气能发的电量
+     *  根据公式 Q_Mt (t) = (P_Mt (t)(1-η_Mt (t)-η_L))/(η_Mt (t))
+     *      电功率 * （1 - 发电效率 - 散热损失率）= 排气余热量 * 发电效率
+     *      电功率 = （排气余热量 * 发电效率）/（1 - 发电效率 - 散热损失率）
+     * @param exhaust 排气余热量
+     * @return 发电量 即为电功率*1h
+     */
+    private BigDecimal calculateElectricPower(BigDecimal exhaust){
+        return (exhaust.multiply(this.etaElectric))
+                .divide(BigDecimal.ONE.subtract(this.etaElectric).subtract(etaLoss),2,RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public void adjustable(List<Energy> afterStorageEnergyList) {
+        //热量缺口
+        BigDecimal thermalEnergyDifference = afterStorageEnergyList.stream()
+                .filter(x -> x instanceof ThermalEnergy)
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+
+        if (thermalEnergyDifference.compareTo(BigDecimal.ZERO) >= 0) {
+            rampDown(BigDecimal.ZERO);
+        }
+
+        // 根据能量缺口爬坡
+        adjustPower(thermalEnergyDifference);
+
+        // 计算可调部分生产的电量
+        BigDecimal exhaustHeat = calculateExhaustHeat(this.currentAdjustableThermalPower);
+        BigDecimal currentAdjustableElectricPower = calculateElectricPower(exhaustHeat);
+
+        // 记录当前时刻可调部分的热能
+        ThermalEnergy currentAdjustableThermalEnergy = new ThermalEnergy(this.currentAdjustableThermalPower);
+        // 记录当前时刻可调部分的电能
+        ElectricEnergy currentAdjustableElectricEnergy = new ElectricEnergy(currentAdjustableElectricPower);
+
+        this.thermalEnergyList.add(currentAdjustableThermalEnergy);
+        this.electricEnergyList.add(currentAdjustableElectricEnergy);
+
+        // 更新缺口/冗余里的热能
+        afterStorageEnergyList.removeIf(x -> x instanceof ThermalEnergy);
+        afterStorageEnergyList.add(new ThermalEnergy(currentAdjustableThermalPower.add(thermalEnergyDifference)));
+
+        // 取出缺口/冗余数据里的电能
+        BigDecimal electricEnergyDifference = afterStorageEnergyList.stream()
+                .filter(x -> x instanceof ElectricEnergy)
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+
+        // 更新缺口/冗余里的电能
+        afterStorageEnergyList.removeIf(x -> x instanceof ElectricEnergy);
+        afterStorageEnergyList.add(new ElectricEnergy(electricEnergyDifference.add(currentAdjustableElectricPower)));
+
+    }
+
+    private void adjustPower(BigDecimal thermalEnergyDifference) {
+        if (currentAdjustableThermalPower.compareTo(thermalEnergyDifference.abs()) < 0) {
+            //向上爬坡
+            rampUp(thermalEnergyDifference);
+        } else {
+            //向下爬坡
+            rampDown(thermalEnergyDifference);
+        }
+    }
+
+    /**
+     * 向下爬坡
+     * @param thermalEnergyDifference 能量缺口(-)，一定是负数
+     */
+    private void rampDown(BigDecimal thermalEnergyDifference) {
+        if (currentAdjustableThermalPower.subtract(rampDownRate).multiply(quantity)
+                .compareTo(thermalEnergyDifference.abs()) >= 0) {
+            currentAdjustableThermalPower = currentAdjustableThermalPower.subtract(rampDownRate)
+                    .divide(quantity, 2, RoundingMode.HALF_UP);
+        } else {
+            currentAdjustableThermalPower = thermalEnergyDifference.abs().divide(quantity, 2, RoundingMode.HALF_UP);
+        }
+    }
+
+    /**
+     * 向上爬坡
+     *
+     * @param thermalEnergyDifference 能量缺口(-)，一定是负数
+     */
+    private void rampUp(BigDecimal thermalEnergyDifference) {
+        if (currentAdjustableThermalPower.add(rampUpRate).multiply(quantity)
+                .compareTo(thermalEnergyDifference.abs()) > 0) {
+            currentAdjustableThermalPower = thermalEnergyDifference.abs().divide(quantity, 2, RoundingMode.HALF_UP);
+        } else {
+            currentAdjustableThermalPower = currentAdjustableThermalPower.add(rampUpRate)
+                    .divide(quantity, 2, RoundingMode.HALF_UP);
+        }
+    }
+
+    @Override
+    public BigDecimal getTotalEnergy() {
+        return null;
+    }
+
+    @Override
+    public List<StackedChartData> getStackedChartDataList() {
+        return Collections.emptyList();
+    }
+
+
+    @Override
+    public BigDecimal getTotalNonRenewableEnergy() {
+        return null;
+    }
+
+    @Override
+    public BigDecimal calculateCarbonEmissions() {
+        return null;
+    }
+
+
+    @Override
+    public BigDecimal getAdjustTotalEnergy() {
+        return null;
+    }
+
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return null;
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 0;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        return null;
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return null;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
+        return null;
+    }
 
 }
