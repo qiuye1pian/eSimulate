@@ -331,4 +331,6 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     public void rampUpForTest(BigDecimal electricEnergyDifference){
         rampUp(electricEnergyDifference);
     }
+
+
 }
