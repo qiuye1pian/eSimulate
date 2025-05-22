@@ -12,6 +12,7 @@ import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.*;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -38,17 +39,14 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     @Column(nullable = false, unique = true)
     private String modelName;
 
-    //最大发电功率 Pmax (kW)
-    @Column(nullable = false)
-    private BigDecimal Pmax;
 
-    //最小供热功率 Pmin (kW)
+    //最小供热功率 PMin (kW)
     @Column(nullable = false)
-    private BigDecimal Pmin;
+    private BigDecimal PMin;
 
-    //最大供热功率 Qmax (kW)
+    //最大供热功率 PMax (kW)
     @Column(nullable = false)
-    private BigDecimal Qmax;
+    private BigDecimal PMax;
 
     // 向上爬坡速率（单位：kW）
     @Column(nullable = false)
@@ -137,7 +135,7 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     @Override
     public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
         //按照最小产热值生产热能：制热量 = 最小产热值
-        BigDecimal heatingPower = this.Pmin;
+        BigDecimal heatingPower = this.PMin;
         // 排气余热量
         BigDecimal exhaustHeat = calculateExhaustHeat(heatingPower);
         // 计算生成的电能
@@ -233,13 +231,19 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
 
     /**
      * 向下爬坡
-     * @param thermalEnergyDifference 能量缺口(-)，一定是负数
+     * @param thermalEnergyDifference 能量缺口(-)，一定是负数或者0
      */
     private void rampDown(BigDecimal thermalEnergyDifference) {
-        if (currentAdjustableThermalPower.subtract(rampDownRate).multiply(quantity)
-                .compareTo(thermalEnergyDifference.abs()) >= 0) {
-            currentAdjustableThermalPower = currentAdjustableThermalPower.subtract(rampDownRate)
-                    .divide(quantity, 2, RoundingMode.HALF_UP);
+        //计算爬坡后的数值
+        BigDecimal afterRampUpRate = currentAdjustableThermalPower.subtract(rampDownRate);
+
+        if (afterRampUpRate.compareTo(BigDecimal.ZERO) <= 0) {
+            afterRampUpRate = BigDecimal.ZERO;
+        }
+
+        //如果向下爬坡之后的产热值能够大于缺口
+        if (afterRampUpRate.multiply(quantity).compareTo(thermalEnergyDifference.abs()) >= 0) {
+            currentAdjustableThermalPower = afterRampUpRate;
         } else {
             currentAdjustableThermalPower = thermalEnergyDifference.abs().divide(quantity, 2, RoundingMode.HALF_UP);
         }
@@ -251,12 +255,17 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
      * @param thermalEnergyDifference 能量缺口(-)，一定是负数
      */
     private void rampUp(BigDecimal thermalEnergyDifference) {
-        if (currentAdjustableThermalPower.add(rampUpRate).multiply(quantity)
+        //计算爬坡后的数值
+        BigDecimal afterRampUpRate = currentAdjustableThermalPower.add(rampUpRate);
+        if (afterRampUpRate.compareTo(PMax) >= 0) {
+            afterRampUpRate = PMax;
+        }
+        //如果爬上去之后能满足负荷
+        if (afterRampUpRate.multiply(quantity)
                 .compareTo(thermalEnergyDifference.abs()) > 0) {
             currentAdjustableThermalPower = thermalEnergyDifference.abs().divide(quantity, 2, RoundingMode.HALF_UP);
         } else {
-            currentAdjustableThermalPower = currentAdjustableThermalPower.add(rampUpRate)
-                    .divide(quantity, 2, RoundingMode.HALF_UP);
+            currentAdjustableThermalPower = afterRampUpRate;
         }
     }
 
@@ -287,24 +296,25 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         return null;
     }
 
+    // 热电联产，初始投资成本: 8000元人民币/千瓦，使用年限: 30年，折现率: 6%
     @Override
     protected BigDecimal getDiscountRate() {
-        return null;
+        return BigDecimal.valueOf(0.06);
     }
 
     @Override
     protected Integer getLifetimeYears() {
-        return 0;
+        return 30;
     }
 
     @Override
     protected BigDecimal getCostOfOperation() {
-        return null;
+        return BigDecimal.ZERO;
     }
 
     @Override
     protected BigDecimal getCostOfGrid() {
-        return null;
+        return BigDecimal.ZERO;
     }
 
     @Override
@@ -312,4 +322,13 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         return null;
     }
 
+    @TestOnly
+    public void rampDownForTest(BigDecimal electricEnergyDifference){
+        rampDown(electricEnergyDifference);
+    }
+
+    @TestOnly
+    public void rampUpForTest(BigDecimal electricEnergyDifference){
+        rampUp(electricEnergyDifference);
+    }
 }
