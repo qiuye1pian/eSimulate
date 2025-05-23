@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
 import org.esimulate.core.pojo.model.ThermalPowerUnitModelDto;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
@@ -22,7 +23,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -187,7 +187,12 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
 
     @Override
     protected BigDecimal getCostOfOperation() {
-        return getTotalEnergy().add(getAdjustTotalEnergy())
+        BigDecimal totalAdjustThermalEnergy = getAdjustTotalEnergy().stream().filter(x -> x instanceof ThermalEnergy)
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+
+        return getTotalEnergy().add(totalAdjustThermalEnergy)
                 .multiply(quantity)
                 .multiply(cost)
                 .setScale(2, RoundingMode.HALF_UP);
