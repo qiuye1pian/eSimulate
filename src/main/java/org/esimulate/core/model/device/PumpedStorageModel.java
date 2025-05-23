@@ -249,4 +249,43 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
                 .orElse(BigDecimal.ZERO)
                 .multiply(this.carbonEmissionFactor);
     }
+
+    @Override
+    public PumpedStorageModel clone() {
+        PumpedStorageModel clone = (PumpedStorageModel) super.clone();
+
+        // 深拷贝 BigDecimal 字段
+        clone.Pmax = new BigDecimal(this.getPmax().toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 深拷贝其他 BigDecimal 字段
+        clone.Emax = new BigDecimal(this.getEmax().toString());
+        clone.etaCh = new BigDecimal(this.getEtaCh().toString());
+        clone.etaDis = new BigDecimal(this.getEtaDis().toString());
+        clone.lambda = new BigDecimal(this.getLambda().toString());
+        clone.stateOfCharge = new BigDecimal(this.getStateOfCharge().toString());
+
+        // 深拷贝 Timestamp
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 深拷贝可选边界值
+        if (this.lowerBound != null) {
+            clone.lowerBound = new BigDecimal(this.lowerBound.toString());
+        }
+        if (this.upperBound != null) {
+            clone.upperBound = new BigDecimal(this.upperBound.toString());
+        }
+
+        // 字符串字段直接赋值（不可变类型）
+        clone.modelName = this.modelName;
+
+        // id 字段复制（如需排除可移除）
+        clone.id = this.id;
+
+
+
+        return clone;
+    }
 }

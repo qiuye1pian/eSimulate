@@ -26,7 +26,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(name = "hydro_power_plant_model")
+@Table(name = "cogeneration_model")
 @AllArgsConstructor
 @NoArgsConstructor
 public class CogenerationModel extends Device implements Producer, Adjustable,
@@ -332,5 +332,46 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         rampUp(electricEnergyDifference);
     }
 
+    @Override
+    public CogenerationModel clone() {
+        CogenerationModel clone = (CogenerationModel) super.clone();
 
+        // 深拷贝 BigDecimal 字段
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+
+        // 深拷贝其他 BigDecimal 字段
+        clone.PMin = new BigDecimal(this.PMin.toString());
+        clone.PMax = new BigDecimal(this.PMax.toString());
+        clone.rampUpRate = new BigDecimal(this.rampUpRate.toString());
+        clone.rampDownRate = new BigDecimal(this.rampDownRate.toString());
+        clone.etaElectric = new BigDecimal(this.etaElectric.toString());
+        clone.etaLoss = new BigDecimal(this.etaLoss.toString());
+        clone.COP = new BigDecimal(this.COP.toString());
+        clone.flueGasRecoveryRate = new BigDecimal(this.flueGasRecoveryRate.toString());
+        clone.gasLHV = new BigDecimal(this.gasLHV.toString());
+        clone.a = new BigDecimal(this.a.toString());
+        clone.b = new BigDecimal(this.b.toString());
+        clone.c = new BigDecimal(this.c.toString());
+
+        // 深拷贝 Timestamp
+        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+
+        // 深拷贝可选边界值
+        if (this.lowerBound != null) {
+            clone.lowerBound = new BigDecimal(this.lowerBound.toString());
+        }
+        if (this.upperBound != null) {
+            clone.upperBound = new BigDecimal(this.upperBound.toString());
+        }
+
+        // 字符串字段直接赋值（不可变类型）
+        clone.modelName = this.modelName;
+
+        // id 字段复制（如需排除可移除）
+        clone.id = this.id;
+
+        return clone;
+    }
 }
