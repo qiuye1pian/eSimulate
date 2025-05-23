@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -369,11 +370,12 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     }
 
     @Override
-    public BigDecimal getAdjustTotalEnergy() {
-        return adjustElectricEnergyList.stream()
+    public List<Energy> getAdjustTotalEnergy() {
+        BigDecimal totalEnergyValue = adjustElectricEnergyList.stream()
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
+        return Collections.singletonList(new ElectricEnergy(totalEnergyValue));
     }
 
     @Override

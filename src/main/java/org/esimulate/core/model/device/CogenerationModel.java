@@ -290,10 +290,19 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         return null;
     }
 
-
     @Override
-    public BigDecimal getAdjustTotalEnergy() {
-        return null;
+    public List<Energy> getAdjustTotalEnergy() {
+        BigDecimal electricTotalEnergy = adjustElectricEnergyList.stream()
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal thermalTotalEnergy = adjustThermalEnergyList.stream()
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+
+        return Arrays.asList(new ElectricEnergy(electricTotalEnergy), new ThermalEnergy(thermalTotalEnergy));
     }
 
     // 热电联产，初始投资成本: 8000元人民币/千瓦，使用年限: 30年，折现率: 6%
@@ -319,6 +328,7 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
 
     @Override
     protected BigDecimal getCostOfControl() {
+        //todo 计算f2
         return null;
     }
 
