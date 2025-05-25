@@ -289,6 +289,7 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     @Override
     public List<StackedChartData> getStackedChartDataList() {
         StackedChartData stackedChartData = new StackedChartData();
+        //todo:图形模块还没实现
 
         return Collections.emptyList();
     }
