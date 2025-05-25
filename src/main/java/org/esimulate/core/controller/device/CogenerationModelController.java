@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/model/cogeneration-model")
+@RequestMapping("/model/cogeneration")
 @Log4j2
 public class CogenerationModelController {
 
