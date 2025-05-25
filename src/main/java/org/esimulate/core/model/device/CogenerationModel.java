@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -39,12 +40,11 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     @Column(nullable = false, unique = true)
     private String modelName;
 
-
-    //最小供热功率 PMin (kW)
+    // 最小供热功率 PMin (kW)
     @Column(nullable = false)
     private BigDecimal PMin;
 
-    //最大供热功率 PMax (kW)
+    // 最大供热功率 PMax (kW)
     @Column(nullable = false)
     private BigDecimal PMax;
 
@@ -56,43 +56,47 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     @Column(nullable = false)
     private BigDecimal rampDownRate;
 
-    //发电效率
+    // 发电效率
     @Column(nullable = false)
     private BigDecimal etaElectric;
 
-    //散热损失率
+    // 散热损失率
     @Column(nullable = false)
     private BigDecimal etaLoss;
 
-    //溴冷机的制热系数
+    // 溴冷机的制热系数
     @Column(nullable = false)
     private BigDecimal COP;
 
-    //烟气回收率
+    // 烟气回收率
     @Column(nullable = false)
     private BigDecimal flueGasRecoveryRate;
 
-    //天然气低热值 默认值取 9.7 kW·h/m3
+    // 天然气低热值 默认值取 9.7 kW·h/m3
     @Column(nullable = false)
     private BigDecimal gasLHV;
 
-    //运行成本系数 a ["CNY"⋅("MW"⋅"h" )^(-1)]
+    // 运行成本系数 a ["CNY"⋅("MW"⋅"h" )^(-1)]
     @Column(nullable = false)
     private BigDecimal a;
 
-    //运行成本系数 b ["CNY"⋅("MW"⋅"h" )^(-1)]
+    // 运行成本系数 b ["CNY"⋅("MW"⋅"h" )^(-1)]
     @Column(nullable = false)
     private BigDecimal b;
 
-    //运行成本系数 c ("CNY"⋅"h" ^(-1))
+    // 运行成本系数 c ("CNY"⋅"h" ^(-1))
     @Column(nullable = false)
     private BigDecimal c;
+
+    // Cv
+    @Column(nullable = false)
+    private BigDecimal cv;
 
     // 碳排放因子
     @Column(nullable = false)
     private BigDecimal carbonEmissionFactor;
 
-    // 天然气单价 默认值取2.5元/m3
+    // 单位成本
     @Column(nullable = false)
     private BigDecimal cost;
 
@@ -199,8 +203,8 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         // 记录当前时刻可调部分的电能
         ElectricEnergy currentAdjustableElectricEnergy = new ElectricEnergy(currentAdjustableElectricPower);
 
-        this.thermalEnergyList.add(currentAdjustableThermalEnergy);
-        this.electricEnergyList.add(currentAdjustableElectricEnergy);
+        this.adjustThermalEnergyList.add(currentAdjustableThermalEnergy);
+        this.adjustElectricEnergyList.add(currentAdjustableElectricEnergy);
 
         // 更新缺口/冗余里的热能
         afterStorageEnergyList.removeIf(x -> x instanceof ThermalEnergy);
@@ -271,23 +275,33 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
 
     @Override
     public BigDecimal getTotalEnergy() {
-        return null;
+        BigDecimal a = electricEnergyList.stream().map(ElectricEnergy::getValue)
+                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        BigDecimal b = adjustElectricEnergyList.stream().map(ElectricEnergy::getValue)
+                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        BigDecimal c = thermalEnergyList.stream().map(ThermalEnergy::getValue)
+                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        BigDecimal d = adjustThermalEnergyList.stream().map(ThermalEnergy::getValue)
+                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        return a.add(b).add(c).add(d);
     }
 
     @Override
     public List<StackedChartData> getStackedChartDataList() {
+        StackedChartData stackedChartData = new StackedChartData();
+
         return Collections.emptyList();
     }
 
 
     @Override
     public BigDecimal getTotalNonRenewableEnergy() {
-        return null;
+        return getTotalEnergy().multiply(quantity);
     }
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
-        return null;
+        return getTotalEnergy().multiply(quantity).multiply(this.carbonEmissionFactor);
     }
 
     @Override
@@ -318,7 +332,7 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
 
     @Override
     protected BigDecimal getCostOfOperation() {
-        return BigDecimal.ZERO;
+        return this.getTotalEnergy().multiply(this.cost);
     }
 
     @Override
@@ -328,8 +342,24 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
 
     @Override
     protected BigDecimal getCostOfControl() {
-        //todo 计算f2
-        return null;
+        return IntStream.range(0, this.electricEnergyList.size())
+                .mapToObj(this::calculateF2OfMoment)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .multiply(quantity)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal calculateF2OfMoment(int i) {
+        ElectricEnergy electricEnergy = electricEnergyList.get(i);
+        ElectricEnergy adJustElectricEnergy = adjustElectricEnergyList.get(i);
+        ThermalEnergy thermalEnergy = thermalEnergyList.get(i);
+        ThermalEnergy adjustThermalEnergy = adjustThermalEnergyList.get(i);
+        // 先计算某时刻的总能量 [P_(erl.i)^t+C_v (P_(h.i)^t+P_(cr.i)^t)]
+        BigDecimal P_erl_i_t = electricEnergy.add(adJustElectricEnergy).getValue();
+        BigDecimal P_h_i_t = thermalEnergy.add(adjustThermalEnergy).getValue();
+        BigDecimal totalEnergy = P_erl_i_t.add((this.cv.multiply(P_h_i_t)));
+        //F2 = a * totalEnergy^2 + b * totalEnergy + c
+        return this.a.multiply(totalEnergy.pow(2)).add(this.b.multiply(totalEnergy)).add(this.c);
     }
 
     @TestOnly
