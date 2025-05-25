@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
+import org.esimulate.core.pojo.model.CogenerationModelDto;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.*;
@@ -72,10 +73,6 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     @Column(nullable = false)
     private BigDecimal flueGasRecoveryRate;
 
-    // 天然气低热值 默认值取 9.7 kW·h/m3
-    @Column(nullable = false)
-    private BigDecimal gasLHV;
-
     // 运行成本系数 a ["CNY"⋅("MW"⋅"h" )^(-1)]
     @Column(nullable = false)
     private BigDecimal a;
@@ -135,6 +132,26 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     // 当前浮动工作功率
     @Transient
     private BigDecimal currentAdjustableThermalPower = BigDecimal.ZERO;
+
+    public CogenerationModel(CogenerationModelDto cogenerationModelDto) {
+        this.id = cogenerationModelDto.getId();
+        this.modelName = cogenerationModelDto.getModelName();
+        this.PMin = cogenerationModelDto.getPMin();
+        this.PMax = cogenerationModelDto.getPMax();
+        this.rampUpRate = cogenerationModelDto.getRampUpRate();
+        this.rampDownRate = cogenerationModelDto.getRampDownRate();
+        this.etaElectric = cogenerationModelDto.getEtaElectric();
+        this.etaLoss = cogenerationModelDto.getEtaLoss();
+        this.COP = cogenerationModelDto.getCOP();
+        this.flueGasRecoveryRate = cogenerationModelDto.getFlueGasRecoveryRate();
+        this.a = cogenerationModelDto.getA();
+        this.b = cogenerationModelDto.getB();
+        this.c = cogenerationModelDto.getC();
+        this.cv = cogenerationModelDto.getCv();
+        this.carbonEmissionFactor = cogenerationModelDto.getCarbonEmissionFactor();
+        this.cost = cogenerationModelDto.getCost();
+        this.purchaseCost = cogenerationModelDto.getPurchaseCost();
+    }
 
     @Override
     public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
@@ -391,7 +408,6 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         clone.etaLoss = new BigDecimal(this.etaLoss.toString());
         clone.COP = new BigDecimal(this.COP.toString());
         clone.flueGasRecoveryRate = new BigDecimal(this.flueGasRecoveryRate.toString());
-        clone.gasLHV = new BigDecimal(this.gasLHV.toString());
         clone.a = new BigDecimal(this.a.toString());
         clone.b = new BigDecimal(this.b.toString());
         clone.c = new BigDecimal(this.c.toString());
