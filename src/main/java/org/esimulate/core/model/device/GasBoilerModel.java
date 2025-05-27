@@ -193,7 +193,7 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getThermalStackedChartDataList() {
         List<BigDecimal> collect = this.gasBoilerOutputList.stream().map(Energy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName,collect,300);
         return Collections.singletonList(stackedChartData);

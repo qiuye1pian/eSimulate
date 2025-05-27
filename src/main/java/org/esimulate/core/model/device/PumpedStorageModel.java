@@ -145,7 +145,7 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getElectricStackedChartDataList() {
         return Collections.emptyList();
     }
 

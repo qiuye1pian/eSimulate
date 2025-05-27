@@ -210,7 +210,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getElectricStackedChartDataList() {
         List<BigDecimal> totalList = getElectricAndAdjustableList();
         StackedChartData stackedChartData = new StackedChartData(this.modelName, totalList, 200);
         return Collections.singletonList(stackedChartData);

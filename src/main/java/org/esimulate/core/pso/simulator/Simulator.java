@@ -175,7 +175,7 @@ public class Simulator {
         List<StackedChartData> deviceStackedChartDataList = deviceList.stream()
                 .filter(x -> x instanceof ElectricDevice)
                 .map(x -> (ElectricDevice) x)
-                .map(ElectricDevice::getStackedChartDataList)
+                .map(ElectricDevice::getElectricStackedChartDataList)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
@@ -205,7 +205,7 @@ public class Simulator {
         List<StackedChartData> deviceStackedChartDataList = deviceList.stream()
                 .filter(x -> x instanceof ThermalDevice)
                 .map(x -> (ThermalDevice) x)
-                .map(ThermalDevice::getStackedChartDataList)
+                .map(ThermalDevice::getThermalStackedChartDataList)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 

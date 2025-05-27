@@ -151,7 +151,7 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getThermalStackedChartDataList() {
         List<BigDecimal> collect = this.thermalEnergyList.stream().map(ThermalEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 200);
         return Collections.singletonList(stackedChartData);

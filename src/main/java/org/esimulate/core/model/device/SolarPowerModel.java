@@ -185,7 +185,7 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getElectricStackedChartDataList() {
         List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 500);
         return Collections.singletonList(stackedChartData);

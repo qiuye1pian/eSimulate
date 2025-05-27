@@ -265,7 +265,7 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getElectricStackedChartDataList() {
         StackedChartData chargingList = new StackedChartData(String.format("%s 充电", this.modelName), this.chargingList, 600);
         StackedChartData disChargingList = new StackedChartData(String.format("%s 放电", this.modelName), this.disChargingList, 600);
         return Arrays.asList(chargingList, disChargingList);

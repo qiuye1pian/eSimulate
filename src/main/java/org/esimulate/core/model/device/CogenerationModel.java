@@ -304,13 +304,17 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getElectricStackedChartDataList() {
         StackedChartData stackedChartData = new StackedChartData();
         //todo:图形模块还没实现
-
         return Collections.emptyList();
     }
 
+    @Override
+    public List<StackedChartData> getThermalStackedChartDataList() {
+
+        return Collections.emptyList();
+    }
 
     @Override
     public BigDecimal getTotalNonRenewableEnergy() {
@@ -431,4 +435,5 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
 
         return clone;
     }
+
 }

@@ -132,7 +132,7 @@ public class GridModel extends Device implements Provider, ElectricDevice, NonRe
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getElectricStackedChartDataList() {
         List<BigDecimal> collect = this.gridOutPutList.stream().map(Energy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(String.format("电网购电: %s", this.modelName), collect, 100);
         return Collections.singletonList(stackedChartData);
