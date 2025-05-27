@@ -66,8 +66,8 @@ public class PumpedStorageService {
         PumpedStorageModel pumpedStorageModel = pumpedStorageModelOptional.get();
         pumpedStorageModel.setModelName(pumpedStorageModelDto.getModelName());
 
-        pumpedStorageModel.setPmax(pumpedStorageModelDto.getPmax());
-        pumpedStorageModel.setEmax(pumpedStorageModelDto.getEmax());
+        pumpedStorageModel.setPMax(pumpedStorageModelDto.getPMax());
+        pumpedStorageModel.setEMax(pumpedStorageModelDto.getEMax());
         pumpedStorageModel.setEtaCh(pumpedStorageModelDto.getEtaCh());
         pumpedStorageModel.setEtaDis(pumpedStorageModelDto.getEtaDis());
         pumpedStorageModel.setLambda(pumpedStorageModelDto.getLambda());

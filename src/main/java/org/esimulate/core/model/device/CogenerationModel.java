@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @EqualsAndHashCode(callSuper = true)
@@ -305,15 +306,20 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
 
     @Override
     public List<StackedChartData> getElectricStackedChartDataList() {
-        StackedChartData stackedChartData = new StackedChartData();
-        //todo:图形模块还没实现
-        return Collections.emptyList();
+
+        List<BigDecimal> totalElectricEnergyList = IntStream.range(0, electricEnergyList.size())
+                .mapToObj(i -> electricEnergyList.get(i).getValue().add(adjustElectricEnergyList.get(i).getValue()))
+                .collect(Collectors.toList());
+
+        return Collections.singletonList(new StackedChartData(this.modelName, totalElectricEnergyList, 600));
     }
 
     @Override
     public List<StackedChartData> getThermalStackedChartDataList() {
-
-        return Collections.emptyList();
+        List<BigDecimal> totalThermalEnergyList = IntStream.range(0, thermalEnergyList.size())
+                .mapToObj(i -> thermalEnergyList.get(i).getValue().add(adjustThermalEnergyList.get(i).getValue()))
+                .collect(Collectors.toList());
+        return Collections.singletonList(new StackedChartData(this.modelName, totalThermalEnergyList, 600));
     }
 
     @Override

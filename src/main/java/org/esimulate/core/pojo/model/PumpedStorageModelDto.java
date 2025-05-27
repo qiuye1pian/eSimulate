@@ -16,10 +16,10 @@ public class PumpedStorageModelDto {
     private String modelName;
 
     // 最大抽水（蓄能）或放水（发电）功率（千瓦）
-    private BigDecimal Pmax;
+    private BigDecimal PMax;
 
     // 上游水库最大储能容量（千瓦时）
-    private BigDecimal Emax;
+    private BigDecimal EMax;
 
     // 抽水（蓄能）效率（0-1）
     private BigDecimal etaCh;
@@ -45,8 +45,8 @@ public class PumpedStorageModelDto {
     public PumpedStorageModelDto(PumpedStorageModel pumpedStorageModel){
         this.id = pumpedStorageModel.getId();
         this.modelName = pumpedStorageModel.getModelName();
-        this.Pmax = pumpedStorageModel.getPmax();
-        this.Emax = pumpedStorageModel.getEmax();
+        this.PMax = pumpedStorageModel.getPMax();
+        this.EMax = pumpedStorageModel.getEMax();
         this.etaCh = pumpedStorageModel.getEtaCh();
         this.etaDis = pumpedStorageModel.getEtaDis();
         this.lambda = pumpedStorageModel.getLambda();

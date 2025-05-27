@@ -39,11 +39,11 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
 
     // 最大抽水（蓄能）或放水（发电）功率（千瓦）
     @Column(nullable = false)
-    private BigDecimal Pmax;
+    private BigDecimal PMax;
 
     // 上游水库最大储能容量（千瓦时）
     @Column(nullable = false)
-    private BigDecimal Emax;
+    private BigDecimal EMax;
 
     // 抽水（蓄能）效率（0-1）
     @Column(nullable = false)
@@ -97,8 +97,8 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     public PumpedStorageModel(PumpedStorageModelDto pumpedStorageModelDto) {
         this.id = pumpedStorageModelDto.getId();
         this.modelName = pumpedStorageModelDto.getModelName();
-        this.Pmax = pumpedStorageModelDto.getPmax();
-        this.Emax = pumpedStorageModelDto.getEmax();
+        this.PMax = pumpedStorageModelDto.getPMax();
+        this.EMax = pumpedStorageModelDto.getEMax();
         this.etaCh = pumpedStorageModelDto.getEtaCh();
         this.etaDis = pumpedStorageModelDto.getEtaDis();
         this.lambda = pumpedStorageModelDto.getLambda();
@@ -112,7 +112,7 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     //抽水蓄能，初始投资成本: 7000元人民币/千瓦，使用年限: 50年，折现率: 6%
     @Override
     public BigDecimal getPurchaseCost() {
-        return Pmax.multiply(purchaseCost);
+        return PMax.multiply(purchaseCost);
     }
 
     @Override
@@ -163,15 +163,15 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
                 .orElse(BigDecimal.ZERO);
 
         // 按数量扩容
-        this.Pmax = this.Pmax.multiply(quantity);
-        this.Emax = this.Emax.multiply(quantity);
+        this.PMax = this.PMax.multiply(quantity);
+        this.EMax = this.EMax.multiply(quantity);
         this.stateOfCharge = this.stateOfCharge.multiply(stateOfCharge);
 
         BigDecimal remainingDifference = updateElectricEnergy(electricEnergyDifference);
 
         // 按数量缩容
-        this.Pmax = this.Pmax.divide(quantity, 2, RoundingMode.HALF_UP);
-        this.Emax = this.Emax.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.PMax = this.PMax.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.EMax = this.EMax.divide(quantity, 2, RoundingMode.HALF_UP);
         this.stateOfCharge = this.stateOfCharge.divide(stateOfCharge, 2, RoundingMode.HALF_UP);
 
         return new ElectricEnergy(remainingDifference);
@@ -197,11 +197,11 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
 
     // 蓄能
     private @NotNull BigDecimal charging(BigDecimal remainingDifference) {
-        BigDecimal needToCharging = remainingDifference.compareTo(Pmax) > 0 ? Pmax : remainingDifference;
+        BigDecimal needToCharging = remainingDifference.compareTo(PMax) > 0 ? PMax : remainingDifference;
         // 如果超出了最大范围，则停止蓄能
-        if (stateOfCharge.add(needToCharging).compareTo(this.Emax) > 0) {
-            BigDecimal chargeValue = this.Emax.subtract(stateOfCharge).divide(etaCh, 2, RoundingMode.HALF_UP);
-            this.stateOfCharge = this.Emax;
+        if (stateOfCharge.add(needToCharging).compareTo(this.EMax) > 0) {
+            BigDecimal chargeValue = this.EMax.subtract(stateOfCharge).divide(etaCh, 2, RoundingMode.HALF_UP);
+            this.stateOfCharge = this.EMax;
             this.chargingList.add(chargeValue);
             this.disChargingList.add(BigDecimal.ZERO);
             BigDecimal chargeCost = chargeValue.multiply(BigDecimal.valueOf(0.1));
@@ -225,7 +225,7 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     private @NotNull BigDecimal disCharging(BigDecimal remainingDifference) {
         this.chargingCostList.add(BigDecimal.ZERO);
 
-        BigDecimal needToDisCharging = remainingDifference.abs().compareTo(Pmax) > 0 ? Pmax.negate() : remainingDifference;
+        BigDecimal needToDisCharging = remainingDifference.abs().compareTo(PMax) > 0 ? PMax.negate() : remainingDifference;
         if (this.stateOfCharge.add(needToDisCharging).compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal disChargeValue = (this.stateOfCharge.add(remainingDifference)).multiply(etaDis);
             this.stateOfCharge = this.stateOfCharge.subtract(disChargeValue);
@@ -255,13 +255,13 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
         PumpedStorageModel clone = (PumpedStorageModel) super.clone();
 
         // 深拷贝 BigDecimal 字段
-        clone.Pmax = new BigDecimal(this.getPmax().toString());
+        clone.PMax = new BigDecimal(this.getPMax().toString());
         clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
         clone.cost = new BigDecimal(this.cost.toString());
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
 
         // 深拷贝其他 BigDecimal 字段
-        clone.Emax = new BigDecimal(this.getEmax().toString());
+        clone.EMax = new BigDecimal(this.getEMax().toString());
         clone.etaCh = new BigDecimal(this.getEtaCh().toString());
         clone.etaDis = new BigDecimal(this.getEtaDis().toString());
         clone.lambda = new BigDecimal(this.getLambda().toString());
