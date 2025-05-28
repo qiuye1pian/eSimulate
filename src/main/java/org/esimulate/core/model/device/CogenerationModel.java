@@ -387,7 +387,11 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         BigDecimal P_h_i_t = thermalEnergy.add(adjustThermalEnergy).getValue();
         BigDecimal totalEnergy = P_erl_i_t.add((this.cv.multiply(P_h_i_t)));
         //F2 = a * totalEnergy^2 + b * totalEnergy + c
-        return this.a.multiply(totalEnergy.pow(2)).add(this.b.multiply(totalEnergy)).add(this.c);
+        //a b c的单位还是MW，要转换成kW
+        BigDecimal fix_a = this.a.multiply(BigDecimal.valueOf(0.000001));
+        BigDecimal fix_b = this.b.multiply(BigDecimal.valueOf(0.001));
+        BigDecimal fix_c = this.c;
+        return fix_a.multiply(totalEnergy.pow(2)).add(fix_b.multiply(totalEnergy)).add(fix_c);
     }
 
     @TestOnly

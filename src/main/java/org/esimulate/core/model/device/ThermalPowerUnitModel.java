@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
-import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
 import org.esimulate.core.pojo.model.ThermalPowerUnitModelDto;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
@@ -160,60 +159,6 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
 
         this.electricEnergyList.add(electricEnergy);
         return Collections.singletonList(electricEnergy);
-    }
-
-    @Override
-    public BigDecimal getTotalEnergy() {
-        return electricEnergyList.stream()
-                .map(Energy::getValue)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
-    }
-
-    @Override
-    public BigDecimal calculateCarbonEmissions() {
-        return BigDecimal.ZERO;
-    }
-
-    @Override
-    protected BigDecimal getDiscountRate() {
-        return BigDecimal.valueOf(0.07);
-    }
-
-    @Override
-    protected Integer getLifetimeYears() {
-        return 20;
-    }
-
-    @Override
-    protected BigDecimal getCostOfOperation() {
-        BigDecimal totalAdjustThermalEnergy = getAdjustTotalEnergy().stream().filter(x -> x instanceof ThermalEnergy)
-                .map(Energy::getValue)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
-
-        return getTotalEnergy().add(totalAdjustThermalEnergy)
-                .multiply(quantity)
-                .multiply(cost)
-                .setScale(2, RoundingMode.HALF_UP);
-    }
-
-    @Override
-    protected BigDecimal getCostOfGrid() {
-        return BigDecimal.ZERO;
-    }
-
-    @Override
-    protected BigDecimal getCostOfControl() {
-        Integer startStopTimes = this.startStopRecordList.stream().reduce(Integer::sum).orElse(0);
-        return this.startStopCost.multiply(BigDecimal.valueOf(startStopTimes)).multiply(quantity);
-    }
-
-    @Override
-    public List<StackedChartData> getElectricStackedChartDataList() {
-        List<BigDecimal> totalList = getElectricAndAdjustableList();
-        StackedChartData stackedChartData = new StackedChartData(this.modelName, totalList, 200);
-        return Collections.singletonList(stackedChartData);
     }
 
     private @NotNull List<BigDecimal> getElectricAndAdjustableList() {
@@ -372,6 +317,64 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
         this.currentAdjustablePower = BigDecimal.ZERO;
         startStopRecordList.add(1);
         return BigDecimal.ZERO;
+    }
+
+    @Override
+    public BigDecimal getTotalEnergy() {
+        BigDecimal totalAdjustThermalEnergy = getAdjustTotalEnergy().stream().filter(x -> x instanceof ElectricEnergy)
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal totalBaseElectricEnergy = electricEnergyList.stream()
+                .map(Energy::getValue)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+        return totalBaseElectricEnergy.add(totalAdjustThermalEnergy);
+    }
+
+    @Override
+    public BigDecimal calculateCarbonEmissions() {
+        return getTotalEnergy().multiply(quantity).multiply(this.carbonEmissionFactor);
+    }
+
+    @Override
+    protected BigDecimal getDiscountRate() {
+        return BigDecimal.valueOf(0.07);
+    }
+
+    @Override
+    protected Integer getLifetimeYears() {
+        return 20;
+    }
+
+    @Override
+    protected BigDecimal getCostOfOperation() {
+        BigDecimal totalEnergy = getTotalEnergy()
+                .multiply(quantity)
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal fix_a = this.a.multiply(BigDecimal.valueOf(0.000001));
+        BigDecimal fix_b = this.b.multiply(BigDecimal.valueOf(0.001));
+        BigDecimal fix_c = this.c;
+        return fix_a.multiply(totalEnergy.pow(2)).add(fix_b.multiply(totalEnergy)).add(fix_c);
+    }
+
+    @Override
+    protected BigDecimal getCostOfGrid() {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
+    protected BigDecimal getCostOfControl() {
+        Integer startStopTimes = this.startStopRecordList.stream().reduce(Integer::sum).orElse(0);
+        return this.startStopCost.multiply(BigDecimal.valueOf(startStopTimes)).multiply(quantity);
+    }
+
+    @Override
+    public List<StackedChartData> getElectricStackedChartDataList() {
+        List<BigDecimal> totalList = getElectricAndAdjustableList();
+        StackedChartData stackedChartData = new StackedChartData(this.modelName, totalList, 200);
+        return Collections.singletonList(stackedChartData);
     }
 
     @Override
