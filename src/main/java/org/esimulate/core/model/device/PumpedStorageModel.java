@@ -247,6 +247,7 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
         return this.chargingCostList.stream()
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO)
+                .multiply(quantity)
                 .multiply(this.carbonEmissionFactor);
     }
 

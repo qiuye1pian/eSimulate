@@ -233,6 +233,7 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO)
+                .multiply(quantity)
                 .multiply(carbonEmissionFactor);
     }
 

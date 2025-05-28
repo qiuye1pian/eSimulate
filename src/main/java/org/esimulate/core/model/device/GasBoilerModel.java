@@ -146,6 +146,7 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
         return gasConsumptionList.stream()
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO)
+                .multiply(quantity)
                 .multiply(this.carbonEmissionFactor);
     }
 

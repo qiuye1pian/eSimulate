@@ -335,7 +335,9 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
-        return getTotalEnergy().multiply(quantity).multiply(this.carbonEmissionFactor);
+        return getTotalEnergy()
+                .multiply(quantity)
+                .multiply(this.carbonEmissionFactor);
     }
 
     @Override
