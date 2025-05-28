@@ -8,5 +8,8 @@ public enum ModelTypeEnum {
     Battery,
     GasBoiler,
     ThermalSaver,
-    Grid
+    Grid,
+    PumpedStorage,
+    ThermalPowerUnit,
+    Cogeneration
 }

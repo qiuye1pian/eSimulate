@@ -40,6 +40,15 @@ public class DeviceComponent {
     @Autowired
     GridService gridService;
 
+    @Autowired
+    PumpedStorageService pumpedStorageService;
+
+    @Autowired
+    ThermalPowerUnitService thermalPowerUnitService;
+
+    @Autowired
+    CogenerationModelService cogenerationModelService;
+
     public @NotNull List<Device> getDeviceList(List<ModelLoadDto> modelDtoList) {
         return modelDtoList.stream()
                 .parallel()
@@ -80,6 +89,18 @@ public class DeviceComponent {
 
             case Grid:
                 device = gridService.findById(modelDto.getId());
+                break;
+
+            case PumpedStorage:
+                device = pumpedStorageService.findById(modelDto.getId());
+                break;
+
+            case ThermalPowerUnit:
+                device = thermalPowerUnitService.findById(modelDto.getId());
+                break;
+
+            case Cogeneration:
+                device = cogenerationModelService.findById(modelDto.getId());
                 break;
 
             default:
