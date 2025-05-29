@@ -54,7 +54,7 @@ public abstract class ChartLineDto<X, Y> {
         private final Boolean smooth = true;
         @JsonInclude(JsonInclude.Include.NON_NULL)
         private final String stack;
-        private final AreaStyle areaStyle = new AreaStyle();
+        private AreaStyle areaStyle = new AreaStyle();
         private Emphasis emphasis = new Emphasis();
         private List<Y> data;
 
@@ -64,6 +64,7 @@ public abstract class ChartLineDto<X, Y> {
             this.data = (List<Y>) x.getSeriesData();
             if ("Load".equalsIgnoreCase(x.getStack())) {
                 this.emphasis = null;
+                this.areaStyle= null;
             }
         }
 
