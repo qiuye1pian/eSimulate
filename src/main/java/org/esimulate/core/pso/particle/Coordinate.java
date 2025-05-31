@@ -20,6 +20,7 @@ public class Coordinate implements Dimension, Cloneable {
      * 维度最大值
      */
     private BigDecimal upperBound;
+
     /**
      * 当前值
      */
@@ -28,7 +29,7 @@ public class Coordinate implements Dimension, Cloneable {
     public Coordinate(Dimension x) {
         this.lowerBound = x.getLowerBound();
         this.upperBound = x.getUpperBound();
-        this.value = BigDecimal.ONE;
+        this.value = lowerBound;
     }
 
     /**

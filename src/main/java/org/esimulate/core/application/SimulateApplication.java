@@ -11,7 +11,6 @@ import org.esimulate.core.pso.simulator.facade.load.LoadData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,7 +51,7 @@ public class SimulateApplication {
 
         log.info("进入仿真计算");
         long startSimulation = System.currentTimeMillis();
-        SimulateResult simulate = Simulator.simulate(loadDataList, environmentDataList, deviceList, new ArrayList<>());
+        SimulateResult simulate = Simulator.simulate(loadDataList, environmentDataList, deviceList);
         long endSimulation = System.currentTimeMillis();
         log.info("仿真计算耗时： {} ms", (endSimulation - startSimulation));
 

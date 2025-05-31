@@ -14,7 +14,6 @@ import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pojo.simulate.result.StackedChartDto;
 import org.esimulate.core.pso.simulator.facade.*;
 import org.esimulate.core.pso.simulator.facade.base.TimeSeriesData;
-import org.esimulate.core.pso.simulator.facade.constraint.Constraint;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentData;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.load.LoadData;
@@ -40,11 +39,10 @@ public class Simulator {
      * @param loadList        负荷
      * @param environmentList 环境数据
      * @param deviceList      模型列表
-     * @param constraintList  约束
      * @return 仿真结果
      */
     public static SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList,
-                                          List<Device> deviceList, List<Constraint> constraintList) {
+                                          List<Device> deviceList) {
         try {
             List<Producer> producerList = deviceList.stream()
                     .filter(x -> x instanceof Producer)
