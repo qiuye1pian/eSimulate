@@ -117,10 +117,10 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public HydroPowerPlantModel(HydroPowerPlantModelDto hydroPowerPlantModelDto) {
         this.modelName = hydroPowerPlantModelDto.getModelName();

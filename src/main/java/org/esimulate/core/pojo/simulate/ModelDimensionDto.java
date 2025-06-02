@@ -17,12 +17,12 @@ public class ModelDimensionDto implements Dimension, ModelLoadDto {
 
     Long id;
 
-    BigDecimal lowerBound = BigDecimal.ONE;
+    Integer lowerBound = 1;
 
-    BigDecimal upperBound = BigDecimal.valueOf(1000);
+    Integer upperBound = 2000;
 
     @Override
-    public BigDecimal getQuantity() {
+    public Integer getQuantity() {
         return lowerBound;
     }
 }

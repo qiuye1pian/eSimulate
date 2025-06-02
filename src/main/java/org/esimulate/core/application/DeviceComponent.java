@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -107,7 +108,7 @@ public class DeviceComponent {
                 log.error("未识别的模型类型: {}", modelDto.getModelTypeEnum());
                 throw new IllegalArgumentException("未知模型类型: " + modelDto.getModelTypeEnum());
         }
-        device.setQuantity(modelDto.getQuantity());
+        device.setQuantity(BigDecimal.valueOf(modelDto.getQuantity()));
         if (device instanceof Dimension && modelDto instanceof Dimension) {
             Dimension modelDimensionDto = (Dimension) modelDto;
             ((Dimension) device).setLowerBound(modelDimensionDto.getLowerBound());

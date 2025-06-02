@@ -82,10 +82,10 @@ public class WindPowerModel extends Device implements Producer, Dimension, Elect
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public WindPowerModel(WindPowerModelDto windPowerModelDto) {
         this.modelName = windPowerModelDto.getModelName();

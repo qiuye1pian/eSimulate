@@ -8,6 +8,7 @@ import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
 import org.esimulate.core.pojo.model.ThermalPowerUnitModelDto;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
+import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Adjustable;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.ElectricDevice;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 @Table(name = "thermal_power_unit_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalPowerUnitModel extends Device implements Producer, Adjustable, ElectricDevice, NonRenewableEnergyDevice {
+public class ThermalPowerUnitModel extends Device implements Producer, Dimension, Adjustable, ElectricDevice, NonRenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -129,6 +130,12 @@ public class ThermalPowerUnitModel extends Device implements Producer, Adjustabl
     // 当前浮动工作功率
     @Transient
     private BigDecimal currentAdjustablePower = BigDecimal.ZERO;
+
+    @Transient
+    Integer lowerBound;
+
+    @Transient
+    Integer upperBound;
 
     public ThermalPowerUnitModel(ThermalPowerUnitModelDto thermalPowerModelDto) {
         this.modelName = thermalPowerModelDto.getModelName();

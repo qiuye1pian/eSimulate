@@ -83,10 +83,10 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public SolarPowerModel(SolarPowerModelDto solarPowerModelDto) {
         this.modelName = solarPowerModelDto.getModelName();

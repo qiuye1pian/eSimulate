@@ -106,10 +106,10 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
     private List<BigDecimal> disChargingList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public BatteryModel(BatteryModelDto batteryModelDto) {
         this.modelName = batteryModelDto.getModelName();

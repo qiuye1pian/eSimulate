@@ -73,10 +73,10 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
     private Timestamp updatedAt;
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public GasBoilerModel(GasBoilerModelDto gasBoilerModelDto) {
         this.modelName = gasBoilerModelDto.getModelName();

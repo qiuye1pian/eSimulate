@@ -125,10 +125,10 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     private List<ThermalEnergy> adjustThermalEnergyList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     // 当前浮动工作功率
     @Transient
@@ -431,10 +431,10 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
 
         // 深拷贝可选边界值
         if (this.lowerBound != null) {
-            clone.lowerBound = new BigDecimal(this.lowerBound.toString());
+            clone.lowerBound = this.lowerBound;
         }
         if (this.upperBound != null) {
-            clone.upperBound = new BigDecimal(this.upperBound.toString());
+            clone.upperBound = this.upperBound;
         }
 
         // 字符串字段直接赋值（不可变类型）

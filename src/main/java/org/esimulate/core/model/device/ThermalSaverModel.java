@@ -87,10 +87,10 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
     private List<BigDecimal> disChargingList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public ThermalSaverModel(ThermalSaverModelDto thermalSaverModelDto) {
         this.id = thermalSaverModelDto.getId();

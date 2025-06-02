@@ -89,10 +89,10 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     private List<BigDecimal> disChargingList = new ArrayList<>();
 
     @Transient
-    private BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    private BigDecimal upperBound;
+    Integer upperBound;
 
     public PumpedStorageModel(PumpedStorageModelDto pumpedStorageModelDto) {
         this.id = pumpedStorageModelDto.getId();
@@ -273,10 +273,10 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
 
         // 深拷贝可选边界值
         if (this.lowerBound != null) {
-            clone.lowerBound = new BigDecimal(this.lowerBound.toString());
+            clone.lowerBound = this.lowerBound;
         }
         if (this.upperBound != null) {
-            clone.upperBound = new BigDecimal(this.upperBound.toString());
+            clone.upperBound = this.upperBound;
         }
 
         // 字符串字段直接赋值（不可变类型）
