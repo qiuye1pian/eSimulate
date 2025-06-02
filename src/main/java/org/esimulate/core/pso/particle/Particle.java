@@ -103,7 +103,7 @@ public class Particle {
             velocity.getVelocities()[i] = random.nextInt(dimensionList.get(i).getUpperBound());
         }
 
-        log.info("Init:{}", bestFitnessValue);
+        log.info("Init");
         log.info("Position:{}", currentPosition);
         log.info("velocity:{}", velocity);
     }
@@ -114,19 +114,24 @@ public class Particle {
         }
         Random random = new Random();
         for (int i = 0; i < velocity.getDimensionCount(); i++) {
+            // 生成[-1,1)区间的随机数，使 r1 和 r2 可能为负
             BigDecimal r1 = BigDecimal.valueOf(random.nextDouble());
             BigDecimal r2 = BigDecimal.valueOf(random.nextDouble());
+            BigDecimal direction = random.nextBoolean() ? BigDecimal.ONE : BigDecimal.ONE.negate();
+
             Integer newVelocity = (this.getInertiaWeight().multiply(BigDecimal.valueOf(this.velocity.getVelocityAt(i)))
                     .add(this.getC1().multiply(r1).multiply(BigDecimal.valueOf(bestPosition.getValueAt(i) - currentPosition.getValueAt(i))))
                     .add(this.getC2().multiply(r2).multiply(BigDecimal.valueOf(globalBestPosition.getValueAt(i) - currentPosition.getValueAt(i)))))
+                    .multiply(direction)
                     .intValue();
             this.velocity.setAtDimension(i, newVelocity);
             this.currentPosition.setAtDimension(i, this.currentPosition.getValueAt(i) + this.velocity.getVelocityAt(i));
         }
-        log.info("Moved");
+        log.info("=============>Step {} Moved", this.currentIterations);
         log.info("Position list:{}", currentPosition.getCoordinateValueList());
-        log.info("GlobalBestPosition list:{}", globalBestPosition.getCoordinateValueList());
         log.info("velocity list:{}", velocity);
+
+        this.currentIterations++;
     }
 
     private BigDecimal getInertiaWeight() {

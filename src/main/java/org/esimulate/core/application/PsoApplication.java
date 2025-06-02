@@ -59,7 +59,7 @@ public class PsoApplication {
             particleList.add(new Particle(psoConfig,loadDataList, environmentDataList, deviceList));
         }
 
-        for (int i = 0; i <= psoConfig.getMaxIterations(); i++) {
+        for (int i = 0; i < psoConfig.getMaxIterations(); i++) {
             List<SimulateSnapshot> simulateSnapshotList = particleList.stream()
                     .peek(particle -> particle.move(optimizeResult.getGlobalBestPosition()))
                     .map(Particle::runSimulate)
@@ -68,6 +68,9 @@ public class PsoApplication {
             optimizeResult.addSimulateSnapshotList(simulateSnapshotList);
         }
 
+        log.info("寻优结束");
+        long endTotal = System.currentTimeMillis();
+        log.info("总耗时： {} ms", (endTotal - startTotal));
         return optimizeResult;
     }
 

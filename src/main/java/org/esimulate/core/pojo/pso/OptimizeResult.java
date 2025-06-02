@@ -24,16 +24,14 @@ public class OptimizeResult {
     private BigDecimal globalBestValue = BigDecimal.valueOf(Double.MAX_VALUE);
 
     public void addSimulateSnapshotList(List<SimulateSnapshot> simulateSnapshotList) {
-
         SimulateSnapshot theBestSimulateSnapshot = simulateSnapshotList.stream()
                 .min(Comparator.comparing(SimulateSnapshot::getFitnessValue))
                 .orElseThrow(() -> new RuntimeException("没有找到最优解"));
 
-//        log.info("Position:{},fitness:{}", theBestSimulateSnapshot.getCurrentPosition(), theBestSimulateSnapshot.getFitnessValue());
-
         if (globalBestValue.compareTo(theBestSimulateSnapshot.getFitnessValue()) >= 0) {
             this.globalBestValue = theBestSimulateSnapshot.getFitnessValue();
             this.globalBestPosition = theBestSimulateSnapshot.getCurrentPosition().clone();
+            log.info("global updated: globalBestPosition{}, globalBestValue:{}", globalBestPosition.getCoordinateValueList(), globalBestValue);
         }
 
     }

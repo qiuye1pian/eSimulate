@@ -31,6 +31,15 @@ public class Coordinate implements Dimension, Cloneable {
         this.value = lowerBound + random.nextInt(upperBound) / 2;
     }
 
+    public void setValue(Integer newValue) {
+        if (newValue < lowerBound) {
+            newValue = lowerBound;
+        }
+        if (newValue > upperBound) {
+            newValue = upperBound;
+        }
+        this.value = newValue;
+    }
     /**
      * 克隆
      *
