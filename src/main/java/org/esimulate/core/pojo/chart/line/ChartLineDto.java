@@ -58,6 +58,7 @@ public abstract class ChartLineDto<X, Y> {
         private Emphasis emphasis = new Emphasis();
         private List<Y> data;
 
+        @SuppressWarnings("unchecked")
         public Series(StackedChartData x) {
             this.name = x.getName();
             this.stack = x.getStack();
