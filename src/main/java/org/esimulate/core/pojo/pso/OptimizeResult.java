@@ -3,7 +3,7 @@ package org.esimulate.core.pojo.pso;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.esimulate.core.pso.particle.Position;
+import org.esimulate.core.pso.particle.Position2;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,9 +17,9 @@ public class OptimizeResult {
 
     List<SimulateSnapshot> simulateSnapshotList = new ArrayList<>();
 
-    private Position globalBestPosition;
+    private Position2 globalBestPosition;
 
-    private BigDecimal globalBestValue;
+    private BigDecimal globalBestValue = BigDecimal.valueOf(Double.MAX_VALUE);
 
     public void addSimulateSnapshotList(List<SimulateSnapshot> simulateSnapshotList) {
 

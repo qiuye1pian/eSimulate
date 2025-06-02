@@ -18,14 +18,19 @@ public class PsoConfig {
 
     List<EnvironmentDto> environmentDtoList;
 
+    // 粒子个数
     Integer particleCount;
 
+    // 最大迭代次数
     Integer maxIterations;
 
+    // 惯性权重
     BigDecimal inertiaWeight;
 
+    // 自我学习因子
     BigDecimal c1;
 
+    // 群体学习因子
     BigDecimal c2;
 
 }

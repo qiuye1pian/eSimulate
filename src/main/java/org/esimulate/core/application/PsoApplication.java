@@ -56,12 +56,12 @@ public class PsoApplication {
 
         List<Particle2> particleList = new ArrayList<>();
         for (int i = 0; i <= psoConfig.getParticleCount(); i++) {
-            particleList.add(new Particle2(loadDataList, environmentDataList, deviceList));
+            particleList.add(new Particle2(psoConfig,loadDataList, environmentDataList, deviceList));
         }
 
         for (int i = 0; i <= psoConfig.getMaxIterations(); i++) {
             List<SimulateSnapshot> simulateSnapshotList = particleList.stream()
-                    .peek(Particle2::move)
+                    .peek(particle2 -> particle2.move(optimizeResult.getGlobalBestPosition()))
                     .map(Particle2::runSimulate)
                     .collect(Collectors.toList());
 

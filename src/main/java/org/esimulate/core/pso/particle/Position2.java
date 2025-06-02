@@ -1,23 +1,22 @@
 package org.esimulate.core.pso.particle;
 
 import io.jsonwebtoken.lang.Collections;
-import lombok.Getter;
+import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Getter
-public class Position implements Cloneable {
+@Data
+public class Position2 implements Cloneable {
 
     /**
      * 粒子在各维度的坐标
      */
-    private final List<Coordinate> coordinateList;
+    private List<Coordinate2> coordinateList;
 
-    public Position(List<Dimension> dimensionsList) {
-        coordinateList = dimensionsList.stream().map(Coordinate::new).collect(Collectors.toList());
+    public Position2(List<Dimension> dimensionsList) {
+        coordinateList = dimensionsList.stream().map(Coordinate2::new).collect(Collectors.toList());
     }
 
     /**
@@ -30,20 +29,13 @@ public class Position implements Cloneable {
     /**
      * 设置坐标在某维度的值
      */
-    public void setAtDimension(int dimIndex, BigDecimal newValue) {
+    public void setAtDimension(int dimIndex, Integer newValue) {
         coordinateList.get(dimIndex).setValue(newValue);
     }
 
-    /**
-     * 根据维度顺序获取维度值
-     *
-     * @param i 第i个维度
-     * @return 第i个维度的值
-     */
-    public BigDecimal getCoordinateByIndex(int i) {
-        return coordinateList.get(i).getValue();
+    public Integer getValueAt(int index) {
+        return coordinateList.get(index).getValue();
     }
-
 
     /**
      * 判断是否相等（严格比较 BigDecimal，包括精度）
@@ -53,10 +45,10 @@ public class Position implements Cloneable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Position)) {
+        if (!(o instanceof Position2)) {
             return false;
         }
-        Position that = (Position) o;
+        Position2 that = (Position2) o;
         if (this.coordinateList.size() != that.coordinateList.size()) {
             return false;
         }
@@ -83,13 +75,13 @@ public class Position implements Cloneable {
      * 深拷贝 Clone 方法
      */
     @Override
-    public Position clone() {
+    public Position2 clone() {
         try {
             // 创建浅拷贝
-            Position cloned = (Position) super.clone();
+            Position2 cloned = (Position2) super.clone();
             // 深拷贝 coordinateList
-            List<Coordinate> clonedCoordinateList = this.coordinateList.stream()
-                    .map(Coordinate::clone) // 调用 Coordinate 的 clone 方法
+            List<Coordinate2> clonedCoordinateList = this.coordinateList.stream()
+                    .map(Coordinate2::clone) // 调用 Coordinate 的 clone 方法
                     .collect(Collectors.toList());
             // 设置拷贝后的坐标列表
             cloned.coordinateList.clear();
@@ -100,7 +92,7 @@ public class Position implements Cloneable {
         }
     }
 
-    public List<BigDecimal> getCoordinateValueList() {
-        return this.coordinateList.stream().map(Coordinate::getValue).collect(Collectors.toList());
+    public List<Integer> getCoordinateValueList() {
+        return this.coordinateList.stream().map(Coordinate2::getValue).collect(Collectors.toList());
     }
 }

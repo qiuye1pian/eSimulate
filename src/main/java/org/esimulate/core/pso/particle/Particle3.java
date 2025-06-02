@@ -12,15 +12,15 @@ import java.util.Random;
 
 
 @Data
-public class Particle {
+public class Particle3 {
     // 粒子的位置
-    private Position position;
+    private Position3 position3;
 
     // 粒子的速度
-    private Velocity velocity;
+    private Velocity3 velocity3;
 
     // 粒子的历史最优位置
-    private Position bestPosition;
+    private Position3 bestPosition3;
 
     //当前适应度值
     private BigDecimal fitnessValue;
@@ -37,14 +37,14 @@ public class Particle {
     //设备列表
     List<Device> deviceList;
 
-    public Particle(List<Dimension> dimensionsList) {
+    public Particle3(List<Dimension> dimensionsList) {
         int dimension = dimensionsList.size();
 
-        position = new Position(dimensionsList);
+        position3 = new Position3(dimensionsList);
 
-        velocity = new Velocity(new BigDecimal[dimension]);
+        velocity3 = new Velocity3(new BigDecimal[dimension]);
 
-        bestPosition = position.clone();
+        bestPosition3 = position3.clone();
 
         // 初始化为极大值
         fitnessValue = BigDecimal.valueOf(Double.MAX_VALUE);
@@ -54,28 +54,28 @@ public class Particle {
     }
 
     public BigDecimal getCoordinateOfBestPosition(int i) {
-        return this.bestPosition.getCoordinateByIndex(i);
+        return this.bestPosition3.getCoordinateByIndex(i);
     }
 
     public BigDecimal getCoordinateOfCurrentPosition(int i) {
-        return this.position.getCoordinateByIndex(i);
+        return this.position3.getCoordinateByIndex(i);
     }
 
-    public BigDecimal getVelocity(int i) {
-        return this.velocity.getVelocities()[i];
+    public BigDecimal getVelocity3(int i) {
+        return this.velocity3.getVelocities()[i];
     }
 
     // 初始化粒子的位置和速度
     private void initialize(int dimension) {
         Random random = new Random();
         for (int i = 0; i < dimension; i++) {
-            position.setAtDimension(i, BigDecimal.valueOf(random.nextDouble() * 10 - 5).setScale(10, RoundingMode.HALF_UP));
-            velocity.setAtDimension(i, BigDecimal.valueOf(random.nextDouble() * 2 - 1).setScale(10, RoundingMode.HALF_UP));
+            position3.setAtDimension(i, BigDecimal.valueOf(random.nextDouble() * 10 - 5).setScale(10, RoundingMode.HALF_UP));
+            velocity3.setAtDimension(i, BigDecimal.valueOf(random.nextDouble() * 2 - 1).setScale(10, RoundingMode.HALF_UP));
         }
     }
 
-    public Position getCurrentPositionClone() {
-        return this.position.clone();
+    public Position3 getCurrentPositionClone() {
+        return this.position3.clone();
     }
 
     public void updateFitnessValue(BigDecimal fitness) {
@@ -84,7 +84,7 @@ public class Particle {
 
         // 更新个体最优
         if (fitness.compareTo(this.getBestFitnessValue()) < 0) {
-            this.bestPosition = getCurrentPositionClone();
+            this.bestPosition3 = getCurrentPositionClone();
             this.bestFitnessValue = fitness;
         }
 

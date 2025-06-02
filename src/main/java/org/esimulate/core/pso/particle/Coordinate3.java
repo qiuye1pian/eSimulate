@@ -10,7 +10,7 @@ import java.math.BigDecimal;
  */
 @Setter
 @Getter
-public class Coordinate implements Dimension, Cloneable {
+public class Coordinate3 implements Dimension, Cloneable {
 
     /**
      * 维度最小值
@@ -26,10 +26,10 @@ public class Coordinate implements Dimension, Cloneable {
      */
     private BigDecimal value;
 
-    public Coordinate(Dimension x) {
+    public Coordinate3(Dimension x) {
         this.lowerBound = x.getLowerBound();
         this.upperBound = x.getUpperBound();
-        this.value = lowerBound;
+        this.value = BigDecimal.ONE;
     }
 
     /**
@@ -37,9 +37,9 @@ public class Coordinate implements Dimension, Cloneable {
      * @return 新对象
      */
     @Override
-    public Coordinate clone() {
+    public Coordinate3 clone() {
         try {
-            Coordinate clone = (Coordinate) super.clone();
+            Coordinate3 clone = (Coordinate3) super.clone();
             // 深拷贝 value，因为 BigDecimal 是可变对象
             clone.value = new BigDecimal(this.value.toString());
             return clone;

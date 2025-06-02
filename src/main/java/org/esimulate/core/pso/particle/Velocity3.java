@@ -8,20 +8,21 @@ import java.util.Arrays;
 
 
 @Getter
-public class Velocity implements Cloneable {
+public class Velocity3 implements Cloneable {
 
     private BigDecimal[] velocities; // 粒子在各维度的速度
 
-    public Velocity(BigDecimal[] velocities) {
+    public Velocity3(BigDecimal[] velocities) {
         this.velocities = velocities;
+
     }
 
     public int getDimensionCount() {
         return velocities.length;
     }
 
-    public Velocity copy() {
-        return new Velocity(Arrays.copyOf(velocities, velocities.length));
+    public Velocity3 copy() {
+        return new Velocity3(Arrays.copyOf(velocities, velocities.length));
     }
 
     public void addAtDimension(int dimIndex, BigDecimal valueToAdd) {
@@ -37,10 +38,10 @@ public class Velocity implements Cloneable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Velocity)) {
+        if (!(o instanceof Velocity3)) {
             return false;
         }
-        Velocity that = (Velocity) o;
+        Velocity3 that = (Velocity3) o;
         if (this.velocities.length != that.velocities.length) {
             return false;
         }
@@ -62,9 +63,9 @@ public class Velocity implements Cloneable {
      * 深拷贝 Clone 方法
      */
     @Override
-    public Velocity clone() {
+    public Velocity3 clone() {
         try {
-            Velocity cloned = (Velocity) super.clone();
+            Velocity3 cloned = (Velocity3) super.clone();
             // 深拷贝 velocities 数组
             cloned.velocities = Arrays.copyOf(this.velocities, this.velocities.length);
             return cloned;
