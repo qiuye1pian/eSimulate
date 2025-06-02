@@ -16,7 +16,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 @Data
-public class Particle2 {
+public class Particle {
 
     //用于仿真的对象
     private List<EnvironmentData> environmentDataList;
@@ -26,20 +26,20 @@ public class Particle2 {
     private List<Device> deviceList;
 
     // 当前位置
-    private Position2 currentPosition;
+    private Position currentPosition;
 
     // 当前适应度值
     private BigDecimal fitnessValue;
 
 
     // 粒子的历史最优位置
-    private Position2 bestPosition;
+    private Position bestPosition;
 
     //历史最优适应度值
     private BigDecimal bestFitnessValue;
 
     // 粒子的速度
-    private Velocity2 velocity;
+    private Velocity velocity;
 
     // 惯性权重
     BigDecimal inertiaWeight;
@@ -50,7 +50,7 @@ public class Particle2 {
     // 群体学习因子
     BigDecimal c2;
 
-    public Particle2(PsoConfig psoConfig, List<LoadData> loadDataList, List<EnvironmentData> environmentDataList, List<Device> deviceList) {
+    public Particle(PsoConfig psoConfig, List<LoadData> loadDataList, List<EnvironmentData> environmentDataList, List<Device> deviceList) {
         this.loadDataList = loadDataList;
         this.environmentDataList = environmentDataList;
         this.deviceList = deviceList.stream()
@@ -65,8 +65,8 @@ public class Particle2 {
                 .collect(Collectors.toList());
 
         //初始位置在所有纬度上都是 最低值
-        this.currentPosition = new Position2(dimensionList);
-        this.velocity = new Velocity2(new Integer[dimensionList.size()]);
+        this.currentPosition = new Position(dimensionList);
+        this.velocity = new Velocity(new Integer[dimensionList.size()]);
 
         Random random = new Random();
         for (int i = 0; i < velocity.getDimensionCount(); i++) {
@@ -74,7 +74,7 @@ public class Particle2 {
         }
     }
 
-    public void move(Position2 globalBestPosition) {
+    public void move(Position globalBestPosition) {
         Random random = new Random();
         BigDecimal r1 = BigDecimal.valueOf(random.nextInt());
         BigDecimal r2 = BigDecimal.valueOf(random.nextInt());

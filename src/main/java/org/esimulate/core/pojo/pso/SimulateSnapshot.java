@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.pojo.simulate.result.SimulateResult;
-import org.esimulate.core.pso.particle.Position2;
+import org.esimulate.core.pso.particle.Position;
 
 import java.math.BigDecimal;
 
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Data
 public class SimulateSnapshot {
 
-    Position2 currentPosition;
+    Position currentPosition;
 
     BigDecimal fitnessValue;
 

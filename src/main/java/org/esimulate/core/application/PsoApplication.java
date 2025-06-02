@@ -6,7 +6,7 @@ import org.esimulate.core.pojo.pso.OptimizeResult;
 import org.esimulate.core.pojo.pso.SimulateSnapshot;
 import org.esimulate.core.pojo.simulate.ModelLoadDto;
 import org.esimulate.core.pojo.simulate.PsoConfig;
-import org.esimulate.core.pso.particle.Particle2;
+import org.esimulate.core.pso.particle.Particle;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentData;
 import org.esimulate.core.pso.simulator.facade.load.LoadData;
@@ -54,15 +54,15 @@ public class PsoApplication {
 
         OptimizeResult optimizeResult = new OptimizeResult();
 
-        List<Particle2> particleList = new ArrayList<>();
+        List<Particle> particleList = new ArrayList<>();
         for (int i = 0; i <= psoConfig.getParticleCount(); i++) {
-            particleList.add(new Particle2(psoConfig,loadDataList, environmentDataList, deviceList));
+            particleList.add(new Particle(psoConfig,loadDataList, environmentDataList, deviceList));
         }
 
         for (int i = 0; i <= psoConfig.getMaxIterations(); i++) {
             List<SimulateSnapshot> simulateSnapshotList = particleList.stream()
-                    .peek(particle2 -> particle2.move(optimizeResult.getGlobalBestPosition()))
-                    .map(Particle2::runSimulate)
+                    .peek(particle -> particle.move(optimizeResult.getGlobalBestPosition()))
+                    .map(Particle::runSimulate)
                     .collect(Collectors.toList());
 
             optimizeResult.addSimulateSnapshotList(simulateSnapshotList);

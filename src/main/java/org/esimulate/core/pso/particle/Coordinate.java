@@ -1,16 +1,14 @@
 package org.esimulate.core.pso.particle;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.Random;
 
 /**
  * 位置中某个维度的值
  */
-@Setter
-@Getter
-public class Coordinate2 implements Dimension, Cloneable {
+@Data
+public class Coordinate implements Dimension, Cloneable {
 
     /**
      * 维度最小值
@@ -26,7 +24,7 @@ public class Coordinate2 implements Dimension, Cloneable {
      */
     private Integer value;
 
-    public Coordinate2(Dimension x) {
+    public Coordinate(Dimension x) {
         Random random = new Random();
         this.lowerBound = x.getLowerBound();
         this.upperBound = x.getUpperBound();
@@ -39,9 +37,9 @@ public class Coordinate2 implements Dimension, Cloneable {
      * @return 新对象
      */
     @Override
-    public Coordinate2 clone() {
+    public Coordinate clone() {
         try {
-            Coordinate2 clone = (Coordinate2) super.clone();
+            Coordinate clone = (Coordinate) super.clone();
             // 深拷贝 value，因为 BigDecimal 是可变对象
             clone.value = new Integer(this.value.toString());
             return clone;

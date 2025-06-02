@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class Position2 implements Cloneable {
+public class Position implements Cloneable {
 
     /**
      * 粒子在各维度的坐标
      */
-    private List<Coordinate2> coordinateList;
+    private List<Coordinate> coordinateList;
 
-    public Position2(List<Dimension> dimensionsList) {
-        coordinateList = dimensionsList.stream().map(Coordinate2::new).collect(Collectors.toList());
+    public Position(List<Dimension> dimensionsList) {
+        coordinateList = dimensionsList.stream().map(Coordinate::new).collect(Collectors.toList());
     }
 
     /**
@@ -45,10 +45,10 @@ public class Position2 implements Cloneable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Position2)) {
+        if (!(o instanceof Position)) {
             return false;
         }
-        Position2 that = (Position2) o;
+        Position that = (Position) o;
         if (this.coordinateList.size() != that.coordinateList.size()) {
             return false;
         }
@@ -75,13 +75,13 @@ public class Position2 implements Cloneable {
      * 深拷贝 Clone 方法
      */
     @Override
-    public Position2 clone() {
+    public Position clone() {
         try {
             // 创建浅拷贝
-            Position2 cloned = (Position2) super.clone();
+            Position cloned = (Position) super.clone();
             // 深拷贝 coordinateList
-            List<Coordinate2> clonedCoordinateList = this.coordinateList.stream()
-                    .map(Coordinate2::clone) // 调用 Coordinate 的 clone 方法
+            List<Coordinate> clonedCoordinateList = this.coordinateList.stream()
+                    .map(Coordinate::clone) // 调用 Coordinate 的 clone 方法
                     .collect(Collectors.toList());
             // 设置拷贝后的坐标列表
             cloned.coordinateList.clear();
@@ -93,6 +93,6 @@ public class Position2 implements Cloneable {
     }
 
     public List<Integer> getCoordinateValueList() {
-        return this.coordinateList.stream().map(Coordinate2::getValue).collect(Collectors.toList());
+        return this.coordinateList.stream().map(Coordinate::getValue).collect(Collectors.toList());
     }
 }
