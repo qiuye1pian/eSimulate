@@ -24,13 +24,22 @@ public class PsoConfig {
     // 最大迭代次数
     Integer maxIterations;
 
-    // 惯性权重
-    BigDecimal inertiaWeight;
+    // 惯性权重 初值
+    BigDecimal inertiaWeightStart;
 
-    // 自我学习因子
-    BigDecimal c1;
+    // 惯性权重 终值
+    BigDecimal inertiaWeightEnd;
 
-    // 群体学习因子
-    BigDecimal c2;
+    // 自我学习因子 初值
+    BigDecimal c1Start;
+
+    // 自我学习因子 终值
+    BigDecimal c1End;
+
+    // 群体学习因子 初值
+    BigDecimal c2Start;
+
+    // 群体学习因子 终值
+    BigDecimal c2End;
 
 }

@@ -169,7 +169,7 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // 字符串字段直接赋值（不可变类型）
         clone.modelName = this.modelName;

@@ -226,7 +226,7 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // 字符串字段直接赋值
         clone.modelName = this.modelName;

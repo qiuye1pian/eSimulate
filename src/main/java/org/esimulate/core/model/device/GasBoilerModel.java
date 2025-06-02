@@ -205,7 +205,7 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
         GasBoilerModel clone = (GasBoilerModel) super.clone();
 
         // 深拷贝可变对象字段
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
         clone.etaGB = new BigDecimal(this.etaGB.toString());
         clone.gasEnergyDensity = new BigDecimal(this.gasEnergyDensity.toString());
         clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());

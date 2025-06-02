@@ -321,7 +321,7 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // String 字段直接赋值（不可变）
         clone.modelName = this.modelName;

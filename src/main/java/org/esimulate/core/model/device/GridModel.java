@@ -147,7 +147,7 @@ public class GridModel extends Device implements Provider, ElectricDevice, NonRe
         clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // 字符串字段直接复制（不可变类型）
         clone.modelName = this.modelName;

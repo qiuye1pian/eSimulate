@@ -427,7 +427,7 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         clone.c = new BigDecimal(this.c.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // 深拷贝可选边界值
         if (this.lowerBound != null) {
