@@ -2,6 +2,8 @@ package org.esimulate.core.pso.particle;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.esimulate.core.model.result.indication.CurtailmentRate;
+import org.esimulate.core.model.result.indication.RenewableEnergyShare;
 import org.esimulate.core.model.result.indication.TotalCost;
 import org.esimulate.core.pojo.pso.SimulateSnapshot;
 import org.esimulate.core.pojo.simulate.PsoConfig;
@@ -11,6 +13,7 @@ import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentData;
 import org.esimulate.core.pso.simulator.facade.load.LoadData;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,29 +26,30 @@ import java.util.stream.Collectors;
 @Slf4j
 @Data
 public class Particle {
+    private Integer particleIndex;
 
     // 惯性权重 初值
-    BigDecimal inertiaWeightStart;
+    private BigDecimal inertiaWeightStart;
 
     // 惯性权重 终值
-    BigDecimal inertiaWeightEnd;
+    private BigDecimal inertiaWeightEnd;
 
     // 自我学习因子 初值
-    BigDecimal c1Start;
+    private BigDecimal c1Start;
 
     // 自我学习因子 终值
-    BigDecimal c1End;
+    private BigDecimal c1End;
 
     // 群体学习因子 初值
-    BigDecimal c2Start;
+    private BigDecimal c2Start;
 
     // 群体学习因子 终值
-    BigDecimal c2End;
+    private BigDecimal c2End;
 
     // 最大迭代次数
-    Integer maxIterations;
+    private Integer maxIterations;
 
-    Integer currentIterations;
+    private Integer currentIterations;
 
     //用于仿真的对象
     private List<EnvironmentData> environmentDataList;
@@ -69,7 +73,8 @@ public class Particle {
     // 粒子的速度
     private Velocity velocity;
 
-    public Particle(PsoConfig psoConfig, List<LoadData> loadDataList, List<EnvironmentData> environmentDataList, List<Device> deviceList) {
+    public Particle(Integer particleIndex, PsoConfig psoConfig, List<LoadData> loadDataList, List<EnvironmentData> environmentDataList, List<Device> deviceList) {
+        this.particleIndex = particleIndex;
         this.loadDataList = loadDataList;
         this.environmentDataList = environmentDataList;
         this.deviceList = deviceList.stream()
@@ -95,42 +100,50 @@ public class Particle {
         //初始位置在所有纬度上都是 最低值
         this.currentPosition = new Position(dimensionList);
         this.velocity = new Velocity(new Integer[dimensionList.size()]);
-        this.bestPosition = currentPosition;
+        this.bestPosition = currentPosition.clone();
         this.bestFitnessValue = BigDecimal.valueOf(Double.MAX_VALUE);
 
         Random random = new Random();
         for (int i = 0; i < velocity.getDimensionCount(); i++) {
-            velocity.getVelocities()[i] = random.nextInt(dimensionList.get(i).getUpperBound());
+            velocity.getVelocities()[i] = random.nextInt(dimensionList.get(i).getUpperBound()/100) + 1;
         }
 
-        log.info("Init");
-        log.info("Position:{}", currentPosition);
-        log.info("velocity:{}", velocity);
+
     }
 
     public void move(Position globalBestPosition) {
         if (globalBestPosition == null) {
-            globalBestPosition = currentPosition;
+            globalBestPosition = currentPosition.clone();
         }
+        Position newPosition = currentPosition.clone();
+        Velocity newVelocity = velocity.clone();
         Random random = new Random();
         for (int i = 0; i < velocity.getDimensionCount(); i++) {
-            // 生成[-1,1)区间的随机数，使 r1 和 r2 可能为负
             BigDecimal r1 = BigDecimal.valueOf(random.nextDouble());
             BigDecimal r2 = BigDecimal.valueOf(random.nextDouble());
-            BigDecimal direction = random.nextBoolean() ? BigDecimal.ONE : BigDecimal.ONE.negate();
 
-            Integer newVelocity = (this.getInertiaWeight().multiply(BigDecimal.valueOf(this.velocity.getVelocityAt(i)))
-                    .add(this.getC1().multiply(r1).multiply(BigDecimal.valueOf(bestPosition.getValueAt(i) - currentPosition.getValueAt(i))))
-                    .add(this.getC2().multiply(r2).multiply(BigDecimal.valueOf(globalBestPosition.getValueAt(i) - currentPosition.getValueAt(i)))))
-                    .multiply(direction)
-                    .intValue();
-            this.velocity.setAtDimension(i, newVelocity);
-            this.currentPosition.setAtDimension(i, this.currentPosition.getValueAt(i) + this.velocity.getVelocityAt(i));
+            int distanceFromParticleBest = bestPosition.getValueAt(i) - currentPosition.getValueAt(i);
+            int distanceFromGlobalBest = globalBestPosition.getValueAt(i) - currentPosition.getValueAt(i);
+            BigDecimal lastVelocityFactor = this.getInertiaWeight().multiply(BigDecimal.valueOf(this.velocity.getVelocityAt(i)));
+
+            BigDecimal factor1 = this.getC1().multiply(r1).multiply(BigDecimal.valueOf(distanceFromParticleBest));
+            BigDecimal factor2 = this.getC2().multiply(r2).multiply(BigDecimal.valueOf(distanceFromGlobalBest));
+
+            Integer newDimensionVelocity = (lastVelocityFactor.add(factor1).add(factor2)).intValue();
+
+            newVelocity.setAtDimension(i, newDimensionVelocity);
+            newPosition.setAtDimension(i, this.currentPosition.getValueAt(i) + newDimensionVelocity);
+
         }
-        log.info("=============>Step {} Moved", this.currentIterations);
-        log.info("Position list:{}", currentPosition.getCoordinateValueList());
-        log.info("velocity list:{}", velocity);
 
+        log.info("[Particle {}] ==============>\tStep {} Start\t===⬇️⬇️⬇️⬇️", this.particleIndex, this.currentIterations);
+        log.info("[Particle {}] ==============>\tMoving\t==============", this.particleIndex);
+        log.info("[Particle {}] ==\tOld Position:  \t{}", this.particleIndex, currentPosition.getCoordinateValueList());
+        log.info("[Particle {}] ==\tVelocity:      \t{}", this.particleIndex, (Object) newVelocity.getVelocities());
+        log.info("[Particle {}] ==\tNew Position:  \t{}", this.particleIndex, newPosition.getCoordinateValueList());
+        log.info("[Particle {}] ==============>\tMoved\t==============", this.particleIndex);
+        this.currentPosition = newPosition;
+        this.velocity = newVelocity;
         this.currentIterations++;
     }
 
@@ -164,16 +177,48 @@ public class Particle {
                 .forEach(x -> x.setQuantity(BigDecimal.valueOf(this.currentPosition.getValueAt(i.getAndIncrement()))));
 
         SimulateResult simulateResult = Simulator.simulate(loadDataList, environmentDataList, currentSimulateDeviceList);
-        fitnessValue = simulateResult.getIndicationList().stream()
-                .filter(x->x instanceof TotalCost)
+
+        this.fitnessValue = evaluateFitnessValue(simulateResult);
+
+        if (this.bestFitnessValue.compareTo(this.fitnessValue) >= 0) {
+            log.info("bestFitnessValue changed:{}->{}", this.bestFitnessValue, this.fitnessValue);
+            this.bestFitnessValue = this.fitnessValue;
+            this.bestPosition = this.currentPosition.clone();
+        }
+        log.info("[Particle {}] =====>Simulate finish<=====", this.particleIndex);
+        log.info("[Particle {}] Position:{}\tvalue:{}", this.particleIndex, this.currentPosition.getCoordinateValueList(), this.fitnessValue);
+        log.info("[Particle {}] BestPosition:{}\tbestValue:{}", this.particleIndex, this.bestPosition.getCoordinateValueList(), this.bestFitnessValue);
+//        log.info("=====>Step End{}<=====", currentIterations);
+        log.info("[Particle {}] ==============>\tStep {} End=======\t⬆️⬆️⬆️⬆️", this.particleIndex, this.currentIterations);
+
+        return new SimulateSnapshot(this.currentPosition, this.fitnessValue, simulateResult);
+    }
+
+    private static @NotNull BigDecimal evaluateFitnessValue(SimulateResult simulateResult) {
+        BigDecimal currentFitnessValue = simulateResult.getIndicationList().stream()
+                .filter(x -> x instanceof TotalCost)
                 .findAny()
                 .map(Indication::getIndication)
                 .orElse(BigDecimal.valueOf(Double.MAX_VALUE));
-        if (this.bestFitnessValue.compareTo(fitnessValue) >= 0) {
-            log.info("bestFitnessValue changed:{}->{}", bestFitnessValue, fitnessValue);
-            this.bestFitnessValue = fitnessValue;
-            this.bestPosition = currentPosition;
+
+        BigDecimal renewableEnergyShare = simulateResult.getIndicationList().stream()
+                .filter(x -> x instanceof RenewableEnergyShare)
+                .map(Indication::getIndication)
+                .findAny()
+                .orElse(BigDecimal.ZERO);
+
+        if (renewableEnergyShare.compareTo(BigDecimal.valueOf(80)) < 0) {
+            currentFitnessValue = BigDecimal.valueOf(Double.MAX_VALUE);
         }
-        return new SimulateSnapshot(currentPosition, fitnessValue, simulateResult);
+
+        BigDecimal curtailmentRate = simulateResult.getIndicationList().stream()
+                .filter(x -> x instanceof CurtailmentRate)
+                .map(Indication::getIndication)
+                .findAny()
+                .orElse(BigDecimal.ZERO);
+        if (curtailmentRate.compareTo(BigDecimal.valueOf(80)) > 0) {
+            currentFitnessValue = BigDecimal.valueOf(Double.MAX_VALUE);
+        }
+        return currentFitnessValue;
     }
 }

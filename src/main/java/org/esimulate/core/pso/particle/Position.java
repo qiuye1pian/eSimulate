@@ -84,12 +84,9 @@ public class Position implements Cloneable {
             // 创建浅拷贝
             Position cloned = (Position) super.clone();
             // 深拷贝 coordinateList
-            List<Coordinate> clonedCoordinateList = this.coordinateList.stream()
+            cloned.coordinateList = this.coordinateList.stream()
                     .map(Coordinate::clone) // 调用 Coordinate 的 clone 方法
                     .collect(Collectors.toList());
-            // 设置拷贝后的坐标列表
-            cloned.coordinateList.clear();
-            cloned.coordinateList.addAll(clonedCoordinateList);
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError("Cloning not supported", e);

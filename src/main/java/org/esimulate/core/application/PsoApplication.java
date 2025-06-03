@@ -55,8 +55,9 @@ public class PsoApplication {
         OptimizeResult optimizeResult = new OptimizeResult();
 
         List<Particle> particleList = new ArrayList<>();
+
         for (int i = 0; i < psoConfig.getParticleCount(); i++) {
-            particleList.add(new Particle(psoConfig,loadDataList, environmentDataList, deviceList));
+            particleList.add(new Particle(i, psoConfig, loadDataList, environmentDataList, deviceList));
         }
 
         for (int i = 0; i < psoConfig.getMaxIterations(); i++) {
