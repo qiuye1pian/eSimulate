@@ -42,4 +42,10 @@ public class PsoConfig {
     // 群体学习因子 终值
     BigDecimal c2End;
 
+    // 最大弃风弃光率
+    BigDecimal maxCurtailmentRate = BigDecimal.valueOf(80);
+
+    // 最小可再生能源渗透率
+    BigDecimal minRenewableEnergyShare = BigDecimal.valueOf(80);
+
 }

@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Data
@@ -24,15 +25,23 @@ public class OptimizeResult {
     private BigDecimal globalBestValue = BigDecimal.valueOf(Double.MAX_VALUE);
 
     public void addSimulateSnapshotList(List<SimulateSnapshot> simulateSnapshotList) {
-        SimulateSnapshot theBestSimulateSnapshot = simulateSnapshotList.stream()
+        simulateSnapshotList.stream()
+                .filter(SimulateSnapshot::getIsValid)
                 .min(Comparator.comparing(SimulateSnapshot::getFitnessValue))
-                .orElseThrow(() -> new RuntimeException("没有找到最优解"));
+                .ifPresent(theBestSimulateSnapshot -> {
+                    if (globalBestValue.compareTo(theBestSimulateSnapshot.getFitnessValue()) >= 0) {
+                        this.globalBestValue = theBestSimulateSnapshot.getFitnessValue();
+                        this.globalBestPosition = theBestSimulateSnapshot.getCurrentPosition().clone();
+                        log.info("global updated: globalBestPosition{}, globalBestValue:{}", globalBestPosition.getCoordinateValueList(), globalBestValue);
+                    }
+                });
 
-        if (globalBestValue.compareTo(theBestSimulateSnapshot.getFitnessValue()) >= 0) {
-            this.globalBestValue = theBestSimulateSnapshot.getFitnessValue();
-            this.globalBestPosition = theBestSimulateSnapshot.getCurrentPosition().clone();
-            log.info("global updated: globalBestPosition{}, globalBestValue:{}", globalBestPosition.getCoordinateValueList(), globalBestValue);
-        }
+        this.simulateSnapshotList.addAll(simulateSnapshotList);
+    }
 
+    public List<SimulateSnapshot> getSimulateSnapshotList() {
+        return this.simulateSnapshotList.stream()
+                .sorted(Comparator.comparing(SimulateSnapshot::getParticleIndex))
+                .collect(Collectors.toList());
     }
 }

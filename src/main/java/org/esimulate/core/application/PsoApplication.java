@@ -52,8 +52,10 @@ public class PsoApplication {
         long endModelData = System.currentTimeMillis();
         log.info("加载模型耗时： {} ms", (endModelData - startModelData));
 
-        OptimizeResult optimizeResult = new OptimizeResult();
+        log.info("开始PSO");
+        long startPso = System.currentTimeMillis();
 
+        OptimizeResult optimizeResult = new OptimizeResult();
         List<Particle> particleList = new ArrayList<>();
 
         for (int i = 0; i < psoConfig.getParticleCount(); i++) {
@@ -68,10 +70,14 @@ public class PsoApplication {
 
             optimizeResult.addSimulateSnapshotList(simulateSnapshotList);
         }
+        long endPso = System.currentTimeMillis();
+        log.info("PSO耗时：{} ms", (endPso - startPso));
 
         log.info("寻优结束");
         long endTotal = System.currentTimeMillis();
         log.info("总耗时： {} ms", (endTotal - startTotal));
+
+//        log.info("寻优结果汇总:{}", JSONObject.toJSONString(optimizeResult));
         return optimizeResult;
     }
 

@@ -2,8 +2,6 @@ package org.esimulate.core.pso.particle;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.esimulate.core.model.result.indication.CurtailmentRate;
-import org.esimulate.core.model.result.indication.RenewableEnergyShare;
 import org.esimulate.core.model.result.indication.TotalCost;
 import org.esimulate.core.pojo.pso.SimulateSnapshot;
 import org.esimulate.core.pojo.simulate.PsoConfig;
@@ -26,6 +24,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Data
 public class Particle {
+
     private Integer particleIndex;
 
     // 惯性权重 初值
@@ -48,6 +47,12 @@ public class Particle {
 
     // 最大迭代次数
     private Integer maxIterations;
+
+    // 最大弃风弃光率
+    private BigDecimal maxCurtailmentRate;
+
+    // 最小可再生能源渗透率
+    private BigDecimal minRenewableEnergyShare;
 
     private Integer currentIterations;
 
@@ -90,6 +95,8 @@ public class Particle {
         this.c2End = psoConfig.getC2End();
         this.maxIterations = psoConfig.getMaxIterations();
         this.currentIterations = 0;
+        this.maxCurtailmentRate = psoConfig.getMaxCurtailmentRate();
+        this.minRenewableEnergyShare = psoConfig.getMinRenewableEnergyShare();
 
         //把设备里面是纬度的模型挑出来
         List<Dimension> dimensionList = this.deviceList.stream()
@@ -105,7 +112,7 @@ public class Particle {
 
         Random random = new Random();
         for (int i = 0; i < velocity.getDimensionCount(); i++) {
-            velocity.getVelocities()[i] = random.nextInt(dimensionList.get(i).getUpperBound()/100) + 1;
+            velocity.getVelocities()[i] = random.nextInt(Math.max(1, dimensionList.get(i).getUpperBound() / 100));
         }
 
 
@@ -180,7 +187,7 @@ public class Particle {
 
         this.fitnessValue = evaluateFitnessValue(simulateResult);
 
-        if (this.bestFitnessValue.compareTo(this.fitnessValue) >= 0) {
+        if (this.bestFitnessValue.compareTo(this.fitnessValue) > 0) {
             log.info("bestFitnessValue changed:{}->{}", this.bestFitnessValue, this.fitnessValue);
             this.bestFitnessValue = this.fitnessValue;
             this.bestPosition = this.currentPosition.clone();
@@ -188,37 +195,17 @@ public class Particle {
         log.info("[Particle {}] =====>Simulate finish<=====", this.particleIndex);
         log.info("[Particle {}] Position:{}\tvalue:{}", this.particleIndex, this.currentPosition.getCoordinateValueList(), this.fitnessValue);
         log.info("[Particle {}] BestPosition:{}\tbestValue:{}", this.particleIndex, this.bestPosition.getCoordinateValueList(), this.bestFitnessValue);
-//        log.info("=====>Step End{}<=====", currentIterations);
         log.info("[Particle {}] ==============>\tStep {} End=======\t⬆️⬆️⬆️⬆️", this.particleIndex, this.currentIterations);
 
-        return new SimulateSnapshot(this.currentPosition, this.fitnessValue, simulateResult);
+        return new SimulateSnapshot(this.particleIndex, this.maxCurtailmentRate, this.minRenewableEnergyShare, this.currentPosition, this.fitnessValue, simulateResult);
     }
 
-    private static @NotNull BigDecimal evaluateFitnessValue(SimulateResult simulateResult) {
-        BigDecimal currentFitnessValue = simulateResult.getIndicationList().stream()
+    private @NotNull BigDecimal evaluateFitnessValue(SimulateResult simulateResult) {
+        return simulateResult.getIndicationList().stream()
                 .filter(x -> x instanceof TotalCost)
                 .findAny()
                 .map(Indication::getIndication)
                 .orElse(BigDecimal.valueOf(Double.MAX_VALUE));
 
-        BigDecimal renewableEnergyShare = simulateResult.getIndicationList().stream()
-                .filter(x -> x instanceof RenewableEnergyShare)
-                .map(Indication::getIndication)
-                .findAny()
-                .orElse(BigDecimal.ZERO);
-
-        if (renewableEnergyShare.compareTo(BigDecimal.valueOf(80)) < 0) {
-            currentFitnessValue = BigDecimal.valueOf(Double.MAX_VALUE);
-        }
-
-        BigDecimal curtailmentRate = simulateResult.getIndicationList().stream()
-                .filter(x -> x instanceof CurtailmentRate)
-                .map(Indication::getIndication)
-                .findAny()
-                .orElse(BigDecimal.ZERO);
-        if (curtailmentRate.compareTo(BigDecimal.valueOf(80)) > 0) {
-            currentFitnessValue = BigDecimal.valueOf(Double.MAX_VALUE);
-        }
-        return currentFitnessValue;
     }
 }
