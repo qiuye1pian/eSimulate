@@ -32,7 +32,8 @@ public class OptimizeResult {
                     if (globalBestValue.compareTo(theBestSimulateSnapshot.getFitnessValue()) >= 0) {
                         this.globalBestValue = theBestSimulateSnapshot.getFitnessValue();
                         this.globalBestPosition = theBestSimulateSnapshot.getCurrentPosition().clone();
-                        log.info("global updated: globalBestPosition{}, globalBestValue:{}", globalBestPosition.getCoordinateValueList(), globalBestValue);
+                        log.info("global updated: globalBestPosition{}, globalBestValue:{}",
+                                globalBestPosition.getCoordinateValueList(), globalBestValue);
                     }
                 });
 
@@ -41,7 +42,9 @@ public class OptimizeResult {
 
     public List<SimulateSnapshot> getSimulateSnapshotList() {
         return this.simulateSnapshotList.stream()
-                .sorted(Comparator.comparing(SimulateSnapshot::getParticleIndex))
+//                .sorted(Comparator.comparing(SimulateSnapshot::getParticleIndex))
+                .sorted(Comparator.comparing(simulateSnapshot ->
+                        String.format("%d, %f", simulateSnapshot.particleIndex, simulateSnapshot.getFitnessValue())))
                 .collect(Collectors.toList());
     }
 }
