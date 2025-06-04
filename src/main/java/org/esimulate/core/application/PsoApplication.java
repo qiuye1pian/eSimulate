@@ -69,7 +69,7 @@ public class PsoApplication {
 
         for (int i = 0; i < psoConfig.getMaxIterations(); i++) {
             List<SimulateSnapshot> simulateSnapshotList = particleList.stream()
-//                    .parallel()
+                    .parallel()
                     .peek(particle -> particle.move(optimizeResult.getGlobalBestPosition()))
                     .map(Particle::runSimulate)
                     .collect(Collectors.toList());
