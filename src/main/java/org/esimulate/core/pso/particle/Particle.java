@@ -151,7 +151,7 @@ public class Particle {
 
         }
 
-        log.info("[Particle {}] ==============>\tStep {} Start\t===⬇️⬇️⬇️⬇️", this.particleIndex, this.currentIterations);
+        log.debug("[Particle {}] ==============>\tStep {} Start\t===⬇️⬇️⬇️⬇️", this.particleIndex, this.currentIterations);
 //        log.info("[Particle {}] ==============>\tMoving\t==============", this.particleIndex);
 //        log.info("[Particle {}] ==\tOld Position:  \t{}", this.particleIndex, currentPosition.getCoordinateValueList());
 //        log.info("[Particle {}] ==\tVelocity:      \t{}", this.particleIndex, (Object) newVelocity.getVelocities());
@@ -200,10 +200,10 @@ public class Particle {
             this.bestFitnessValue = this.fitnessValue;
             this.bestPosition = this.currentPosition.clone();
         }
-        log.info("[Particle {}] =====>Simulate finish<=====", this.particleIndex);
-        log.info("[Particle {}] Position:{}\tvalue:{}", this.particleIndex, this.currentPosition.getCoordinateValueList(), this.fitnessValue);
-        log.info("[Particle {}] BestPosition:{}\tbestValue:{}", this.particleIndex, this.bestPosition.getCoordinateValueList(), this.bestFitnessValue);
-        log.info("[Particle {}] ==============>\tStep {} End=======\t⬆️⬆️⬆️⬆️", this.particleIndex, this.currentIterations);
+        log.debug("[Particle {}] =====>Simulate finish<=====", this.particleIndex);
+        log.debug("[Particle {}] Position:{}\tvalue:{}", this.particleIndex, this.currentPosition.getCoordinateValueList(), this.fitnessValue);
+        log.debug("[Particle {}] BestPosition:{}\tbestValue:{}", this.particleIndex, this.bestPosition.getCoordinateValueList(), this.bestFitnessValue);
+        log.debug("[Particle {}] ==============>\tStep {} End=======\t⬆️⬆️⬆️⬆️", this.particleIndex, this.currentIterations);
 
         return new SimulateSnapshot(this.particleIndex, this.maxCurtailmentRate, this.minRenewableEnergyShare, this.currentPosition, this.fitnessValue, simulateResult);
     }
