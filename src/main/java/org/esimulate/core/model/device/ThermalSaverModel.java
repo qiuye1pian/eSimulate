@@ -234,7 +234,11 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
         // id 字段赋值（可选）
         clone.id = this.id;
 
-        // 忽略 @Transient 字段：chargingList, disChargingList, E_ESS_LIST
+        clone.E_ESS_LIST = new ArrayList<>();
+
+        clone.chargingList = new ArrayList<>();
+
+        clone.disChargingList = new ArrayList<>();
 
         return clone;
     }

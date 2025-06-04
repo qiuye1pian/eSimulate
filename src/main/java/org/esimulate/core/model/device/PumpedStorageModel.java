@@ -285,7 +285,11 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
         // id 字段复制（如需排除可移除）
         clone.id = this.id;
 
+        clone.chargingList = new ArrayList<>();
 
+        clone.chargingCostList = new ArrayList<>();
+
+        clone.disChargingList = new ArrayList<>();
 
         return clone;
     }

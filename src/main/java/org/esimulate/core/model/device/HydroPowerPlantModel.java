@@ -329,6 +329,8 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
         // id 字段直接复制
         clone.id = this.id;
 
+        clone.electricEnergyList = new ArrayList<>();
+
         return clone;
     }
 

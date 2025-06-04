@@ -443,6 +443,14 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         // id 字段复制（如需排除可移除）
         clone.id = this.id;
 
+        clone.electricEnergyList = new ArrayList<>();
+
+        clone.adjustElectricEnergyList = new ArrayList<>();
+
+        clone.thermalEnergyList = new ArrayList<>();
+
+        clone.adjustThermalEnergyList = new ArrayList<>();
+
         return clone;
     }
 

@@ -295,6 +295,12 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
         // 字符串字段直接赋值（不可变类型）
         clone.modelName = this.modelName;
 
+        clone.E_ESS_LIST = new ArrayList<>();
+
+        clone.chargingList = new ArrayList<>();
+
+        clone.disChargingList = new ArrayList<>();
+
         return clone;
     }
 

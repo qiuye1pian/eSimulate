@@ -429,7 +429,11 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
         // id 字段复制（如需排除可移除）
         clone.id = this.id;
 
-        // thermalEnergyList 为 @Transient 字段，不拷贝
+        clone.electricEnergyList = new ArrayList<>();
+
+        clone.adjustElectricEnergyList = new ArrayList<>();
+
+        clone.startStopRecordList = new ArrayList<>();
 
         return clone;
     }

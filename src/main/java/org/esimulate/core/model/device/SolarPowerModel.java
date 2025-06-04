@@ -218,7 +218,7 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
         // id 字段直接复制（若不希望保留可移除）
         clone.id = this.id;
 
-        // electricEnergyList 不拷贝（@Transient）
+        clone.electricEnergyList = new ArrayList<>();
 
         return clone;
     }

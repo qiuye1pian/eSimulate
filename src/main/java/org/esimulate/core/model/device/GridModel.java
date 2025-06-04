@@ -155,6 +155,8 @@ public class GridModel extends Device implements Provider, ElectricDevice, NonRe
         // id 字段，如保留
         clone.id = this.id;
 
+        clone.gridOutPutList = new ArrayList<>();
+
         return clone;
     }
 

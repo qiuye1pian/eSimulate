@@ -212,7 +212,8 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
         clone.cost = new BigDecimal(this.cost.toString());
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
         clone.modelName = this.modelName;
-
+        clone.gasBoilerOutputList = new ArrayList<>();
+        clone.gasConsumptionList = new ArrayList<>();
         return clone;
     }
 

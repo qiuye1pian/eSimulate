@@ -214,7 +214,7 @@ public class WindPowerModel extends Device implements Producer, Dimension, Elect
         // id 字段保留
         clone.id = this.id;
 
-        // electricEnergyList 为 @Transient 字段，不拷贝
+        clone.electricEnergyList = new ArrayList<>();
 
         return clone;
     }
