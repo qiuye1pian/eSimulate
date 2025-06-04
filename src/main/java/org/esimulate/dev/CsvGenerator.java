@@ -26,8 +26,8 @@ public class CsvGenerator {
         String init = "21.0";
         String jump = "5.00";
         String valueTitle = "温度";
-        String min = "-40";
-        String max = "43.00";
+        String min = "-20";
+        String max = "41.35";
         return new Result(init, jump, valueTitle, min, max);
     }
 
@@ -66,7 +66,7 @@ public class CsvGenerator {
      */
     public static void main(String[] args) {
 
-        Result result = getWaterSpeed();
+        Result result = getTemperature();
 
         int days = 365;
 

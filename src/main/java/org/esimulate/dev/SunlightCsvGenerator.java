@@ -30,10 +30,10 @@ public class SunlightCsvGenerator {
 
         int days = 365;
 
-        String outputPath = "/Users/chenhonghe/Desktop/华北电力大学/县域多能互补一体化平台/脚本/上传模板/sunlight_values.csv";
-
         // 光照参数
-        Result result = getSunlight();
+        Result result = getTemperature();
+
+        String outputPath = String.format("/Users/chenhonghe/Desktop/华北电力大学/县域多能互补一体化平台/脚本/上传模板/%s.csv", result.valueTitle);
 
         // 随机波动生成器
         Random random = new Random();
@@ -149,6 +149,18 @@ public class SunlightCsvGenerator {
         String valueTitle = "光照";
         String min = "0";
         String max = "2100.00";
+        int sunrise = 6;
+        int sunset = 18;
+        return new Result(init, jump, valueTitle, min, max, sunrise, sunset);
+    }
+
+
+    private static @NotNull Result getTemperature() {
+        String init = "21.0";
+        String jump = "5.00";
+        String valueTitle = "温度";
+        String min = "-20";
+        String max = "41.35";
         int sunrise = 6;
         int sunset = 18;
         return new Result(init, jump, valueTitle, min, max, sunrise, sunset);
