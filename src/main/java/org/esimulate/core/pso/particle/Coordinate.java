@@ -10,6 +10,8 @@ import java.util.Random;
 @Data
 public class Coordinate implements Dimension, Cloneable {
 
+    private String modelName;
+
     /**
      * 维度最小值
      */
@@ -25,6 +27,7 @@ public class Coordinate implements Dimension, Cloneable {
     private Integer value;
 
     public Coordinate(Dimension x) {
+        this.modelName = x.getModelName();
         Random random = new Random();
         this.lowerBound = x.getLowerBound();
         this.upperBound = x.getUpperBound();

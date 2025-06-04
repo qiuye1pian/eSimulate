@@ -2,6 +2,8 @@ package org.esimulate.core.pso.particle;
 
 public interface Dimension {
 
+    String getModelName();
+
     void setLowerBound(Integer lowerBound); // 获取维度的下界
 
     void setUpperBound(Integer upperBound); // 获取维度的上界
