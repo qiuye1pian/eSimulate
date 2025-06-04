@@ -37,6 +37,10 @@ public class Position implements Cloneable {
         return coordinateList.get(index).getValue();
     }
 
+    public Integer getLowerBoundAt(int index) {
+        return coordinateList.get(index).getLowerBound();
+    }
+
     public Integer getUpperBoundAt(int index) {
         return coordinateList.get(index).getUpperBound();
     }

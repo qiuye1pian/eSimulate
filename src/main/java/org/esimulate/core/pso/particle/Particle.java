@@ -115,13 +115,9 @@ public class Particle {
             velocity.getVelocities()[i] = random.nextInt(Math.max(1, dimensionList.get(i).getUpperBound() / 100));
         }
 
-
     }
 
     public void move(Position globalBestPosition) {
-        if (globalBestPosition == null) {
-            globalBestPosition = currentPosition.clone();
-        }
         Position newPosition = currentPosition.clone();
         Velocity newVelocity = velocity.clone();
         Random random = new Random();
@@ -131,24 +127,36 @@ public class Particle {
 
             int distanceFromParticleBest = bestPosition.getValueAt(i) - currentPosition.getValueAt(i);
             int distanceFromGlobalBest = globalBestPosition.getValueAt(i) - currentPosition.getValueAt(i);
-            BigDecimal lastVelocityFactor = this.getInertiaWeight().multiply(BigDecimal.valueOf(this.velocity.getVelocityAt(i)));
 
+            BigDecimal lastVelocityFactor = this.getInertiaWeight().multiply(BigDecimal.valueOf(this.velocity.getVelocityAt(i)));
             BigDecimal factor1 = this.getC1().multiply(r1).multiply(BigDecimal.valueOf(distanceFromParticleBest));
             BigDecimal factor2 = this.getC2().multiply(r2).multiply(BigDecimal.valueOf(distanceFromGlobalBest));
 
             Integer newDimensionVelocity = (lastVelocityFactor.add(factor1).add(factor2)).intValue();
 
-            newVelocity.setAtDimension(i, newDimensionVelocity);
-            newPosition.setAtDimension(i, this.currentPosition.getValueAt(i) + newDimensionVelocity);
+            // 原始计算的新位置
+            int rawValue = this.currentPosition.getValueAt(i) + newDimensionVelocity;
+            // 获取当前维度的边界
+            int lowerBound = this.currentPosition.getLowerBoundAt(i);
+            int upperBound = this.currentPosition.getUpperBoundAt(i);
+
+            // 裁边：如果超出上下限，就修正到边界
+            int boundedValue = Math.max(lowerBound, Math.min(rawValue, upperBound));
+
+            // 调整速度，与裁边后的位置一致
+            int adjustedVelocity = boundedValue - this.currentPosition.getValueAt(i);
+
+            newVelocity.setAtDimension(i, adjustedVelocity);
+            newPosition.setAtDimension(i, boundedValue);
 
         }
 
         log.info("[Particle {}] ==============>\tStep {} Start\t===⬇️⬇️⬇️⬇️", this.particleIndex, this.currentIterations);
-        log.info("[Particle {}] ==============>\tMoving\t==============", this.particleIndex);
-        log.info("[Particle {}] ==\tOld Position:  \t{}", this.particleIndex, currentPosition.getCoordinateValueList());
-        log.info("[Particle {}] ==\tVelocity:      \t{}", this.particleIndex, (Object) newVelocity.getVelocities());
-        log.info("[Particle {}] ==\tNew Position:  \t{}", this.particleIndex, newPosition.getCoordinateValueList());
-        log.info("[Particle {}] ==============>\tMoved\t==============", this.particleIndex);
+//        log.info("[Particle {}] ==============>\tMoving\t==============", this.particleIndex);
+//        log.info("[Particle {}] ==\tOld Position:  \t{}", this.particleIndex, currentPosition.getCoordinateValueList());
+//        log.info("[Particle {}] ==\tVelocity:      \t{}", this.particleIndex, (Object) newVelocity.getVelocities());
+//        log.info("[Particle {}] ==\tNew Position:  \t{}", this.particleIndex, newPosition.getCoordinateValueList());
+//        log.info("[Particle {}] ==============>\tMoved\t==============", this.particleIndex);
         this.currentPosition = newPosition;
         this.velocity = newVelocity;
         this.currentIterations++;

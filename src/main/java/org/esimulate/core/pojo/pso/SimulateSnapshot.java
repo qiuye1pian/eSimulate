@@ -1,9 +1,6 @@
 package org.esimulate.core.pojo.pso;
 
-import com.alibaba.fastjson2.annotation.JSONField;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.indication.CurtailmentRate;
 import org.esimulate.core.model.result.indication.RenewableEnergyShare;
@@ -25,10 +22,6 @@ public class SimulateSnapshot {
 
     BigDecimal fitnessValue;
 
-    @JSONField(serialize = false)
-    @Getter(AccessLevel.PRIVATE)
-    SimulateResult simulateResult;
-
     Boolean isValid;
 
     String message;
@@ -37,7 +30,6 @@ public class SimulateSnapshot {
         this.particleIndex = particleIndex;
         this.currentPosition = currentPosition;
         this.fitnessValue = fitnessValue;
-        this.simulateResult = simulateResult;
         this.isValid = evaluateFitnessValue(simulateResult, maxCurtailmentRate, minRenewableEnergyShare);
 
     }
