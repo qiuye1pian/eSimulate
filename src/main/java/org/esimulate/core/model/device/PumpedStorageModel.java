@@ -165,14 +165,14 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
         // 按数量扩容
         this.PMax = this.PMax.multiply(quantity);
         this.EMax = this.EMax.multiply(quantity);
-        this.stateOfCharge = this.stateOfCharge.multiply(stateOfCharge);
+        this.stateOfCharge = this.stateOfCharge.multiply(quantity);
 
         BigDecimal remainingDifference = updateElectricEnergy(electricEnergyDifference);
 
         // 按数量缩容
         this.PMax = this.PMax.divide(quantity, 2, RoundingMode.HALF_UP);
         this.EMax = this.EMax.divide(quantity, 2, RoundingMode.HALF_UP);
-        this.stateOfCharge = this.stateOfCharge.divide(stateOfCharge, 2, RoundingMode.HALF_UP);
+        this.stateOfCharge = this.stateOfCharge.divide(quantity, 2, RoundingMode.HALF_UP);
 
         return new ElectricEnergy(remainingDifference);
     }
