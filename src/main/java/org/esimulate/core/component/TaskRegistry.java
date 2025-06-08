@@ -15,7 +15,7 @@ public class TaskRegistry {
     private TaskRegistry() {
     }
 
-    public static TaskRegistry getInstance() {
+    private static TaskRegistry getInstance() {
         return INSTANCE;
     }
 

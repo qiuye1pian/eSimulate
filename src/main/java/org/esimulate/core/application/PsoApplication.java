@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -42,7 +41,7 @@ public class PsoApplication {
     OptimizeTaskService optimizeTaskService;
 
     @Async("psoAsyncExecutor")
-    public CompletableFuture<OptimizeTask> doPso(OptimizeTask optimizeTask, PsoConfig psoConfig) {
+    public void doPso(OptimizeTask optimizeTask, PsoConfig psoConfig) {
         log.info("开始寻优");
         long startTotal = System.currentTimeMillis();
 
@@ -98,12 +97,14 @@ public class PsoApplication {
             optimizeResult.addSimulateSnapshotList(simulateSnapshotList);
             optimizeTaskService.save(optimizeTask);
 
-            if (Thread.currentThread().isInterrupted()) {
-                // 1) 更新任务状态为 CANCELED
-                optimizeTask.setTaskState(TaskStateEnum.CANCELLED);
-                optimizeTaskService.save(optimizeTask);
-                // 2) 退出循环、结束方法
-                return CompletableFuture.completedFuture(optimizeTask);
+            TaskStateEnum taskStateEnum = optimizeTaskService.findOptimizeTaskById(optimizeTask.getId())
+                    .map(OptimizeTask::getTaskState)
+                    .orElse(optimizeTask.getTaskState());
+            log.debug("检查任务持久化状态, taskId={}, state={}", optimizeTask.getId(), taskStateEnum);
+            // 如果任务已在外部请求取消，则停止执行
+            if (taskStateEnum == TaskStateEnum.CANCELLED) {
+                log.debug("结束");
+                return;
             }
         }
 
@@ -117,7 +118,6 @@ public class PsoApplication {
         optimizeTask.setOptimizeResult(optimizeResult);
         optimizeTask.setTaskState(TaskStateEnum.COMPLETED);
         optimizeTaskService.save(optimizeTask);
-        return CompletableFuture.completedFuture(optimizeTask);
     }
 
     public Optional<OptimizeTask> getOptimizeTask(Long taskId) {
@@ -126,7 +126,7 @@ public class PsoApplication {
 
     public Optional<OptimizeResultDto> getOptimizeResult(Long taskId) {
         return optimizeTaskService.findOptimizeTaskById(taskId)
-                .map(x->new OptimizeResultDto(x));
+                .map(OptimizeResultDto::new);
     }
 
     public OptimizeTask createOptimizeTask(PsoConfig psoConfig) {

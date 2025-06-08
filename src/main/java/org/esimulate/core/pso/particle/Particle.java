@@ -108,7 +108,7 @@ public class Particle {
         this.currentPosition = new Position(dimensionList);
         this.velocity = new Velocity(new Integer[dimensionList.size()]);
         this.bestPosition = currentPosition.clone();
-        this.bestFitnessValue = BigDecimal.valueOf(Double.MAX_VALUE);
+        this.bestFitnessValue = new BigDecimal("99999999999999999.99");
 
         Random random = new Random();
         for (int i = 0; i < velocity.getDimensionCount(); i++) {
@@ -213,7 +213,7 @@ public class Particle {
                 .filter(x -> x instanceof TotalCost)
                 .findAny()
                 .map(Indication::getIndication)
-                .orElse(BigDecimal.valueOf(Double.MAX_VALUE));
+                .orElse(new BigDecimal("99999999999999999.99"));
 
     }
 }

@@ -22,7 +22,7 @@ public class OptimizeResult {
 
     private Position globalBestPosition;
 
-    private BigDecimal globalBestValue = BigDecimal.valueOf(Double.MAX_VALUE);
+    private BigDecimal globalBestValue = new BigDecimal("99999999999999999.99");
 
     public void addSimulateSnapshotList(List<SimulateSnapshot> simulateSnapshotList) {
         simulateSnapshotList.stream()
