@@ -6,7 +6,7 @@ import org.esimulate.core.component.TaskRegistry;
 import org.esimulate.core.model.task.OptimizeTask;
 import org.esimulate.core.pojo.OptimizeTaskState;
 import org.esimulate.core.pojo.pso.OptimizeFeedback;
-import org.esimulate.core.pojo.pso.OptimizeResult;
+import org.esimulate.core.pojo.pso.OptimizeResultDto;
 import org.esimulate.core.pojo.simulate.PsoConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,14 +64,14 @@ public class PSOController {
     }
 
     @PostMapping("/getResult")
-    public Optional<OptimizeResult> getResult(@RequestBody OptimizeFeedback optimizeFeedback) {
+    public Optional<OptimizeResultDto> getResult(@RequestBody OptimizeFeedback optimizeFeedback) {
         //根据OptimizeFeedback里的id查找task
         //返回Task
         Future<OptimizeTask> optimizeTaskFuture = TaskRegistry.getInstance().get(optimizeFeedback.getTaskId());
         if (optimizeTaskFuture != null && optimizeTaskFuture.isDone()) {
             try {
                 OptimizeTask optimizeTask = optimizeTaskFuture.get(5, TimeUnit.SECONDS);
-                return Optional.ofNullable(optimizeTask.getOptimizeResult());
+                return Optional.of(new OptimizeResultDto(optimizeTask));
             } catch (InterruptedException | ExecutionException e) {
                 log.error("获取OptimizeTask异常, taskId:{}, map size:{}",
                         optimizeFeedback.getTaskId(), TaskRegistry.getInstance().getFutureSize(), e);
@@ -86,8 +86,9 @@ public class PSOController {
 
     @PostMapping("/cancelTask")
     public void cancelTask(@RequestBody OptimizeFeedback optimizeFeedback) {
+        log.info("正在尝试取消任务, taskId:{}", optimizeFeedback.getTaskId());
         Future<OptimizeTask> optimizeTaskFuture = TaskRegistry.getInstance().get(optimizeFeedback.getTaskId());
-        if (optimizeTaskFuture != null && optimizeTaskFuture.isDone()) {
+        if (optimizeTaskFuture != null && !optimizeTaskFuture.isDone()) {
             boolean cancelled = optimizeTaskFuture.cancel(true);
             if (cancelled) {
                 log.info("取消成功");

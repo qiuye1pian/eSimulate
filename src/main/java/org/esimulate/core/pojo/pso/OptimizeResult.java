@@ -42,7 +42,6 @@ public class OptimizeResult {
 
     public List<SimulateSnapshot> getSimulateSnapshotList() {
         return this.simulateSnapshotList.stream()
-//                .sorted(Comparator.comparing(SimulateSnapshot::getParticleIndex))
                 .sorted(Comparator.comparing(simulateSnapshot ->
                         String.format("%d, %f", simulateSnapshot.particleIndex, simulateSnapshot.getFitnessValue())))
                 .collect(Collectors.toList());

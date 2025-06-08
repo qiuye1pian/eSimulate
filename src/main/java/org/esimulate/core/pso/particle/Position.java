@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,7 +84,6 @@ public class Position implements Cloneable {
         return Arrays.hashCode(coordinateList.toArray());
     }
 
-
     /**
      * 深拷贝 Clone 方法
      */
@@ -102,7 +102,17 @@ public class Position implements Cloneable {
         }
     }
 
+    public List<String> getCoordinateTitleList() {
+        return this.coordinateList.stream()
+                .sorted(Comparator.comparing(Coordinate::getModelName))
+                .map(Coordinate::getModelName)
+                .collect(Collectors.toList());
+    }
+
     public List<Integer> getCoordinateValueList() {
-        return this.coordinateList.stream().map(Coordinate::getValue).collect(Collectors.toList());
+        return this.coordinateList.stream()
+                .sorted(Comparator.comparing(Coordinate::getModelName))
+                .map(Coordinate::getValue)
+                .collect(Collectors.toList());
     }
 }

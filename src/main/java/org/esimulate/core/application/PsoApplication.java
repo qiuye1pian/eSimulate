@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.enums.TaskStateEnum;
 import org.esimulate.core.model.task.OptimizeTask;
 import org.esimulate.core.pojo.pso.OptimizeResult;
+import org.esimulate.core.pojo.pso.OptimizeResultDto;
 import org.esimulate.core.pojo.pso.SimulateSnapshot;
 import org.esimulate.core.pojo.simulate.ModelLoadDto;
 import org.esimulate.core.pojo.simulate.PsoConfig;
@@ -96,6 +97,14 @@ public class PsoApplication {
                     .collect(Collectors.toList());
             optimizeResult.addSimulateSnapshotList(simulateSnapshotList);
             optimizeTaskService.save(optimizeTask);
+
+            if (Thread.currentThread().isInterrupted()) {
+                // 1) 更新任务状态为 CANCELED
+                optimizeTask.setTaskState(TaskStateEnum.CANCELLED);
+                optimizeTaskService.save(optimizeTask);
+                // 2) 退出循环、结束方法
+                return CompletableFuture.completedFuture(optimizeTask);
+            }
         }
 
         long endPso = System.currentTimeMillis();
@@ -115,9 +124,9 @@ public class PsoApplication {
         return optimizeTaskService.findOptimizeTaskById(taskId);
     }
 
-    public Optional<OptimizeResult> getOptimizeResult(Long taskId) {
+    public Optional<OptimizeResultDto> getOptimizeResult(Long taskId) {
         return optimizeTaskService.findOptimizeTaskById(taskId)
-                .map(OptimizeTask::getOptimizeResult);
+                .map(x->new OptimizeResultDto(x));
     }
 
     public OptimizeTask createOptimizeTask(PsoConfig psoConfig) {

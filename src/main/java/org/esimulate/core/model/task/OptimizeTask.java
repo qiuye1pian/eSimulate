@@ -3,15 +3,22 @@ package org.esimulate.core.model.task;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.esimulate.core.converter.ListStringConverter;
+import org.esimulate.core.converter.ListTaskDetailConverter;
+import org.esimulate.core.converter.PositionConverter;
+import org.esimulate.core.converter.PsoConfigConverter;
 import org.esimulate.core.model.enums.TaskStateEnum;
 import org.esimulate.core.pojo.pso.OptimizeResult;
+import org.esimulate.core.pojo.pso.SimulateSnapshot;
 import org.esimulate.core.pojo.simulate.PsoConfig;
+import org.esimulate.core.pso.particle.Position;
 
 import javax.persistence.*;
-import javax.persistence.Convert;
-import org.esimulate.core.converter.PsoConfigConverter;
-import org.esimulate.core.converter.OptimizeResultConverter;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Entity
@@ -30,9 +37,23 @@ public class OptimizeTask {
     private PsoConfig psoConfig;
 
     @Lob
-    @Convert(converter = OptimizeResultConverter.class)
-    @Column(name = "optimize_result", columnDefinition = "TEXT")
-    private OptimizeResult optimizeResult;
+    @Convert(converter = ListStringConverter.class)
+    @Column(name = "position_title", columnDefinition = "TEXT")
+    private List<String> positionTitle = new ArrayList<>();
+
+//    @OneToMany(mappedBy = "simulateTask", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Lob
+    @Convert(converter = ListTaskDetailConverter.class)
+    @Column(name = "taskDetail_list", columnDefinition = "TEXT")
+    List<TaskDetail> taskDetailList = new ArrayList<>();
+
+    @Lob
+    @Convert(converter = PositionConverter.class)
+    @Column(name = "global_BestPosition", columnDefinition = "TEXT")
+    private Position globalBestPosition;
+
+    @Column(name = "global_BestValue")
+    private BigDecimal globalBestValue;
 
     @Column
     private TaskStateEnum taskState = TaskStateEnum.PENDING;
@@ -58,5 +79,23 @@ public class OptimizeTask {
     public OptimizeTask(PsoConfig psoConfig) {
         this.psoConfig = psoConfig;
         this.totalIterations = psoConfig.getMaxIterations() * psoConfig.getParticleCount();
+    }
+
+    public void setOptimizeResult(OptimizeResult optimizeResult) {
+        this.globalBestPosition = optimizeResult.getGlobalBestPosition();
+        this.globalBestValue = optimizeResult.getGlobalBestValue();
+        List<SimulateSnapshot> simulateSnapshotList = optimizeResult.getSimulateSnapshotList();
+        List<String> titleList = simulateSnapshotList
+                .stream()
+                .map(SimulateSnapshot::getCurrentPosition)
+                .map(Position::getCoordinateTitleList)
+                .findAny()
+                .orElse(new ArrayList<>());
+        titleList.add("值:");
+        this.positionTitle = titleList;
+        this.taskDetailList = simulateSnapshotList.stream()
+                .map(TaskDetail::new)
+                .collect(Collectors.toList());
+
     }
 }
