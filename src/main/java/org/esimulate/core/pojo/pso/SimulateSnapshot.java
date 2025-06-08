@@ -11,7 +11,6 @@ import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-
 @NoArgsConstructor
 @Data
 public class SimulateSnapshot {

@@ -20,19 +20,20 @@ public class TaskRegistry {
     }
 
     public void register(Long taskId, Future<OptimizeTask> info) {
-        registry.put(taskId, info);
+        this.registry.put(taskId, info);
     }
 
     public Future<OptimizeTask> get(Long taskId) {
-        return registry.get(taskId);
+        return this.registry.get(taskId);
     }
 
     public void remove(Long taskId) {
         if (taskId == null) return;
-        registry.remove(taskId);
+        this.registry.remove(taskId);
     }
 
-    public int getSize() {
-        return registry.size();
+    public int getFutureSize() {
+        return this.registry.size();
     }
+
 }

@@ -41,7 +41,7 @@ public class PsoApplication {
     OptimizeTaskService optimizeTaskService;
 
     @Async("psoAsyncExecutor")
-    public CompletableFuture<OptimizeTask> doPso(Long taskId, PsoConfig psoConfig) {
+    public CompletableFuture<OptimizeTask> doPso(OptimizeTask optimizeTask, PsoConfig psoConfig) {
         log.info("开始寻优");
         long startTotal = System.currentTimeMillis();
 
@@ -67,8 +67,8 @@ public class PsoApplication {
         log.info("开始PSO");
         long startPso = System.currentTimeMillis();
 
-        OptimizeTask optimizeTask = optimizeTaskService.findOptimizeTaskById(taskId)
-                .orElseThrow(() -> new RuntimeException("找不到刚刚创建的task,taskId:" + taskId));
+//        OptimizeTask optimizeTask = optimizeTaskService.findOptimizeTaskById(taskId)
+//                .orElseThrow(() -> new RuntimeException("找不到刚刚创建的task,taskId:" + taskId));
 
         OptimizeResult optimizeResult = new OptimizeResult();
         List<Particle> particleList = new ArrayList<>();
@@ -91,8 +91,8 @@ public class PsoApplication {
             List<SimulateSnapshot> simulateSnapshotList = particleList.stream()
                     .parallel()
                     .peek(particle -> particle.move(optimizeResult.getGlobalBestPosition()))
-                    .peek(particle -> optimizeTask.setCurrentIteration(atomicInteger.getAndIncrement()))
                     .map(Particle::runSimulate)
+                    .peek(particle -> optimizeTask.setCurrentIteration(atomicInteger.incrementAndGet()))
                     .collect(Collectors.toList());
             optimizeResult.addSimulateSnapshotList(simulateSnapshotList);
             optimizeTaskService.save(optimizeTask);

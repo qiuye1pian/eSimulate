@@ -2,12 +2,16 @@ package org.esimulate.core.pso.particle;
 
 import io.jsonwebtoken.lang.Collections;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Data
+@NoArgsConstructor
 public class Position implements Cloneable {
 
     /**
@@ -16,7 +20,8 @@ public class Position implements Cloneable {
     private List<Coordinate> coordinateList;
 
     public Position(List<Dimension> dimensionsList) {
-        coordinateList = dimensionsList.stream().map(Coordinate::new).collect(Collectors.toList());
+        coordinateList = dimensionsList.stream()
+                .map(Coordinate::new).collect(Collectors.toList());
     }
 
     /**

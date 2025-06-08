@@ -32,7 +32,7 @@ public class PSOController {
         Long taskId = optimizeTask.getId();
 
         //发起doPso的线程
-        CompletableFuture<OptimizeTask> optimizeResultFuture = psoApplication.doPso(optimizeTask.getId(), psoConfig);
+        CompletableFuture<OptimizeTask> optimizeResultFuture = psoApplication.doPso(optimizeTask, psoConfig);
 
         TaskRegistry.getInstance().register(taskId, optimizeResultFuture);
 
@@ -60,16 +60,6 @@ public class PSOController {
     @PostMapping("/getTaskState")
     public Optional<OptimizeTaskState> getTaskState(@RequestBody OptimizeFeedback optimizeFeedback) {
         //根据OptimizeFeedback里的id查找task
-        try {
-            Future<OptimizeTask> optimizeTaskFuture = TaskRegistry.getInstance().get(optimizeFeedback.getTaskId());
-            OptimizeTask optimizeTask = null;
-            optimizeTask = optimizeTaskFuture.get();
-            return Optional.of(new OptimizeTaskState(optimizeTask));
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("获取OptimizeTask异常, taskId:{}, map size:{}",
-                    optimizeFeedback.getTaskId(), TaskRegistry.getInstance().getSize(), e);
-        }
-
         return psoApplication.getOptimizeTask(optimizeFeedback.getTaskId()).map(OptimizeTaskState::new);
     }
 
@@ -84,10 +74,10 @@ public class PSOController {
                 return Optional.ofNullable(optimizeTask.getOptimizeResult());
             } catch (InterruptedException | ExecutionException e) {
                 log.error("获取OptimizeTask异常, taskId:{}, map size:{}",
-                        optimizeFeedback.getTaskId(), TaskRegistry.getInstance().getSize(), e);
+                        optimizeFeedback.getTaskId(), TaskRegistry.getInstance().getFutureSize(), e);
             } catch (TimeoutException e) {
                 log.error("获取OptimizeTask超时, taskId:{}, map size:{}",
-                        optimizeFeedback.getTaskId(), TaskRegistry.getInstance().getSize(), e);
+                        optimizeFeedback.getTaskId(), TaskRegistry.getInstance().getFutureSize(), e);
             }
         }
 

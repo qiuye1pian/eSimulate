@@ -1,13 +1,15 @@
 package org.esimulate.core.pso.particle;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.Random;
+import lombok.NoArgsConstructor;
 
 /**
  * 位置中某个维度的值
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Coordinate implements Dimension, Cloneable {
 
     private String modelName;
@@ -28,10 +30,9 @@ public class Coordinate implements Dimension, Cloneable {
 
     public Coordinate(Dimension x) {
         this.modelName = x.getModelName();
-        Random random = new Random();
         this.lowerBound = x.getLowerBound();
         this.upperBound = x.getUpperBound();
-        this.value = lowerBound + random.nextInt(upperBound) / 2;
+        this.value = this.lowerBound;
     }
 
     /**
