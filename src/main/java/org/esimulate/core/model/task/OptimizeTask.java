@@ -8,6 +8,9 @@ import org.esimulate.core.pojo.pso.OptimizeResult;
 import org.esimulate.core.pojo.simulate.PsoConfig;
 
 import javax.persistence.*;
+import javax.persistence.Convert;
+import org.esimulate.core.converter.PsoConfigConverter;
+import org.esimulate.core.converter.OptimizeResultConverter;
 import java.sql.Timestamp;
 
 @Data
@@ -22,10 +25,12 @@ public class OptimizeTask {
     private Long id;
 
     @Lob
+    @Convert(converter = PsoConfigConverter.class)
     @Column(name = "pso_config", columnDefinition = "TEXT")
     private PsoConfig psoConfig;
 
     @Lob
+    @Convert(converter = OptimizeResultConverter.class)
     @Column(name = "optimize_result", columnDefinition = "TEXT")
     private OptimizeResult optimizeResult;
 
