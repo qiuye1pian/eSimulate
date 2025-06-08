@@ -24,7 +24,8 @@ public class OptimizeTask {
     @Column(name = "pso_config")
     private PsoConfig psoConfig;
 
-    @Column(name = "optimize_result")
+    @Lob
+    @Column(name = "optimize_result", columnDefinition = "TEXT")
     private OptimizeResult optimizeResult;
 
     @Column
