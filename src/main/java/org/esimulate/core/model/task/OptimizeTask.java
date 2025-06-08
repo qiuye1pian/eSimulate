@@ -21,7 +21,8 @@ public class OptimizeTask {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "pso_config")
+    @Lob
+    @Column(name = "pso_config", columnDefinition = "TEXT")
     private PsoConfig psoConfig;
 
     @Lob
