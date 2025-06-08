@@ -103,7 +103,7 @@ public class PsoApplication {
             log.debug("检查任务持久化状态, taskId={}, state={}", optimizeTask.getId(), taskStateEnum);
             // 如果任务已在外部请求取消，则停止执行
             if (taskStateEnum == TaskStateEnum.CANCELLED) {
-                log.debug("线程结束, taskId={}", optimizeTask.getId());
+                log.debug("任务取消, taskId={}", optimizeTask.getId());
                 break;
             }
         }
