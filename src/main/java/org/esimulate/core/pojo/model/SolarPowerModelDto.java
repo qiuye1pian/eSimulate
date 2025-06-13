@@ -49,7 +49,7 @@ public class SolarPowerModelDto {
         this.te = solarPowerModel.getT_e();
         this.tref = solarPowerModel.getT_ref();
         this.gref = solarPowerModel.getG_ref();
-        this.carbonEmissionFactor = solarPowerModel.getG_ref();
+        this.carbonEmissionFactor = solarPowerModel.getCarbonEmissionFactor();
         this.cost = solarPowerModel.getCost();
         this.purchaseCost = solarPowerModel.getPurchaseCost();
 

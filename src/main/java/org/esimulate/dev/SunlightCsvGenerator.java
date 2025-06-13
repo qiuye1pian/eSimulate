@@ -28,10 +28,10 @@ public class SunlightCsvGenerator {
 
     public static void main(String[] args) {
 
-        int days = 365;
+        int days = 1;
 
         // 光照参数
-        Result result = getTemperature();
+        Result result = getSunlight();
 
         String outputPath = String.format("/Users/chenhonghe/Desktop/华北电力大学/县域多能互补一体化平台/脚本/上传模板/%s.csv", result.valueTitle);
 
