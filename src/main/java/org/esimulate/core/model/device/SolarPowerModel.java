@@ -122,15 +122,29 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
                 .multiply(this.quantity)
                 .setScale(10, RoundingMode.HALF_UP);
 
-        if (outputPower.compareTo(P_pvN.multiply(BigDecimal.valueOf(1.165))) >= 0) {
-            outputPower = P_pvN.multiply(BigDecimal.valueOf(1.165));
-        }
+        // 分段平滑：
+        BigDecimal rated = P_pvN;
+        BigDecimal cap = rated.multiply(BigDecimal.valueOf(1.165));
 
         if (outputPower.compareTo(BigDecimal.ZERO) <= 0) {
             outputPower = BigDecimal.ZERO;
+            return new ElectricEnergy(outputPower);
+        }
+
+        if (outputPower.compareTo(cap) <= 0) {
+            // 在 [P, 1.165P] 区间，缓慢增长：系数0.5
+            BigDecimal delta = outputPower.subtract(rated);
+            outputPower = rated.add(delta.multiply(BigDecimal.valueOf(0.5)))
+                    .setScale(10, RoundingMode.HALF_UP);
+        } else {
+            // 超过1.165P后，再次缓慢增长：系数0.2
+            BigDecimal delta = outputPower.subtract(cap);
+            outputPower = cap.add(delta.multiply(BigDecimal.valueOf(0.2)))
+                    .setScale(10, RoundingMode.HALF_UP);
         }
 
         return new ElectricEnergy(outputPower);
+
     }
 
     @Override
