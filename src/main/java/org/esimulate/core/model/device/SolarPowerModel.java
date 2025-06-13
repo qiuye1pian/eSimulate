@@ -122,6 +122,10 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
                 .multiply(this.quantity)
                 .setScale(10, RoundingMode.HALF_UP);
 
+        if (outputPower.compareTo(P_pvN.multiply(BigDecimal.valueOf(1.165))) >= 0) {
+            outputPower = P_pvN.multiply(BigDecimal.valueOf(1.165));
+        }
+
         if (outputPower.compareTo(BigDecimal.ZERO) <= 0) {
             outputPower = BigDecimal.ZERO;
         }
