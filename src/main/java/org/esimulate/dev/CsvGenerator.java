@@ -52,10 +52,10 @@ public class CsvGenerator {
 
     private static @NotNull Result getLoad() {
         String init = "80931.1";
-        String jump = "2000.00";
+        String jump = "2761.03";
         String valueTitle = "热负荷";
-        String min = "35931.1";
-        String max = "130000.0";
+        String min = "38931.1";
+        String max = "134600.0";
         return new Result(init, jump, valueTitle, min, max);
     }
 
@@ -66,9 +66,9 @@ public class CsvGenerator {
      */
     public static void main(String[] args) {
 
-        Result result = getTemperature();
+        Result result = getLoad();
 
-        int days = 365;
+        int days = 1;
 
         // 设置初始时间
         LocalDateTime startTime = LocalDateTime.of(2025, 1, 1, 0, 0);

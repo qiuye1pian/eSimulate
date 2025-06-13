@@ -116,11 +116,17 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
         BigDecimal irradianceRatio = currentIrradiance.divide(G_ref, 10, RoundingMode.HALF_UP);
 
         // 计算最终光伏出力
-        return new ElectricEnergy(P_pvN
+        BigDecimal value = P_pvN
                 .multiply(temperatureFactor)
                 .multiply(irradianceRatio)
                 .multiply(this.quantity)
-                .setScale(10, RoundingMode.HALF_UP));
+                .setScale(10, RoundingMode.HALF_UP);
+
+        if (value.compareTo(BigDecimal.ZERO) <= 0) {
+            value = BigDecimal.ZERO;
+        }
+
+        return new ElectricEnergy(value);
     }
 
     @Override
