@@ -197,7 +197,7 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
     }
 
     @Override
-    public void adjustable(List<Energy> afterStorageEnergyList) {
+    public List<Energy> adjustable(List<Energy> afterStorageEnergyList) {
         //热量缺口
         BigDecimal thermalEnergyDifference = afterStorageEnergyList.stream()
                 .filter(x -> x instanceof ThermalEnergy)
@@ -239,8 +239,8 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         afterStorageEnergyList.removeIf(x -> x instanceof ElectricEnergy);
         afterStorageEnergyList.add(new ElectricEnergy(electricEnergyDifference.add(currentAdjustableElectricPower)));
 
+        return afterStorageEnergyList;
     }
-
     private void adjustPower(BigDecimal thermalEnergyDifference) {
         if (currentAdjustableThermalPower.compareTo(thermalEnergyDifference.abs()) < 0) {
             //向上爬坡

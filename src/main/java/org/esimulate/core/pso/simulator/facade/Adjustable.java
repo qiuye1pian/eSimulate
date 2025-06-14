@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface Adjustable extends CarbonEmitter {
 
-    void adjustable(List<Energy> afterStorageEnergyList);
+    List<Energy> adjustable(List<Energy> afterStorageEnergyList);
 
     List<Energy> getAdjustTotalEnergy();
 

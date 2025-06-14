@@ -157,16 +157,17 @@ public class Simulator {
                 //通过储能计算后，各能源的 冗余/缺口
                 .collect(Collectors.toList());
 
-//        log.info("before => afterStorageEnergyList:{}-->{}", afterStorageEnergyList, JSONObject.toJSONString(afterStorageEnergyList));
+        List<Energy> afterAdjustableEnergyList = CollectionUtils.isEmpty(adjustableList) ? afterStorageEnergyList : adjustableList.stream()
+                .map(x -> x.adjustable(afterStorageEnergyList))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
 
         //可调节设备
-        adjustableList.forEach(adjustableDevice -> adjustableDevice.adjustable(afterStorageEnergyList));
-
-//        log.info("after => afterStorageEnergyList:{}-->{}", afterStorageEnergyList, JSONObject.toJSONString(afterStorageEnergyList));
+//        adjustableList.forEach(adjustableDevice -> adjustableDevice.adjustable(afterStorageEnergyList));
 
         //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
         List<Energy> afterProvideList = providerList.stream()
-                .map(x -> x.provide(afterStorageEnergyList))
+                .map(x -> x.provide(afterAdjustableEnergyList))
                 .collect(Collectors.toList());
 
         //剩余的能源将被丢弃，电能为弃风弃光，热能为自然散逸

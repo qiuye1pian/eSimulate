@@ -185,7 +185,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
      * @param afterStorageEnergyList 能量 冗余/缺口，如果是缺口，值为负数
      */
     @Override
-    public void adjustable(List<Energy> afterStorageEnergyList) {
+    public List<Energy> adjustable(List<Energy> afterStorageEnergyList) {
         /*
          * 计算电力能量缺口/冗余值 electricEnergyDifference
          */
@@ -210,6 +210,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
         BigDecimal finalElectricEnergyDifference = electricEnergyDifference.subtract(realTimePower);
         afterStorageEnergyList.removeIf(x -> x instanceof ElectricEnergy);
         afterStorageEnergyList.add(new ElectricEnergy(finalElectricEnergyDifference));
+        return afterStorageEnergyList;
     }
 
     /**
