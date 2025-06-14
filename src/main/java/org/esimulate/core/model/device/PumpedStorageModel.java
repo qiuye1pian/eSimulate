@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -146,7 +146,9 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
 
     @Override
     public List<StackedChartData> getElectricStackedChartDataList() {
-        return Collections.emptyList();
+        StackedChartData chargingList = new StackedChartData(String.format("%s 充电", this.modelName), this.chargingList, 601);
+        StackedChartData disChargingList = new StackedChartData(String.format("%s 放电", this.modelName), this.disChargingList, 601);
+        return Arrays.asList(chargingList, disChargingList);
     }
 
     /**
@@ -186,11 +188,6 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
         if (remainingDifference.compareTo(BigDecimal.ZERO) < 0) {
             return disCharging(remainingDifference);
         }
-        //按照计划充电放电
-        // 如果是周一到周五
-        // 分时段进行充电或者放点
-        // 如果是周末
-        //
 
         return BigDecimal.ZERO;
     }
