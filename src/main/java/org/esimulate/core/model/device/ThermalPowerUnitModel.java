@@ -207,7 +207,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
         /*
          * 计算剩余缺口/冗余
          */
-        BigDecimal finalElectricEnergyDifference = electricEnergyDifference.subtract(realTimePower);
+        BigDecimal finalElectricEnergyDifference = electricEnergyDifference.add(realTimePower);
         afterStorageEnergyList.removeIf(x -> x instanceof ElectricEnergy);
         afterStorageEnergyList.add(new ElectricEnergy(finalElectricEnergyDifference));
         return afterStorageEnergyList;
