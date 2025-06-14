@@ -157,8 +157,12 @@ public class Simulator {
                 //通过储能计算后，各能源的 冗余/缺口
                 .collect(Collectors.toList());
 
+//        log.info("before => afterStorageEnergyList:{}-->{}", afterStorageEnergyList, JSONObject.toJSONString(afterStorageEnergyList));
+
         //可调节设备
         adjustableList.forEach(adjustableDevice -> adjustableDevice.adjustable(afterStorageEnergyList));
+
+//        log.info("after => afterStorageEnergyList:{}-->{}", afterStorageEnergyList, JSONObject.toJSONString(afterStorageEnergyList));
 
         //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
         List<Energy> afterProvideList = providerList.stream()

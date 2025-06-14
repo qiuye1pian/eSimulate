@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
 import org.esimulate.core.pojo.model.ThermalPowerUnitModelDto;
@@ -27,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
@@ -221,6 +223,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
         if (electricEnergyDifference.compareTo(BigDecimal.ZERO) >= 0) {
             return tryToTurnOff(electricEnergyDifference);
         } else {
+            startStopRecordList.add(0);
             return adjustPower(electricEnergyDifference);
         }
     }
@@ -235,6 +238,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
     private BigDecimal workWithPowerOff(BigDecimal electricEnergyDifference) {
 
         if (electricEnergyDifference.compareTo(BigDecimal.ZERO) >= 0) {
+            startStopRecordList.add(0);
             return BigDecimal.ZERO;
         } else {
             return tryToTurnOn();
@@ -249,6 +253,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
      * @return 实际输出功率值
      */
     private BigDecimal adjustPower(BigDecimal electricEnergyDifference) {
+        BigDecimal before = currentAdjustablePower;
         if (currentAdjustablePower.compareTo(electricEnergyDifference.abs()) < 0) {
             //向上爬坡
             rampUp(electricEnergyDifference);
@@ -256,6 +261,8 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
             //向下爬坡
             rampDown(electricEnergyDifference);
         }
+
+        log.info("adjustPower ===> 爬坡前: {}, 缺口{} ===> 爬坡后: {}, ===>爬了:{}", before, electricEnergyDifference, currentAdjustablePower, currentAdjustablePower.subtract(before));
         return currentAdjustablePower;
     }
 
@@ -265,7 +272,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
      * @return 当前浮动工作功率
      */
     private BigDecimal rampDown(BigDecimal electricEnergyDifference) {
-        if (currentAdjustablePower.subtract(rampDownRate).multiply(quantity)
+        if (currentAdjustablePower.subtract(rampDownRate.multiply(quantity))
                 .compareTo(electricEnergyDifference.abs()) >= 0) {
             currentAdjustablePower = currentAdjustablePower.subtract(rampDownRate);
         } else {
@@ -281,7 +288,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
      * @return 当前浮动工作功率
      */
     private BigDecimal rampUp(BigDecimal electricEnergyDifference) {
-        if (currentAdjustablePower.add(rampUpRate).multiply(quantity)
+        if (currentAdjustablePower.add(rampUpRate.multiply(quantity))
                 .compareTo(electricEnergyDifference.abs()) > 0) {
             currentAdjustablePower = electricEnergyDifference.abs();
         } else {
