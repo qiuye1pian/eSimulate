@@ -262,7 +262,6 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
             rampDown(electricEnergyDifference);
         }
 
-        log.info("adjustPower ===> 爬坡前: {}, 缺口{} ===> 爬坡后: {}, ===>爬了:{}", before, electricEnergyDifference, currentAdjustablePower, currentAdjustablePower.subtract(before));
         return currentAdjustablePower;
     }
 
