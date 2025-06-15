@@ -8,12 +8,13 @@ import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.model.result.indication.calculator.RenewableEnergyDevice;
 import org.esimulate.core.pojo.model.ThermalPowerModelDto;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
+import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.ThermalDevice;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 @Table(name = "thermal_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalPowerModel extends Device implements Producer, ThermalDevice, RenewableEnergyDevice {
+public class ThermalPowerModel extends Device implements Producer, Dimension, ThermalDevice, RenewableEnergyDevice {
 
     // 常量：用于将 W 转换为 kW
     private static final BigDecimal KW_CONVERSION_FACTOR = new BigDecimal("1000");
@@ -67,6 +68,12 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
+
+    @Transient
+    Integer lowerBound;
+
+    @Transient
+    Integer upperBound;
 
     @Transient
     // 每小时光热电站出力列表 (单位: kW)

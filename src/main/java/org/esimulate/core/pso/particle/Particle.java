@@ -154,11 +154,7 @@ public class Particle {
         }
 
         log.debug("[Particle {}] ==============>\tStep {} Start\t===⬇️⬇️⬇️⬇️", this.particleIndex, this.currentIterations);
-//        log.info("[Particle {}] ==============>\tMoving\t==============", this.particleIndex);
-//        log.info("[Particle {}] ==\tOld Position:  \t{}", this.particleIndex, currentPosition.getCoordinateValueList());
-//        log.info("[Particle {}] ==\tVelocity:      \t{}", this.particleIndex, (Object) newVelocity.getVelocities());
-//        log.info("[Particle {}] ==\tNew Position:  \t{}", this.particleIndex, newPosition.getCoordinateValueList());
-//        log.info("[Particle {}] ==============>\tMoved\t==============", this.particleIndex);
+
         this.currentPosition = newPosition;
         this.velocity = newVelocity;
         this.currentIterations++;
