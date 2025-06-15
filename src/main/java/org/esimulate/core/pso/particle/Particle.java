@@ -112,7 +112,9 @@ public class Particle {
 
         Random random = new Random();
         for (int i = 0; i < velocity.getDimensionCount(); i++) {
-            velocity.getVelocities()[i] = random.nextInt(Math.max(1, dimensionList.get(i).getUpperBound() / 100));
+            int range = dimensionList.get(i).getUpperBound() - dimensionList.get(i).getLowerBound();
+            int vMax = Math.max(1, range / 4);
+            velocity.getVelocities()[i] = random.nextInt(2 * vMax + 1) - vMax;
         }
 
     }

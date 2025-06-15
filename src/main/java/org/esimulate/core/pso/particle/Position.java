@@ -22,7 +22,8 @@ public class Position implements Cloneable {
 
     public Position(List<Dimension> dimensionsList) {
         coordinateList = dimensionsList.stream()
-                .map(Coordinate::new).collect(Collectors.toList());
+                .map(Coordinate::new)
+                .collect(Collectors.toList());
     }
 
     /**

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Random;
+
 /**
  * 位置中某个维度的值
  */
@@ -32,7 +34,9 @@ public class Coordinate implements Dimension, Cloneable {
         this.modelName = x.getModelName();
         this.lowerBound = x.getLowerBound();
         this.upperBound = x.getUpperBound();
-        this.value = this.lowerBound;
+        Random random = new Random();
+        // 在 [lowerBound, upperBound] 范围内均匀生成整数
+        this.value = this.lowerBound + random.nextInt(this.upperBound - this.lowerBound + 1);
     }
 
     /**
