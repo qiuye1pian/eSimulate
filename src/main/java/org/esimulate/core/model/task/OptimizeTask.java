@@ -31,23 +31,19 @@ public class OptimizeTask {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Lob
     @Convert(converter = PsoConfigConverter.class)
     @Column(name = "pso_config", columnDefinition = "JSON")
     private PsoConfig psoConfig;
 
-    @Lob
     @Convert(converter = ListStringConverter.class)
     @Column(name = "position_title", columnDefinition = "JSON")
     private List<String> positionTitle = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "simulateTask", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @Lob
     @Convert(converter = ListTaskDetailConverter.class)
     @Column(name = "taskDetail_list", columnDefinition = "JSON")
     List<TaskDetail> taskDetailList = new ArrayList<>();
 
-    @Lob
     @Convert(converter = PositionConverter.class)
     @Column(name = "global_BestPosition", columnDefinition = "TEXT")
     private Position globalBestPosition;
