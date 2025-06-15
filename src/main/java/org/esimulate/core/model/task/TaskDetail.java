@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.pojo.pso.SimulateSnapshot;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,13 +17,13 @@ public class TaskDetail {
 
     List<BigDecimal> positionAndValue;
 
-    public TaskDetail(SimulateSnapshot x) {
+    public TaskDetail(SimulateSnapshot simulateSnapshot) {
         // 将整数坐标值转换为 BigDecimal 列表，并在末尾追加 fitness 值
         List<BigDecimal> list = new ArrayList<>();
-        for (Integer val : x.getCurrentPosition().getCoordinateValueList()) {
-            list.add(BigDecimal.valueOf(val));
+        for (Integer val : simulateSnapshot.getCurrentPosition().getCoordinateValueList()) {
+            list.add(BigDecimal.valueOf(val).setScale(0, RoundingMode.HALF_UP));
         }
-        list.add(x.getFitnessValue());
+        list.add(simulateSnapshot.getFitnessValue());
         this.positionAndValue = list;
     }
 }

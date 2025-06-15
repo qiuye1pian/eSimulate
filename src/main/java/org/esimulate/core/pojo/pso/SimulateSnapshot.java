@@ -28,7 +28,7 @@ public class SimulateSnapshot {
     public SimulateSnapshot(Integer particleIndex, BigDecimal maxCurtailmentRate, BigDecimal minRenewableEnergyShare, Position currentPosition, BigDecimal fitnessValue, SimulateResult simulateResult) {
         this.particleIndex = particleIndex;
         this.currentPosition = currentPosition;
-        this.fitnessValue = fitnessValue;
+        this.fitnessValue = fitnessValue.setScale(2, RoundingMode.HALF_UP);
         this.isValid = evaluateFitnessValue(simulateResult, maxCurtailmentRate, minRenewableEnergyShare);
 
     }
