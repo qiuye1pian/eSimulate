@@ -254,7 +254,6 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
      * @return 实际输出功率值
      */
     private BigDecimal adjustPower(BigDecimal electricEnergyDifference) {
-        BigDecimal before = currentAdjustablePower;
         if (currentAdjustablePower.compareTo(electricEnergyDifference.abs()) < 0) {
             //向上爬坡
             rampUp(electricEnergyDifference);
