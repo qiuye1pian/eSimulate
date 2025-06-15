@@ -26,7 +26,7 @@ public class TaskDetail {
         list.add(simulateSnapshot.getFitnessValue());
         list.add(simulateSnapshot.getIsValid());
         list.add(simulateSnapshot.getMessage());
-        sortKey = String.format("%s-%s",simulateSnapshot.getIsValid() , simulateSnapshot.getFitnessValue());
+        sortKey = String.format("%s-%s", simulateSnapshot.getIsValid() ? 0 : 1, simulateSnapshot.getFitnessValue());
         this.positionAndValue = list;
     }
 

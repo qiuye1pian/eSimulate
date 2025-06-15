@@ -19,12 +19,9 @@ public class OptimizeResultDto {
 
     public OptimizeResultDto(OptimizeTask optimizeTask) {
         this.positionTitle = optimizeTask.getPositionTitle();
-        this.taskDetailList = optimizeTask.getTaskDetailList();
-    }
-
-    public List<TaskDetail> getTaskDetailList(){
-        return taskDetailList.stream()
+        this.taskDetailList = optimizeTask.getTaskDetailList().stream()
                 .sorted(Comparator.comparing(TaskDetail::getSortKey))
                 .collect(Collectors.toList());
     }
+    
 }
