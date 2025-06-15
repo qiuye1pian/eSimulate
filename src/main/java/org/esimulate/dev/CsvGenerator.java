@@ -51,11 +51,11 @@ public class CsvGenerator {
 
 
     private static @NotNull Result getLoad() {
-        String init = "80931.1";
-        String jump = "7761.03";
-        String valueTitle = "热负荷";
-        String min = "68931.1";
-        String max = "114600.0";
+        String init = "980931.1";
+        String jump = "77611.03";
+        String valueTitle = "电负荷";
+        String min = "658931.1";
+        String max = "1746000.0";
         return new Result(init, jump, valueTitle, min, max);
     }
 
@@ -66,7 +66,7 @@ public class CsvGenerator {
      */
     public static void main(String[] args) {
 
-        Result result = getWaterSpeed();
+        Result result = getLoad();
 
         int days = 1;
 

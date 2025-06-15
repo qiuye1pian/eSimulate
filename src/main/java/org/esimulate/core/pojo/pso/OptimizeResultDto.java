@@ -6,7 +6,9 @@ import org.esimulate.core.model.task.OptimizeTask;
 import org.esimulate.core.model.task.TaskDetail;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Data
@@ -18,5 +20,11 @@ public class OptimizeResultDto {
     public OptimizeResultDto(OptimizeTask optimizeTask) {
         this.positionTitle = optimizeTask.getPositionTitle();
         this.taskDetailList = optimizeTask.getTaskDetailList();
+    }
+
+    public List<TaskDetail> getTaskDetailList(){
+        return taskDetailList.stream()
+                .sorted(Comparator.comparing(TaskDetail::getSortKey))
+                .collect(Collectors.toList());
     }
 }

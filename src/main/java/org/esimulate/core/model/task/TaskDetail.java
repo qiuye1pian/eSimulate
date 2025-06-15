@@ -1,8 +1,6 @@
 package org.esimulate.core.model.task;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.esimulate.core.pojo.pso.SimulateSnapshot;
 
 import java.math.BigDecimal;
@@ -17,6 +15,8 @@ public class TaskDetail {
 
     List<Object> positionAndValue;
 
+    String sortKey;
+
     public TaskDetail(SimulateSnapshot simulateSnapshot) {
         // 将整数坐标值转换为 BigDecimal 列表，并在末尾追加 fitness 值
         List<Object> list = new ArrayList<>();
@@ -26,6 +26,8 @@ public class TaskDetail {
         list.add(simulateSnapshot.getFitnessValue());
         list.add(simulateSnapshot.getIsValid());
         list.add(simulateSnapshot.getMessage());
+        sortKey = String.format("%s-%s",simulateSnapshot.getIsValid() , simulateSnapshot.getFitnessValue());
         this.positionAndValue = list;
     }
+
 }
