@@ -33,18 +33,18 @@ public class OptimizeTask {
 
     @Lob
     @Convert(converter = PsoConfigConverter.class)
-    @Column(name = "pso_config", columnDefinition = "TEXT")
+    @Column(name = "pso_config", columnDefinition = "JSON")
     private PsoConfig psoConfig;
 
     @Lob
     @Convert(converter = ListStringConverter.class)
-    @Column(name = "position_title", columnDefinition = "TEXT")
+    @Column(name = "position_title", columnDefinition = "JSON")
     private List<String> positionTitle = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "simulateTask", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @Lob
     @Convert(converter = ListTaskDetailConverter.class)
-    @Column(name = "taskDetail_list", columnDefinition = "TEXT")
+    @Column(name = "taskDetail_list", columnDefinition = "JSON")
     List<TaskDetail> taskDetailList = new ArrayList<>();
 
     @Lob
