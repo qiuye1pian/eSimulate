@@ -8,7 +8,6 @@ import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
 import org.esimulate.core.pojo.model.GasBoilerModelDto;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
-import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.ThermalDevice;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 @Table(name = "gas_boiler_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GasBoilerModel extends Device implements Provider, Dimension, ThermalDevice, NonRenewableEnergyDevice {
+public class GasBoilerModel extends Device implements Provider, ThermalDevice, NonRenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,12 +70,6 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
-
-    @Transient
-    Integer lowerBound;
-
-    @Transient
-    Integer upperBound;
 
     public GasBoilerModel(GasBoilerModelDto gasBoilerModelDto) {
         this.modelName = gasBoilerModelDto.getModelName();
