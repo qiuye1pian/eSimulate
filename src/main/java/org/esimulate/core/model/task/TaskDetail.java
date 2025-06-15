@@ -15,15 +15,17 @@ import java.util.List;
 @NoArgsConstructor
 public class TaskDetail {
 
-    List<BigDecimal> positionAndValue;
+    List<Object> positionAndValue;
 
     public TaskDetail(SimulateSnapshot simulateSnapshot) {
         // 将整数坐标值转换为 BigDecimal 列表，并在末尾追加 fitness 值
-        List<BigDecimal> list = new ArrayList<>();
+        List<Object> list = new ArrayList<>();
         for (Integer val : simulateSnapshot.getCurrentPosition().getCoordinateValueList()) {
             list.add(BigDecimal.valueOf(val).setScale(0, RoundingMode.HALF_UP));
         }
         list.add(simulateSnapshot.getFitnessValue());
+        list.add(simulateSnapshot.getIsValid());
+        list.add(simulateSnapshot.getMessage());
         this.positionAndValue = list;
     }
 }
