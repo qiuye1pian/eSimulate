@@ -23,7 +23,7 @@ public class TaskDetail {
         for (Integer val : simulateSnapshot.getCurrentPosition().getCoordinateValueList()) {
             list.add(BigDecimal.valueOf(val).setScale(0, RoundingMode.HALF_UP));
         }
-        list.add(simulateSnapshot.getFitnessValue());
+        list.add(simulateSnapshot.getFitnessValue().toString());
         list.add(simulateSnapshot.getIsValid());
         list.add(simulateSnapshot.getMessage());
         sortKey = String.format("%s-%s", simulateSnapshot.getIsValid() ? 0 : 1, simulateSnapshot.getFitnessValue());
