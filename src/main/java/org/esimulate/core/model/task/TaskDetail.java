@@ -5,6 +5,7 @@ import org.esimulate.core.pojo.pso.SimulateSnapshot;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,9 @@ public class TaskDetail {
         for (Integer val : simulateSnapshot.getCurrentPosition().getCoordinateValueList()) {
             list.add(BigDecimal.valueOf(val).setScale(0, RoundingMode.HALF_UP));
         }
-        list.add(simulateSnapshot.getFitnessValue().toString());
+        // 格式化为千分位，两位小数，并添加“元”单位
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        list.add(df.format(simulateSnapshot.getFitnessValue()) + " 元");
         list.add(simulateSnapshot.getIsValid());
         list.add(simulateSnapshot.getMessage());
         sortKey = String.format("%s-%s", simulateSnapshot.getIsValid() ? 0 : 1, simulateSnapshot.getFitnessValue());
