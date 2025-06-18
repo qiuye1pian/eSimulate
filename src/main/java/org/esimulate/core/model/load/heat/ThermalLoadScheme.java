@@ -62,4 +62,19 @@ public class ThermalLoadScheme implements ThermalLoadData {
     public List<BigDecimal> getLoadValueList() {
         return thermalLoadValues.stream().map(ThermalLoadValue::getLoadValue).collect(Collectors.toList());
     }
+
+    @Override
+    public void cutOffMoreThan(int i) {
+        if (i <= 0) {
+            // 保留 0 条
+            this.thermalLoadValues.clear();
+        } else {
+            // 使用 Stream.limit 保留前 i 条，其余清除
+            List<ThermalLoadValue> truncated = this.thermalLoadValues.stream()
+                    .limit(i)
+                    .collect(Collectors.toList());
+            this.thermalLoadValues.clear();
+            this.thermalLoadValues.addAll(truncated);
+        }
+    }
 }
