@@ -1,6 +1,9 @@
 package org.esimulate.core.model.task;
 
-import lombok.*;
+import com.alibaba.fastjson2.annotation.JSONField;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.esimulate.core.pojo.pso.SimulateSnapshot;
 
 import java.math.BigDecimal;
@@ -16,7 +19,11 @@ public class TaskDetail {
 
     List<Object> positionAndValue;
 
-    String sortKey;
+    @JSONField(serialize = false)
+    private boolean isValid;
+
+    @JSONField(serialize = false)
+    private BigDecimal fitnessValue;
 
     public TaskDetail(SimulateSnapshot simulateSnapshot) {
         // 将整数坐标值转换为 BigDecimal 列表，并在末尾追加 fitness 值
@@ -29,7 +36,8 @@ public class TaskDetail {
         list.add(df.format(simulateSnapshot.getFitnessValue()) + " 元");
         list.add(simulateSnapshot.getIsValid());
         list.add(simulateSnapshot.getMessage());
-        sortKey = String.format("%s-%s", simulateSnapshot.getIsValid() ? 0 : 1, simulateSnapshot.getFitnessValue());
+        this.isValid = simulateSnapshot.getIsValid();
+        this.fitnessValue = simulateSnapshot.getFitnessValue();
         this.positionAndValue = list;
     }
 
