@@ -5,15 +5,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.ThermalSaverModelDto;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.ThermalDevice;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -168,7 +167,7 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
         // 返回剩余未处理的热能差值
         thermalEnergyDifference = thermalEnergyDifference.subtract(effective);
 
-        differenceList.removeIf(x -> x instanceof ElectricEnergy);
+        differenceList.removeIf(x -> x instanceof ThermalEnergy);
         differenceList.add(new ThermalEnergy(thermalEnergyDifference));
         return differenceList;
     }

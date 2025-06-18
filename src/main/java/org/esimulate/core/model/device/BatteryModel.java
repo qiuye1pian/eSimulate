@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.BatteryModelDto;
 import org.esimulate.core.pso.particle.Dimension;
@@ -26,6 +27,7 @@ import java.util.List;
 /**
  * 蓄电池储能模型
  */
+@Slf4j
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
@@ -144,7 +146,7 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
-
+        log.info("battery in :{}", electricEnergyDifference);
         //按台数扩容
         this.C_t = this.C_t.multiply(quantity);
         this.maxChargePower = this.maxChargePower.multiply(quantity);
@@ -170,6 +172,7 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
         // 4. 返回剩余的电能差值
         differenceList.removeIf(x -> x instanceof ElectricEnergy);
         differenceList.add(new ElectricEnergy(remainingDifference));
+        log.info("battery out :{}", remainingDifference);
         return differenceList;
     }
 
