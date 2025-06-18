@@ -156,20 +156,34 @@ public class Simulator {
 
         //todo: 如果有多个同类型储能，会出错
         //如果有储能设备， 计算经过储能调整后的 冗余/缺口 数据
-        List<Energy> afterStorageEnergyList = CollectionUtils.isEmpty(storageList) ? differenceList : storageList.stream()
-                //热能和电能分开计算
-                .map(x -> x.storage(differenceList))
-                .flatMap(List::stream)
-                //通过储能计算后，各能源的 冗余/缺口
-                .collect(Collectors.toList());
+//        List<Energy> afterStorageEnergyList = CollectionUtils.isEmpty(storageList) ? differenceList : storageList.stream()
+//                //热能和电能分开计算
+//                .map(x -> x.storage(differenceList))
+//                .flatMap(List::stream)
+//                //通过储能计算后，各能源的 冗余/缺口
+//                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(storageList)) {
+            for (Storage storage : storageList) {
+                // storage.storage 会返回一个新的 List<Energy>，我们就用它来替换掉 differenceList
+                differenceList = storage.storage(differenceList);
+            }
+        }
+
+        List<Energy> afterStorageEnergyList = differenceList;
 
         log.info("afterStorageEnergyList:{}", JSONObject.toJSONString(afterStorageEnergyList.stream().filter(x->x instanceof ElectricEnergy).collect(Collectors.toList())));
 
-        List<Energy> afterAdjustableEnergyList = CollectionUtils.isEmpty(adjustableList) ? afterStorageEnergyList : adjustableList.stream()
-                .map(x -> x.adjustable(afterStorageEnergyList))
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-
+//        List<Energy> afterAdjustableEnergyList = CollectionUtils.isEmpty(adjustableList) ? afterStorageEnergyList : adjustableList.stream()
+//                .map(x -> x.adjustable(afterStorageEnergyList))
+//                .flatMap(List::stream)
+//                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(adjustableList)) {
+            for (Adjustable adjustable : adjustableList) {
+                // storage.storage 会返回一个新的 List<Energy>，我们就用它来替换掉 differenceList
+                afterStorageEnergyList = adjustable.adjustable(afterStorageEnergyList);
+            }
+        }
+        List<Energy> afterAdjustableEnergyList = afterStorageEnergyList;
         log.info("afterAdjustableEnergyList:{}", JSONObject.toJSONString(afterAdjustableEnergyList.stream().filter(x->x instanceof ElectricEnergy).collect(Collectors.toList())));
 
         //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
