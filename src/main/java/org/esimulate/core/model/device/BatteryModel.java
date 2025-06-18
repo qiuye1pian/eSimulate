@@ -137,7 +137,7 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
      * @return 经过储能调整后的 冗余/缺口 数据
      */
     @Override
-    public Energy storage(List<Energy> differenceList) {
+    public List<Energy> storage(List<Energy> differenceList) {
         // 1. 计算输入的电能冗余/缺口
         BigDecimal electricEnergyDifference = differenceList.stream()
                 .filter(x -> x instanceof ElectricEnergy)
@@ -168,7 +168,9 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
         this.E_ESS_t = this.E_ESS_t.divide(quantity, 2, RoundingMode.HALF_UP);
 
         // 4. 返回剩余的电能差值
-        return new ElectricEnergy(remainingDifference);
+        differenceList.removeIf(x -> x instanceof ElectricEnergy);
+        differenceList.add(new ElectricEnergy(remainingDifference));
+        return differenceList;
     }
 
     /**

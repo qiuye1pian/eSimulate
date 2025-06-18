@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.ThermalSaverModelDto;
 import org.esimulate.core.pso.particle.Dimension;
@@ -106,7 +107,7 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
     }
 
     @Override
-    public Energy storage(List<Energy> differenceList) {
+    public List<Energy> storage(List<Energy> differenceList) {
         // 计算热能差值（正值表示有多余热能需储存，负值表示需从储能中释放）
         BigDecimal thermalEnergyDifference = differenceList.stream()
                 .filter(x -> x instanceof ThermalEnergy)
@@ -166,7 +167,10 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
 
         // 返回剩余未处理的热能差值
         thermalEnergyDifference = thermalEnergyDifference.subtract(effective);
-        return new ThermalEnergy(thermalEnergyDifference);
+
+        differenceList.removeIf(x -> x instanceof ElectricEnergy);
+        differenceList.add(new ThermalEnergy(thermalEnergyDifference));
+        return differenceList;
     }
 
     @Override

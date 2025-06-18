@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface Storage extends CarbonEmitter {
 
-    Energy storage(List<Energy> differenceList);
+    List<Energy> storage(List<Energy> differenceList);
 
 }

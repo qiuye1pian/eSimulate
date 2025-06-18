@@ -157,7 +157,7 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
      * @return 剩余能量
      */
     @Override
-    public Energy storage(List<Energy> differenceList) {
+    public List<Energy> storage(List<Energy> differenceList) {
         BigDecimal electricEnergyDifference = differenceList.stream()
                 .filter(x -> x instanceof ElectricEnergy)
                 .map(Energy::getValue)
@@ -176,7 +176,9 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
         this.EMax = this.EMax.divide(quantity, 2, RoundingMode.HALF_UP);
         this.stateOfCharge = this.stateOfCharge.divide(quantity, 2, RoundingMode.HALF_UP);
 
-        return new ElectricEnergy(remainingDifference);
+        differenceList.removeIf(x -> x instanceof ElectricEnergy);
+        differenceList.add(new ElectricEnergy(remainingDifference));
+        return differenceList;
     }
 
     private BigDecimal updateElectricEnergy(BigDecimal remainingDifference) {
