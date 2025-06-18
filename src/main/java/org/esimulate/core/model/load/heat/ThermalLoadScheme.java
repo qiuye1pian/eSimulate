@@ -2,6 +2,7 @@ package org.esimulate.core.model.load.heat;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.esimulate.core.pso.simulator.facade.load.LoadData;
 import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
@@ -64,7 +65,7 @@ public class ThermalLoadScheme implements ThermalLoadData {
     }
 
     @Override
-    public void cutOffMoreThan(int i) {
+    public LoadData cutOffMoreThan(int i) {
         if (i <= 0) {
             // 保留 0 条
             this.thermalLoadValues.clear();
@@ -76,5 +77,6 @@ public class ThermalLoadScheme implements ThermalLoadData {
             this.thermalLoadValues.clear();
             this.thermalLoadValues.addAll(truncated);
         }
+        return this;
     }
 }

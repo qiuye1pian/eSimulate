@@ -2,6 +2,7 @@ package org.esimulate.core.model.environment.wind;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.esimulate.core.pso.simulator.facade.base.TimeSeriesData;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 
 import javax.persistence.*;
@@ -53,5 +54,21 @@ public class WindSpeedScheme implements WindSpeedData {
                 .sorted(Comparator.comparing(WindSpeedValue::getDatetime))
                 .collect(Collectors.toList())
                 .get(timeIndex);
+    }
+
+    @Override
+    public TimeSeriesData cutOffMoreThan(int i) {
+        if (i <= 0) {
+            // 保留 0 条
+            this.windSpeedValues.clear();
+        } else {
+            // 使用 Stream.limit 保留前 i 条，其余清除
+            List<WindSpeedValue> truncated = this.windSpeedValues.stream()
+                    .limit(i)
+                    .collect(Collectors.toList());
+            this.windSpeedValues.clear();
+            this.windSpeedValues.addAll(truncated);
+        }
+        return this;
     }
 }

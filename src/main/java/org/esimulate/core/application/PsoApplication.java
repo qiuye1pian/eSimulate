@@ -67,14 +67,21 @@ public class PsoApplication {
         log.info("开始PSO");
         long startPso = System.currentTimeMillis();
 
-//        OptimizeTask optimizeTask = optimizeTaskService.findOptimizeTaskById(taskId)
-//                .orElseThrow(() -> new RuntimeException("找不到刚刚创建的task,taskId:" + taskId));
-
         OptimizeResult optimizeResult = new OptimizeResult();
         List<Particle> particleList = new ArrayList<>();
 
+        //临时加的剪切长度的
+        List<LoadData> shortLoadDataList = loadDataList.stream()
+                .map(x -> x.cutOffMoreThan(24))
+                .map(x -> (LoadData) x)
+                .collect(Collectors.toList());
+        List<EnvironmentData> shortEnvironmentDataList = environmentDataList.stream()
+                .map(environmentData -> environmentData.cutOffMoreThan(24))
+                .map(x -> (EnvironmentData) x)
+                .collect(Collectors.toList());
+
         for (int i = 0; i < psoConfig.getParticleCount(); i++) {
-            particleList.add(new Particle(i, psoConfig, loadDataList, environmentDataList, deviceList));
+            particleList.add(new Particle(i, psoConfig, shortLoadDataList, shortEnvironmentDataList, deviceList));
         }
 
         AtomicInteger atomicInteger = new AtomicInteger();

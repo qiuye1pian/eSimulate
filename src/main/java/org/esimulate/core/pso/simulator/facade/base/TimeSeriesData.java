@@ -4,4 +4,6 @@ public interface TimeSeriesData {
 
     int getDataLength();
 
+    TimeSeriesData cutOffMoreThan(int i);
+
 }

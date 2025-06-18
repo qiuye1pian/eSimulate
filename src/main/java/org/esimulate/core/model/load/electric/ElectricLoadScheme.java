@@ -2,6 +2,7 @@ package org.esimulate.core.model.load.electric;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.esimulate.core.pso.simulator.facade.load.LoadData;
 import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
@@ -64,7 +65,7 @@ public class ElectricLoadScheme implements ElectricLoadData {
     }
 
     @Override
-    public void cutOffMoreThan(int i) {
+    public LoadData cutOffMoreThan(int i) {
         if (i <= 0) {
             // 保留 0 条
             this.electricLoadValues.clear();
@@ -76,6 +77,7 @@ public class ElectricLoadScheme implements ElectricLoadData {
             this.electricLoadValues.clear();
             this.electricLoadValues.addAll(truncated);
         }
+        return this;
     }
 
 }

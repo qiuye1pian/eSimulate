@@ -26,14 +26,7 @@ public class LoadDataComponent {
         return loadDtoList.stream()
                 .parallel()
                 .map(this::readLoadData)
-                .map(this::cutDataLength)
                 .collect(Collectors.toList());
-    }
-
-    //临时加一个切长度的
-    private LoadData cutDataLength(LoadData loadData) {
-        loadData.cutOffMoreThan(24);
-        return loadData;
     }
 
     private LoadData readLoadData(LoadDto loadDto) {

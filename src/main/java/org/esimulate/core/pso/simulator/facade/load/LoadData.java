@@ -16,5 +16,5 @@ public interface LoadData extends TimeSeriesData {
 
     List<BigDecimal> getLoadValueList();
 
-    void cutOffMoreThan(int i);
+
 }

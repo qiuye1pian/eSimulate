@@ -2,6 +2,7 @@ package org.esimulate.core.model.environment.gas;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.esimulate.core.pso.simulator.facade.base.TimeSeriesData;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 
 import javax.persistence.*;
@@ -53,5 +54,21 @@ public class GasScheme implements GasData {
                 .sorted(Comparator.comparing(GasValue::getDatetime))
                 .collect(Collectors.toList())
                 .get(timeIndex);
+    }
+
+    @Override
+    public TimeSeriesData cutOffMoreThan(int i) {
+        if (i <= 0) {
+            // 保留 0 条
+            this.gasValues.clear();
+        } else {
+            // 使用 Stream.limit 保留前 i 条，其余清除
+            List<GasValue> truncated = this.gasValues.stream()
+                    .limit(i)
+                    .collect(Collectors.toList());
+            this.gasValues.clear();
+            this.gasValues.addAll(truncated);
+        }
+        return this;
     }
 }
