@@ -165,8 +165,9 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         // 计算生成的电能
         BigDecimal electricPower = calculateElectricPower(exhaustHeat);
 
-        ThermalEnergy thermalEnergy = new ThermalEnergy(heatingPower);
-        ElectricEnergy electricEnergy = new ElectricEnergy(electricPower);
+        //计算总数量下生产的能量
+        ThermalEnergy thermalEnergy = new ThermalEnergy(heatingPower.multiply(quantity));
+        ElectricEnergy electricEnergy = new ElectricEnergy(electricPower.multiply(quantity));
 
         this.thermalEnergyList.add(thermalEnergy);
         this.electricEnergyList.add(electricEnergy);
@@ -206,13 +207,24 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
-        log.info("热缺口 in :{}", thermalEnergyDifference);
+        log.debug("热缺口 in :{}", thermalEnergyDifference);
+
+        //扩容
+        this.PMax = this.PMax.multiply(quantity);
+        this.PMin = this.PMin.multiply(quantity);
+        this.rampUpRate = this.rampUpRate.multiply(quantity);
+        this.rampDownRate = this.rampDownRate.multiply(quantity);
+        this.currentAdjustableThermalPower = this.currentAdjustableThermalPower.multiply(quantity);
+
+        //如果能量有冗余，向下爬坡
         if (thermalEnergyDifference.compareTo(BigDecimal.ZERO) >= 0) {
-            rampDown(BigDecimal.ZERO);
+            log.debug("热冗余，向下爬坡");
+            rampDown(thermalEnergyDifference);
+        } else {
+            // 如果能量有缺口，根据能量缺口和爬坡能力爬坡
+            adjustPower(thermalEnergyDifference);
         }
 
-        // 根据能量缺口爬坡
-        adjustPower(thermalEnergyDifference);
 
         /*
           计算可调部分生产的电量
@@ -246,18 +258,30 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         afterStorageEnergyList.removeIf(x -> x instanceof ElectricEnergy);
         afterStorageEnergyList.add(new ElectricEnergy(currentAdjustableElectricPower.add(electricEnergyDifference)));
 
-        log.info("当前产热 current :{}", currentAdjustableThermalPower);
-        log.info("热缺口 out :{}", out.getValue());
+        log.debug("当前产热 current :{}", currentAdjustableThermalPower);
+        log.debug("热缺口 out :{}", out.getValue());
+
+        //缩容
+        this.PMax = this.PMax.divide(quantity,2,RoundingMode.HALF_UP);
+        this.PMin = this.PMin.divide(quantity,2,RoundingMode.HALF_UP);
+        this.rampUpRate = this.rampUpRate.divide(quantity,2,RoundingMode.HALF_UP);
+        this.rampDownRate = this.rampDownRate.divide(quantity,2,RoundingMode.HALF_UP);
+        this.currentAdjustableThermalPower = this.currentAdjustableThermalPower.divide(quantity,2,RoundingMode.HALF_UP);
         return afterStorageEnergyList;
     }
+
+    /**
+     * 根据能量缺口爬坡
+     * @param thermalEnergyDifference 能量缺口，只会小于0
+     */
     private void adjustPower(BigDecimal thermalEnergyDifference) {
         if (currentAdjustableThermalPower.compareTo(thermalEnergyDifference.abs()) < 0) {
             //向上爬坡
-            log.info("向上爬坡");
+            log.debug("向上爬坡");
             rampUp(thermalEnergyDifference);
         } else {
             //向下爬坡
-            log.info("向下爬坡");
+            log.debug("向下爬坡");
             rampDown(thermalEnergyDifference);
         }
     }
@@ -268,23 +292,23 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
      */
     private void rampDown(BigDecimal thermalEnergyDifference) {
         //计算爬坡后的数值
-        log.info("向下爬坡前功率:{}", currentAdjustableThermalPower);
+        log.debug("向下爬坡前功率:{}", currentAdjustableThermalPower);
         BigDecimal afterRampUpRate = currentAdjustableThermalPower.subtract(rampDownRate);
 
         if (afterRampUpRate.compareTo(BigDecimal.ZERO) <= 0) {
-            log.info("小于0，停止爬坡");
+            log.debug("小于0，停止爬坡");
             afterRampUpRate = BigDecimal.ZERO;
         }
 
         //如果向下爬坡之后的产热值能够大于缺口
         if (afterRampUpRate.compareTo(thermalEnergyDifference.abs()) >= 0) {
-            log.info("向下爬坡后能满足需求，有限爬坡");
+            log.debug("向下爬坡后能满足需求，有限爬坡");
             currentAdjustableThermalPower = afterRampUpRate;
         } else {
-            log.info("向下爬坡后能满足需求，全力爬坡");
+            log.debug("向下爬坡后能满足需求，全力爬坡");
             currentAdjustableThermalPower = thermalEnergyDifference.abs();
         }
-        log.info("向下爬坡后功率:{}", currentAdjustableThermalPower);
+        log.debug("向下爬坡后功率:{}", currentAdjustableThermalPower);
     }
 
     /**
@@ -294,22 +318,22 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
      */
     private void rampUp(BigDecimal thermalEnergyDifference) {
         //计算爬坡后的数值
-        log.info("向上爬坡前功率:{}", currentAdjustableThermalPower);
+        log.debug("向上爬坡前功率:{}", currentAdjustableThermalPower);
         BigDecimal afterRampUpRate = currentAdjustableThermalPower.add(rampUpRate);
         if (afterRampUpRate.compareTo(PMax) >= 0) {
-            log.info("超出最大功率，停止爬坡");
+            log.debug("超出最大功率，停止爬坡");
             afterRampUpRate = PMax;
         }
         //如果爬上去之后能满足负荷
         if (afterRampUpRate
                 .compareTo(thermalEnergyDifference.abs()) > 0) {
-            log.info("爬坡后能满足需求，有限爬坡");
+            log.debug("爬坡后能满足需求，有限爬坡");
             currentAdjustableThermalPower = thermalEnergyDifference.abs();
         } else {
-            log.info("爬坡后能满足需求，全力爬坡");
+            log.debug("爬坡后能满足需求，全力爬坡");
             currentAdjustableThermalPower = afterRampUpRate;
         }
-        log.info("向上爬坡后功率:{}", currentAdjustableThermalPower);
+        log.debug("向上爬坡后功率:{}", currentAdjustableThermalPower);
     }
 
     @Override
