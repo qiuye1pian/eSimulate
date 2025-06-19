@@ -15,6 +15,7 @@ public class RenewableEnergyShareCalculator {
 
     /**
      * 计算可再生能源占比
+     *
      * @param producerList 生产者(可再生能源)
      * @param providerList 供应商(非可再生能源)
      * @return 可再生能源占比
@@ -31,14 +32,17 @@ public class RenewableEnergyShareCalculator {
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        BigDecimal nonCleanEnergy = providerList.stream()
-                .filter(x->x instanceof NonRenewableEnergyDevice)
-                .map(x->(NonRenewableEnergyDevice)x)
+        BigDecimal nonCleanEnergy = combinedList.stream()
+                .filter(x -> x instanceof NonRenewableEnergyDevice)
+                .map(x -> (NonRenewableEnergyDevice) x)
                 .map(NonRenewableEnergyDevice::getTotalNonRenewableEnergy)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
         BigDecimal totalEnergy = cleanEnergy.add(nonCleanEnergy);
+        if (totalEnergy.compareTo(BigDecimal.ZERO) == 0) {
+            return new RenewableEnergyShare(BigDecimal.ZERO);
+        }
 
         BigDecimal share = cleanEnergy.divide(totalEnergy, 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
 

@@ -169,6 +169,7 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         ThermalEnergy thermalEnergy = new ThermalEnergy(heatingPower.multiply(quantity));
         ElectricEnergy electricEnergy = new ElectricEnergy(electricPower.multiply(quantity));
 
+        log.debug("固定产热:{}", thermalEnergy.getValue());
         this.thermalEnergyList.add(thermalEnergy);
         this.electricEnergyList.add(electricEnergy);
 
