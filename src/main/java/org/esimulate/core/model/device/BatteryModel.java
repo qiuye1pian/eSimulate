@@ -146,7 +146,7 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
-        log.info("battery in :{}", electricEnergyDifference);
+
         //按台数扩容
         this.C_t = this.C_t.multiply(quantity);
         this.maxChargePower = this.maxChargePower.multiply(quantity);
@@ -172,7 +172,7 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
         // 4. 返回剩余的电能差值
         differenceList.removeIf(x -> x instanceof ElectricEnergy);
         differenceList.add(new ElectricEnergy(remainingDifference));
-        log.info("battery out :{}", remainingDifference);
+
         return differenceList;
     }
 

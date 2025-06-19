@@ -212,7 +212,11 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         // 根据能量缺口爬坡
         adjustPower(thermalEnergyDifference);
 
-        // 计算可调部分生产的电量
+        /*
+          计算可调部分生产的电量
+          先计算排气余热量 exhaustHeat
+          根据排气余热量计算生产电量 currentAdjustableElectricPower
+         */
         BigDecimal exhaustHeat = calculateExhaustHeat(this.currentAdjustableThermalPower);
         BigDecimal currentAdjustableElectricPower = calculateElectricPower(exhaustHeat);
 
@@ -237,7 +241,7 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
 
         // 更新缺口/冗余里的电能
         afterStorageEnergyList.removeIf(x -> x instanceof ElectricEnergy);
-        afterStorageEnergyList.add(new ElectricEnergy(electricEnergyDifference.add(currentAdjustableElectricPower)));
+        afterStorageEnergyList.add(new ElectricEnergy(currentAdjustableElectricPower.add(electricEnergyDifference)));
 
         return afterStorageEnergyList;
     }
