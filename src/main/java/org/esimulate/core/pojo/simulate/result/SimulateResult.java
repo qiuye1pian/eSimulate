@@ -1,16 +1,10 @@
 package org.esimulate.core.pojo.simulate.result;
 
 
-import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.esimulate.core.model.result.MomentResult;
-import org.esimulate.core.pso.simulator.facade.Producer;
-import org.esimulate.core.pso.simulator.facade.Provider;
-import org.esimulate.core.pso.simulator.facade.Storage;
-import org.esimulate.core.pso.simulator.facade.load.LoadData;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 
 import java.util.List;
@@ -27,20 +21,20 @@ public class SimulateResult {
 
     List<Indication> indicationList;
 
-    @JSONField(serialize = false)
-    List<LoadData> loadList;
-
-    @JSONField(serialize = false)
-    List<Producer> producerList;
-
-    @JSONField(serialize = false)
-    List<Storage> storageList;
-
-    @JSONField(serialize = false)
-    List<Provider> providerList;
-
-    @JSONField(serialize = false)
-    List<MomentResult> momentResultList;
+//    @JSONField(serialize = false)
+//    List<LoadData> loadList;
+//
+//    @JSONField(serialize = false)
+//    List<Producer> producerList;
+//
+//    @JSONField(serialize = false)
+//    List<Storage> storageList;
+//
+//    @JSONField(serialize = false)
+//    List<Provider> providerList;
+//
+//    @JSONField(serialize = false)
+//    List<MomentResult> momentResultList;
 
     StackedChartDto electricStackedChartDto;
 

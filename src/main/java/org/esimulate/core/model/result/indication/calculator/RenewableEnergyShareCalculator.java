@@ -2,37 +2,30 @@ package org.esimulate.core.model.result.indication.calculator;
 
 import org.esimulate.core.model.result.indication.RenewableEnergyShare;
 import org.esimulate.core.pso.simulator.facade.Device;
-import org.esimulate.core.pso.simulator.facade.Producer;
-import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RenewableEnergyShareCalculator {
 
     /**
      * 计算可再生能源占比
      *
-     * @param producerList 生产者(可再生能源)
-     * @param providerList 供应商(非可再生能源)
+     * @param deviceList 设备列表
      * @return 可再生能源占比
      */
-    public static Indication calculate(List<Producer> producerList, List<Provider> providerList) {
-        List<Device> combinedList = new java.util.ArrayList<>();
-        combinedList.addAll(producerList.stream().map(x -> (Device) x).collect(Collectors.toList()));
-        combinedList.addAll(providerList.stream().map(x -> (Device) x).collect(Collectors.toList()));
+    public static Indication calculate(List<Device> deviceList) {
 
-        BigDecimal cleanEnergy = combinedList.stream()
+        BigDecimal cleanEnergy = deviceList.stream()
                 .filter(x -> x instanceof RenewableEnergyDevice)
                 .map(x -> (RenewableEnergyDevice) x)
                 .map(RenewableEnergyDevice::getTotalRenewableEnergy)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        BigDecimal nonCleanEnergy = combinedList.stream()
+        BigDecimal nonCleanEnergy = deviceList.stream()
                 .filter(x -> x instanceof NonRenewableEnergyDevice)
                 .map(x -> (NonRenewableEnergyDevice) x)
                 .map(NonRenewableEnergyDevice::getTotalNonRenewableEnergy)

@@ -2,7 +2,6 @@ package org.esimulate.core.model.result.energy;
 
 import lombok.Getter;
 import org.esimulate.core.pso.simulator.facade.result.energy.Electricity;
-import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,8 +20,7 @@ public class ElectricEnergy implements Electricity {
     }
 
     public ElectricEnergy subtract(BigDecimal param) {
-        this.value = this.value.subtract(param);
-        return new ElectricEnergy(this.value);
+        return new ElectricEnergy(this.value.subtract(param));
     }
 
     public ElectricEnergy subtract(ElectricEnergy param) {
@@ -30,8 +28,7 @@ public class ElectricEnergy implements Electricity {
     }
 
     public ElectricEnergy multiply(BigDecimal param) {
-        this.value = this.value.multiply(param);
-        return new ElectricEnergy(this.value);
+        return new ElectricEnergy(this.value.multiply(param));
     }
 
     public ElectricEnergy multiply(ElectricEnergy param) {
@@ -39,8 +36,7 @@ public class ElectricEnergy implements Electricity {
     }
 
     public ElectricEnergy add(BigDecimal param) {
-        this.value = this.value.add(param);
-        return new ElectricEnergy(this.value);
+        return new ElectricEnergy(this.value.add(param));
     }
 
     public ElectricEnergy add(ElectricEnergy param) {
@@ -48,16 +44,11 @@ public class ElectricEnergy implements Electricity {
     }
 
     public ElectricEnergy divide(BigDecimal param) {
-        this.value = this.value.divide(param, 2, RoundingMode.HALF_UP);
-        return new ElectricEnergy(this.value);
+        return new ElectricEnergy(this.value.divide(param, 2, RoundingMode.HALF_UP));
     }
 
     public ElectricEnergy divide(ElectricEnergy param) {
         return divide(param.getValue());
     }
 
-    public Energy add(Energy energy) {
-        this.value = this.value.add(energy.getValue());
-        return new ElectricEnergy(this.value);
-    }
 }

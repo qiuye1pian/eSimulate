@@ -1,6 +1,5 @@
 package org.esimulate.core.pso.simulator;
 
-import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.device.CogenerationModel;
 import org.esimulate.core.model.load.electric.ElectricLoadData;
@@ -27,10 +26,7 @@ import org.esimulate.util.DateTimeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -76,14 +72,19 @@ public class Simulator {
                     .mapToObj(timeIndex ->
                             calculateAMoment(loadList, environmentList, producerList, adjustableList, storageList, providerList, timeIndex))
                     .collect(Collectors.toList());
-            log.debug("完成后:{}", JSONObject.toJSONString(adjustableList));
+
+            Optional<List<ThermalEnergy>> cogInProducer = producerList.stream()
+                    .filter(x -> x instanceof CogenerationModel)
+                    .map(x -> (CogenerationModel) x)
+                    .map(CogenerationModel::getThermalEnergyList).findAny();
+
+            Optional<List<ThermalEnergy>> cogInAdjustable = adjustableList.stream()
+                    .filter(x -> x instanceof CogenerationModel)
+                    .map(x -> (CogenerationModel) x)
+                    .map(CogenerationModel::getThermalEnergyList).findAny();
+
             return SimulateResult.builder()
-                    .loadList(loadList)
-                    .producerList(producerList)
-                    .storageList(storageList)
-                    .providerList(providerList)
-                    .momentResultList(momentResultList)
-                    .indicationList(getIndications(producerList, providerList, storageList, momentResultList))
+                    .indicationList(getIndications(deviceList, momentResultList))
                     .electricStackedChartDto(getElectricStackedChartDto(loadList, deviceList))
                     .thermalStackedChartDto(getThermalStackedChartDto(loadList, deviceList))
                     .resultType(SimulateResultType.SUCCESS)
@@ -136,12 +137,6 @@ public class Simulator {
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
-        Optional<CogenerationModel> any = producerList.stream().filter(x -> x instanceof CogenerationModel)
-                .findAny()
-                .map(x->(CogenerationModel)x);
-
-        log.debug("producerList->getThermalEnergyList:{}", JSONObject.toJSONString(any.map(CogenerationModel::getThermalEnergyList)));
-
         //用负荷数据减去已生产的能源，电能和热能分开计算的，获得能源 冗余/缺口 数据
         List<Energy> differenceList = loadList.stream()
                 // 当前时刻的负荷
@@ -160,15 +155,7 @@ public class Simulator {
                 //返回的数是正的代表产出值大于负荷
                 .collect(Collectors.toList());
 
-        log.info("differenceList:{}", JSONObject.toJSONString(differenceList.stream().filter(x->x instanceof ThermalEnergy).collect(Collectors.toList())));
-
         //如果有储能设备， 计算经过储能调整后的 冗余/缺口 数据
-//        List<Energy> afterStorageEnergyList = CollectionUtils.isEmpty(storageList) ? differenceList : storageList.stream()
-//                //热能和电能分开计算
-//                .map(x -> x.storage(differenceList))
-//                .flatMap(List::stream)
-//                //通过储能计算后，各能源的 冗余/缺口
-//                .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(storageList)) {
             for (Storage storage : storageList) {
                 // storage.storage 会返回一个新的 List<Energy>，我们就用它来替换掉 differenceList
@@ -176,14 +163,9 @@ public class Simulator {
             }
         }
 
-        List<Energy> afterStorageEnergyList = differenceList;
+        // 拷贝一份 differenceList，避免引用同一对象
+        List<Energy> afterStorageEnergyList = new ArrayList<>(differenceList);
 
-        log.info("afterStorageEnergyList:{}", JSONObject.toJSONString(afterStorageEnergyList.stream().filter(x->x instanceof ThermalEnergy).collect(Collectors.toList())));
-
-//        List<Energy> afterAdjustableEnergyList = CollectionUtils.isEmpty(adjustableList) ? afterStorageEnergyList : adjustableList.stream()
-//                .map(x -> x.adjustable(afterStorageEnergyList))
-//                .flatMap(List::stream)
-//                .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(adjustableList)) {
             for (Adjustable adjustable : adjustableList) {
                 // storage.storage 会返回一个新的 List<Energy>，我们就用它来替换掉 differenceList
@@ -192,20 +174,10 @@ public class Simulator {
         }
         List<Energy> afterAdjustableEnergyList = afterStorageEnergyList;
 
-        Optional<CogenerationModel> cogenerationModel = adjustableList.stream().filter(x -> x instanceof CogenerationModel)
-                .findAny()
-                .map(x->(CogenerationModel)x);
-
-        log.debug("adjustableList->getThermalEnergyList:{}", JSONObject.toJSONString(cogenerationModel.map(CogenerationModel::getThermalEnergyList)));
-
-//        log.info("afterAdjustableEnergyList:{}", JSONObject.toJSONString(afterAdjustableEnergyList.stream().filter(x->x instanceof ThermalEnergy).collect(Collectors.toList())));
-
         //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
         List<Energy> afterProvideList = providerList.stream()
                 .map(x -> x.provide(afterAdjustableEnergyList))
                 .collect(Collectors.toList());
-
-        log.info("afterProvideList:{}", JSONObject.toJSONString(afterProvideList.stream().filter(x->x instanceof ThermalEnergy).collect(Collectors.toList())));
 
         log.info("======================================");
 
@@ -272,11 +244,16 @@ public class Simulator {
         return new StackedChartDto(sortedLocalDateTimes, mergedStackedChartDataList);
     }
 
-    private static @NotNull List<Indication> getIndications(List<Producer> producerList, List<Provider> providerList, List<Storage> storageList, List<MomentResult> momentResultList) {
-        Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
-        Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
-        Indication totalCost = TotalCostCalculator.calculate(producerList, storageList, providerList);
-        Indication curtailmentRate  = CurtailmentRateCalculator.calculate(producerList, momentResultList);
+    private static @NotNull List<Indication> getIndications(List<Device> deviceList, List<MomentResult> momentResultList) {
+
+        Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(deviceList);
+
+        Indication carbonEmission = CarbonEmissionCalculator.calculate(deviceList);
+
+        Indication totalCost = TotalCostCalculator.calculate(deviceList);
+
+        Indication curtailmentRate = CurtailmentRateCalculator.calculate(deviceList, momentResultList);
+
         return Arrays.asList(renewableEnergyPercent, carbonEmission, totalCost, curtailmentRate);
     }
 

@@ -16,9 +16,9 @@ import java.util.List;
 
 public class CurtailmentRateCalculator {
 
-    public static Indication calculate(List<Producer> producerList, List<MomentResult> momentResultList) {
+    public static Indication calculate(List<Device> deviceList, List<MomentResult> momentResultList) {
 
-        BigDecimal totalWindAndSolarPower = producerList.stream()
+        BigDecimal totalWindAndSolarPower = deviceList.stream()
                 .filter(x -> x instanceof SolarPowerModel || x instanceof WindPowerModel)
                 .map(x -> (Device) x)
                 .map(x -> ((Producer) x).getTotalEnergy())
