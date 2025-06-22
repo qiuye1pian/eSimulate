@@ -51,11 +51,11 @@ public class CsvGenerator {
 
 
     private static @NotNull Result getLoad() {
-        String init = "238209317.1";
-        String jump = "6761318.03";
+        String init = "2209317.1";
+        String jump = "961318.03";
         String valueTitle = "热负荷";
-        String min = "115589318.1";
-        String max = "3174670006.0";
+        String min = "115318.1";
+        String max = "4209317.0";
         return new Result(init, jump, valueTitle, min, max);
     }
 
@@ -68,7 +68,7 @@ public class CsvGenerator {
 
         Result result = getLoad();
 
-        int days = 365;
+        int days = 1;
 
         // 设置初始时间
         LocalDateTime startTime = LocalDateTime.of(2025, 1, 1, 0, 0);
@@ -88,7 +88,7 @@ public class CsvGenerator {
             writer.write(String.format("%s,%s\n", "时间", result.valueTitle));
 
             // 写入每一行数据
-            for (int i = 0; i < days * 24; i++) { // 一年的小时数
+            for (int i = 0; i < days * 2; i++) { // 一年的小时数
                 // 当前时间
                 LocalDateTime currentTime = startTime.plusHours(i);
                 // 生成随机波动分量

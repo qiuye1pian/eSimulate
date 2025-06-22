@@ -2,6 +2,7 @@ package org.esimulate.core.pso.simulator;
 
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.esimulate.core.model.device.CogenerationModel;
 import org.esimulate.core.model.load.electric.ElectricLoadData;
 import org.esimulate.core.model.load.heat.ThermalLoadData;
 import org.esimulate.core.model.result.MomentResult;
@@ -29,6 +30,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -74,7 +76,7 @@ public class Simulator {
                     .mapToObj(timeIndex ->
                             calculateAMoment(loadList, environmentList, producerList, adjustableList, storageList, providerList, timeIndex))
                     .collect(Collectors.toList());
-
+            log.debug("完成后:{}", JSONObject.toJSONString(adjustableList));
             return SimulateResult.builder()
                     .loadList(loadList)
                     .producerList(producerList)
@@ -134,6 +136,12 @@ public class Simulator {
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
+        Optional<CogenerationModel> any = producerList.stream().filter(x -> x instanceof CogenerationModel)
+                .findAny()
+                .map(x->(CogenerationModel)x);
+
+        log.debug("producerList->getThermalEnergyList:{}", JSONObject.toJSONString(any.map(CogenerationModel::getThermalEnergyList)));
+
         //用负荷数据减去已生产的能源，电能和热能分开计算的，获得能源 冗余/缺口 数据
         List<Energy> differenceList = loadList.stream()
                 // 当前时刻的负荷
@@ -183,7 +191,14 @@ public class Simulator {
             }
         }
         List<Energy> afterAdjustableEnergyList = afterStorageEnergyList;
-        log.info("afterAdjustableEnergyList:{}", JSONObject.toJSONString(afterAdjustableEnergyList.stream().filter(x->x instanceof ThermalEnergy).collect(Collectors.toList())));
+
+        Optional<CogenerationModel> cogenerationModel = adjustableList.stream().filter(x -> x instanceof CogenerationModel)
+                .findAny()
+                .map(x->(CogenerationModel)x);
+
+        log.debug("adjustableList->getThermalEnergyList:{}", JSONObject.toJSONString(cogenerationModel.map(CogenerationModel::getThermalEnergyList)));
+
+//        log.info("afterAdjustableEnergyList:{}", JSONObject.toJSONString(afterAdjustableEnergyList.stream().filter(x->x instanceof ThermalEnergy).collect(Collectors.toList())));
 
         //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
         List<Energy> afterProvideList = providerList.stream()
