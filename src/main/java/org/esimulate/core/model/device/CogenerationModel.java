@@ -321,9 +321,10 @@ public class CogenerationModel extends Device implements Producer, Adjustable,
         //计算爬坡后的数值
         log.debug("向上爬坡前功率:{}", currentAdjustableThermalPower);
         BigDecimal afterRampUpRate = currentAdjustableThermalPower.add(rampUpRate);
-        if (afterRampUpRate.compareTo(PMax) >= 0) {
+        BigDecimal pMax = PMax.subtract(PMin);
+        if (afterRampUpRate.compareTo(pMax) >= 0) {
             log.debug("超出最大功率，停止爬坡");
-            afterRampUpRate = PMax;
+            afterRampUpRate = pMax;
         }
         //如果爬上去之后能满足负荷
         if (afterRampUpRate
