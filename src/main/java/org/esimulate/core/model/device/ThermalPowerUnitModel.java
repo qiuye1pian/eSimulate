@@ -195,6 +195,12 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
+        //扩容
+        this.maxPower = this.maxPower.multiply(quantity);
+        this.minPower = this.minPower.multiply(quantity);
+        this.rampUpRate = this.rampDownRate.multiply(quantity);
+        this.rampDownRate = this.rampDownRate.multiply(quantity);
+
         BigDecimal realTimePower;
 
         if (this.runningStatus == false) {
@@ -202,6 +208,12 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
         } else {
             realTimePower = workWithPowerOn(electricEnergyDifference);
         }
+
+        //缩容
+        this.maxPower = this.maxPower.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.minPower = this.minPower.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.rampUpRate = this.rampDownRate.divide(quantity, 2, RoundingMode.HALF_UP);
+        this.rampDownRate = this.rampDownRate.divide(quantity, 2, RoundingMode.HALF_UP);
 
         this.adjustElectricEnergyList.add(new ElectricEnergy(realTimePower));
         /*
@@ -271,7 +283,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
      * @return 当前浮动工作功率
      */
     private BigDecimal rampDown(BigDecimal electricEnergyDifference) {
-        if (currentAdjustablePower.subtract(rampDownRate.multiply(quantity))
+        if (currentAdjustablePower.subtract(rampDownRate)
                 .compareTo(electricEnergyDifference.abs()) >= 0) {
             currentAdjustablePower = currentAdjustablePower.subtract(rampDownRate);
         } else {
@@ -287,11 +299,17 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
      * @return 当前浮动工作功率
      */
     private BigDecimal rampUp(BigDecimal electricEnergyDifference) {
-        if (currentAdjustablePower.add(rampUpRate.multiply(quantity))
+        BigDecimal afterRampUpRate = currentAdjustablePower.add(rampUpRate);
+        BigDecimal pMax = this.maxPower.subtract(this.minPower);
+        if (afterRampUpRate.compareTo(pMax) >= 0) {
+            afterRampUpRate = pMax;
+        }
+
+        if (afterRampUpRate
                 .compareTo(electricEnergyDifference.abs()) > 0) {
             currentAdjustablePower = electricEnergyDifference.abs();
         } else {
-            currentAdjustablePower = currentAdjustablePower.add(rampUpRate);
+            currentAdjustablePower = afterRampUpRate;
         }
         return currentAdjustablePower;
     }
@@ -311,7 +329,7 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
         this.stateDurationHours = 0;
         this.currentAdjustablePower = BigDecimal.ZERO;
         startStopRecordList.add(1);
-        return this.minPower.multiply(quantity);
+        return this.minPower;
     }
 
     /**

@@ -12,26 +12,45 @@ class ThermalPowerUnitModelTest {
     public void testRampUpForTest_case1_underLimit() {
         // 当前10kW, 最大爬坡20kW，能量缺口25kW
         ThermalPowerUnitModel model = new ThermalPowerUnitModel();
+        model.setMaxPower(new BigDecimal(40));
+        model.setMinPower(new BigDecimal(10));
         model.setCurrentAdjustablePower(new BigDecimal("10"));
         model.setRampUpRate(new BigDecimal("20"));
         // 爬坡
         BigDecimal result = model.rampUpForTest(new BigDecimal("-25"));
 
         // 爬到满足要求即可
-        assertEquals(new BigDecimal("25.00"), result);
+        assertEquals(new BigDecimal("25"), result);
     }
 
     @Test
     public void testRampUpForTest_case2_overLimit() {
         // 当前10kW, 最大爬坡20kW，能量缺口50kW
         ThermalPowerUnitModel model = new ThermalPowerUnitModel();
+        model.setMaxPower(new BigDecimal(40));
+        model.setMinPower(new BigDecimal(10));
         model.setCurrentAdjustablePower(new BigDecimal("10"));
         model.setRampUpRate(new BigDecimal("20"));
 
         BigDecimal result = model.rampUpForTest(new BigDecimal("-50")); // 差额 < rampUpRate
 
         // 爬到30
-        assertEquals(new BigDecimal("30.00"), result);
+        assertEquals(new BigDecimal("30"), result);
+    }
+
+    @Test
+    public void testRampUpForTest_case3_overLimit() {
+        // 当前10kW, 最大爬坡20kW，能量缺口50kW
+        ThermalPowerUnitModel model = new ThermalPowerUnitModel();
+        model.setMaxPower(new BigDecimal(40));
+        model.setMinPower(new BigDecimal(10));
+        model.setCurrentAdjustablePower(new BigDecimal("10"));
+        model.setRampUpRate(new BigDecimal("40"));
+
+        BigDecimal result = model.rampUpForTest(new BigDecimal("-50")); // 差额 < rampUpRate
+
+        // 爬到30
+        assertEquals(new BigDecimal("30"), result);
     }
 
 
@@ -45,7 +64,7 @@ class ThermalPowerUnitModelTest {
         BigDecimal result = model.rampDownForTest(new BigDecimal("-25"));
 
         // 爬到30
-        assertEquals(new BigDecimal("30.00"), result);
+        assertEquals(new BigDecimal("30"), result);
     }
 
     @Test
@@ -58,7 +77,7 @@ class ThermalPowerUnitModelTest {
         BigDecimal result = model.rampDownForTest(new BigDecimal("-45"));
 
         // 爬到满足要求即可
-        assertEquals(new BigDecimal("45.00"), result);
+        assertEquals(new BigDecimal("45"), result);
     }
 
     @Test
@@ -71,7 +90,7 @@ class ThermalPowerUnitModelTest {
         BigDecimal result = model.rampDownForTest(new BigDecimal("0"));
 
         // 爬到满足要求即可
-        assertEquals(new BigDecimal("0.00"), result);
+        assertEquals(new BigDecimal("0"), result);
     }
 
     @Test
@@ -84,35 +103,33 @@ class ThermalPowerUnitModelTest {
         BigDecimal result = model.rampDownForTest(new BigDecimal("0"));
 
         // 爬到满足要求即可
-        assertEquals(new BigDecimal("10.00"), result);
+        assertEquals(new BigDecimal("10"), result);
     }
 
     @Test
     public void testRampDownForTest_case5() {
-        // 当前50kW, 最大下坡20kW，能量缺口45kW
+        // 当前25kW, 最大下坡10kW，能量缺口5kW
         ThermalPowerUnitModel model = new ThermalPowerUnitModel();
-        model.setQuantity(BigDecimal.valueOf(2));
         model.setCurrentAdjustablePower(new BigDecimal("25"));
         model.setRampDownRate(new BigDecimal("10"));
         // 爬坡
-        BigDecimal result = model.rampDownForTest(new BigDecimal("-45"));
+        BigDecimal result = model.rampDownForTest(new BigDecimal("-5"));
 
         // 爬到满足要求即可
-        assertEquals(new BigDecimal("22.50"), result);
+        assertEquals(new BigDecimal("15"), result);
     }
 
     @Test
     public void testRampDownForTest_case6() {
         // 当前50kW, 最大下坡20kW，能量缺口45kW
         ThermalPowerUnitModel model = new ThermalPowerUnitModel();
-        model.setQuantity(BigDecimal.valueOf(1));
         model.setCurrentAdjustablePower(new BigDecimal("50"));
         model.setRampDownRate(new BigDecimal("20"));
         // 爬坡
         BigDecimal result = model.rampDownForTest(new BigDecimal("-45"));
 
         // 爬到满足要求即可
-        assertEquals(new BigDecimal("45.00"), result);
+        assertEquals(new BigDecimal("45"), result);
     }
 
 }

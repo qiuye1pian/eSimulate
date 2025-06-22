@@ -179,8 +179,6 @@ public class Simulator {
                 .map(x -> x.provide(afterAdjustableEnergyList))
                 .collect(Collectors.toList());
 
-        log.info("======================================");
-
         //剩余的能源将被丢弃，电能为弃风弃光，热能为自然散逸
         return new MomentResult(afterProvideList);
     }
