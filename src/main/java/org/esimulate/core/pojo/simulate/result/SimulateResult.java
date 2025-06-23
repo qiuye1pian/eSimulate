@@ -21,21 +21,6 @@ public class SimulateResult {
 
     List<Indication> indicationList;
 
-//    @JSONField(serialize = false)
-//    List<LoadData> loadList;
-//
-//    @JSONField(serialize = false)
-//    List<Producer> producerList;
-//
-//    @JSONField(serialize = false)
-//    List<Storage> storageList;
-//
-//    @JSONField(serialize = false)
-//    List<Provider> providerList;
-//
-//    @JSONField(serialize = false)
-//    List<MomentResult> momentResultList;
-
     StackedChartDto electricStackedChartDto;
 
     StackedChartDto thermalStackedChartDto;
