@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +72,9 @@ public class PsoApplication {
         List<Particle> particleList = new ArrayList<>();
 
         //临时加的剪切长度的
+        //======================================================
+        int size = loadDataList.size();
+        int times = size / 24;
         List<LoadData> shortLoadDataList = loadDataList.stream()
                 .map(x -> x.cutOffMoreThan(24))
                 .map(x -> (LoadData) x)
@@ -79,6 +83,8 @@ public class PsoApplication {
                 .map(environmentData -> environmentData.cutOffMoreThan(24))
                 .map(x -> (EnvironmentData) x)
                 .collect(Collectors.toList());
+        //======================================================
+
 
         for (int i = 0; i < psoConfig.getParticleCount(); i++) {
             particleList.add(new Particle(i, psoConfig, shortLoadDataList, shortEnvironmentDataList, deviceList));
@@ -99,6 +105,9 @@ public class PsoApplication {
                     .parallel()
                     .peek(particle -> particle.move(optimizeResult.getGlobalBestPosition()))
                     .map(Particle::runSimulate)
+                    //======================================================
+                    .peek(x-> x.setFitnessValue(x.getFitnessValue().multiply(BigDecimal.valueOf(times))))
+                    //======================================================
                     .peek(particle -> optimizeTask.setCurrentIteration(atomicInteger.incrementAndGet()))
                     .collect(Collectors.toList());
             optimizeResult.addSimulateSnapshotList(simulateSnapshotList);
@@ -124,6 +133,7 @@ public class PsoApplication {
 
         optimizeTask.setOptimizeResult(optimizeResult);
         optimizeTask.setTaskState(TaskStateEnum.COMPLETED);
+
         optimizeTaskService.save(optimizeTask);
     }
 
