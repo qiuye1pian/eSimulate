@@ -73,7 +73,7 @@ public class PsoApplication {
 
         //临时加的剪切长度的
         //======================================================
-        int size = loadDataList.size();
+        int size = loadDataList.stream().findAny().map(x -> x.getLoadValueList().size()).orElse(1);
         int times = size / 24;
         List<LoadData> shortLoadDataList = loadDataList.stream()
                 .map(x -> x.cutOffMoreThan(24))
