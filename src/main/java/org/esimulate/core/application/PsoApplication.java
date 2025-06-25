@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -110,6 +111,10 @@ public class PsoApplication {
                     //======================================================
                     .peek(particle -> optimizeTask.setCurrentIteration(atomicInteger.incrementAndGet()))
                     .collect(Collectors.toList());
+            log.info("这次迭代的最优值:{}",simulateSnapshotList.stream()
+                    .min(Comparator.comparing(SimulateSnapshot::getFitnessValue))
+                    .map(SimulateSnapshot::getFitnessValue)
+                    .orElse(BigDecimal.ZERO));
             optimizeResult.addSimulateSnapshotList(simulateSnapshotList);
             optimizeTaskService.save(optimizeTask);
 
