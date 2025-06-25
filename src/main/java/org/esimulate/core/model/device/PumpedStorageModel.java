@@ -172,9 +172,9 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
         this.stateOfCharge = this.stateOfCharge.multiply(quantity);
 
 
-        log.info("抽水蓄能电能========准备工作========剩余冗余/缺口:{}，电量:{}/{}", electricEnergyDifference, this.stateOfCharge, this.EMax);
+//        log.info("抽水蓄能电能========准备工作========剩余冗余/缺口:{}，电量:{}/{}", electricEnergyDifference, this.stateOfCharge, this.EMax);
         BigDecimal remainingDifference = updateElectricEnergy(electricEnergyDifference);
-        log.info("抽水蓄能电能========工作完成========剩余冗余/缺口:{}，电量:{}/{}\r\n==========:{}", remainingDifference, this.stateOfCharge, this.EMax, remainingDifference.subtract(electricEnergyDifference));
+//        log.info("抽水蓄能电能========工作完成========剩余冗余/缺口:{}，电量:{}/{}\r\n==========:{}", remainingDifference, this.stateOfCharge, this.EMax, remainingDifference.subtract(electricEnergyDifference));
 
         // 按数量缩容
         this.PMax = this.PMax.divide(quantity, 2, RoundingMode.HALF_UP);
@@ -189,42 +189,29 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     private BigDecimal updateElectricEnergy(BigDecimal remainingDifference) {
         // 如果有冗余就充电
         if (remainingDifference.compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal chargedDifference = charging(remainingDifference);
-            log.info("充了:{},放了{},充电花费:{}",
-                    this.chargingList.get(this.chargingList.size() - 1),
-                    this.disChargingList.get(this.disChargingList.size() - 1),
-                    this.chargingCostList.get(this.chargingCostList.size() - 1));
-            return chargedDifference;
+            return charging(remainingDifference);
         }
 
         // 如果有缺口则放电
         if (remainingDifference.compareTo(BigDecimal.ZERO) < 0) {
-            BigDecimal disChargedDifference = disCharging(remainingDifference);
-            log.info("充了:{},放了{},充电花费:{}",
-                    this.chargingList.get(this.chargingList.size() - 1),
-                    this.disChargingList.get(this.disChargingList.size() - 1),
-                    this.chargingCostList.get(this.chargingCostList.size() - 1));
-            return disChargedDifference;
+            return disCharging(remainingDifference);
         }
-        log.info("充了:{},放了{},充电花费:{}",
-                this.chargingList.get(this.chargingList.size() - 1),
-                this.disChargingList.get(this.disChargingList.size() - 1),
-                this.chargingCostList.get(this.chargingCostList.size() - 1));
+
         return BigDecimal.ZERO;
     }
 
     // 蓄能
     private @NotNull BigDecimal charging(BigDecimal remainingDifference) {
         BigDecimal needToCharging = remainingDifference.compareTo(PMax) > 0 ? PMax : remainingDifference;
-        log.info("充电>>>当前能量/最大容量:{}/{}，待充:{},剩余缺口:{}", stateOfCharge, EMax, needToCharging, remainingDifference);
+//        log.info("充电>>>当前能量/最大容量:{}/{}，待充:{},剩余缺口:{}", stateOfCharge, EMax, needToCharging, remainingDifference);
         BigDecimal chargeValue;
         // 如果超出了最大范围，则停止蓄能
         if (stateOfCharge.add(needToCharging).compareTo(this.EMax) >= 0) {
             chargeValue = this.EMax.subtract(stateOfCharge);
-            log.info("可充空间不足-->充电:{}", chargeValue);
+//            log.info("可充空间不足-->充电:{}", chargeValue);
         } else {
             chargeValue = needToCharging;
-            log.info("可充空间充足-->充电:{}", chargeValue);
+//            log.info("可充空间充足-->充电:{}", chargeValue);
         }
 
         BigDecimal chargeCost = chargeValue.multiply(BigDecimal.valueOf(0.1));
@@ -232,7 +219,7 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
         this.chargingList.add(chargeValue);
         this.disChargingList.add(BigDecimal.ZERO);
         this.chargingCostList.add(chargeCost);
-        log.info("没满-->充电:{}", chargeValue);
+//        log.info("没满-->充电:{}", chargeValue);
 
         return remainingDifference.subtract(chargeValue.divide(etaCh, 2, RoundingMode.HALF_UP));
     }
@@ -244,15 +231,15 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
      */
     private @NotNull BigDecimal disCharging(BigDecimal remainingDifference) {
         BigDecimal needToDisCharging = remainingDifference.abs().compareTo(this.PMax) > 0 ? PMax.negate() : remainingDifference;
-        log.info("放电<<<当前能量/最大容量:{}/{}, 待放电:{}, 剩余缺口:{}", stateOfCharge, EMax, needToDisCharging, remainingDifference);
+//        log.info("放电<<<当前能量/最大容量:{}/{}, 待放电:{}, 剩余缺口:{}", stateOfCharge, EMax, needToDisCharging, remainingDifference);
         BigDecimal disChargeValue;
         if (this.stateOfCharge.add(needToDisCharging).compareTo(BigDecimal.ZERO) >= 0) {
             disChargeValue = needToDisCharging;
-            log.info("够放的-->放电:{}", disChargeValue);
+//            log.info("够放的-->放电:{}", disChargeValue);
         }else {
             // 如果小于0，不够放的，则全放掉
             disChargeValue = this.stateOfCharge.negate();
-            log.info("不够放的-->放电:{}", disChargeValue);
+//            log.info("不够放的-->放电:{}", disChargeValue);
         }
         // disChargeValue一直是 大于等于0 的
         this.stateOfCharge = this.stateOfCharge.add(disChargeValue);
@@ -261,7 +248,7 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
         this.disChargingList.add(disChargeValue);
         // remainingDifference是负数，加上 disChargeValue
         return remainingDifference.add(disChargeValue.multiply(etaDis));
-    };
+    }
 
     @Override
     public BigDecimal calculateCarbonEmissions() {
