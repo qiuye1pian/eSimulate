@@ -241,7 +241,6 @@ public class Simulator {
         Indication carbonEmission = CarbonEmissionCalculator.calculate(deviceList);
 
         Indication totalCost = TotalCostCalculator.calculate(deviceList);
-        log.info("totalCost:{}", totalCost);//todo:初次迭代的时候这里的值都一样，需要检查
 
         Indication curtailmentRate = CurtailmentRateCalculator.calculate(deviceList, momentResultList);
 

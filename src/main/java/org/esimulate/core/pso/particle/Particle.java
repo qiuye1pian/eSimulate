@@ -1,6 +1,5 @@
 package org.esimulate.core.pso.particle;
 
-import com.alibaba.fastjson2.JSONObject;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.indication.TotalCost;
@@ -190,23 +189,11 @@ public class Particle {
                 .filter(x -> x instanceof Dimension)
                 .forEach(x -> x.setQuantity(BigDecimal.valueOf(this.currentPosition.getValueAt(i.getAndIncrement()))));
 
-        List<BigDecimal> quantities = currentSimulateDeviceList.stream().map(Device::getQuantity).collect(Collectors.toList());
-        log.info("quantities:{}", quantities);
-
         SimulateResult simulateResult = Simulator.simulate(loadDataList, environmentDataList, currentSimulateDeviceList);
 
         this.fitnessValue = evaluateFitnessValue(simulateResult);
 
-        log.info("Particle {} @{} from@{} => fitnessValue={}, Position={}",
-                this.particleIndex,
-                Integer.toHexString(System.identityHashCode(this.fitnessValue)),
-                Integer.toHexString(System.identityHashCode(simulateResult)),
-                this.fitnessValue,
-                JSONObject.toJSONString(this.currentPosition.getCoordinateValueList())
-        );
-
         if (this.bestFitnessValue.compareTo(this.fitnessValue) > 0) {
-//            log.info("bestFitnessValue changed:{}->{}", this.bestFitnessValue, this.fitnessValue);//这里好像有多线程问题
             this.bestFitnessValue = this.fitnessValue;
             this.bestPosition = this.currentPosition.clone();
         }
