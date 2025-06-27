@@ -1,11 +1,9 @@
 package org.esimulate.core.pso.simulator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.esimulate.core.model.device.CogenerationModel;
 import org.esimulate.core.model.load.electric.ElectricLoadData;
 import org.esimulate.core.model.load.heat.ThermalLoadData;
 import org.esimulate.core.model.result.MomentResult;
-import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.model.result.indication.calculator.CarbonEmissionCalculator;
 import org.esimulate.core.model.result.indication.calculator.CurtailmentRateCalculator;
 import org.esimulate.core.model.result.indication.calculator.RenewableEnergyShareCalculator;
@@ -26,7 +24,10 @@ import org.esimulate.util.DateTimeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -44,6 +45,7 @@ public class Simulator {
     public static SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList,
                                           List<Device> deviceList) {
         try {
+
             List<Producer> producerList = deviceList.stream()
                     .filter(x -> x instanceof Producer)
                     .map(x -> (Producer) x)
@@ -72,16 +74,6 @@ public class Simulator {
                     .mapToObj(timeIndex ->
                             calculateAMoment(loadList, environmentList, producerList, adjustableList, storageList, providerList, timeIndex))
                     .collect(Collectors.toList());
-
-            Optional<List<ThermalEnergy>> cogInProducer = producerList.stream()
-                    .filter(x -> x instanceof CogenerationModel)
-                    .map(x -> (CogenerationModel) x)
-                    .map(CogenerationModel::getThermalEnergyList).findAny();
-
-            Optional<List<ThermalEnergy>> cogInAdjustable = adjustableList.stream()
-                    .filter(x -> x instanceof CogenerationModel)
-                    .map(x -> (CogenerationModel) x)
-                    .map(CogenerationModel::getThermalEnergyList).findAny();
 
             return SimulateResult.builder()
                     .indicationList(getIndications(deviceList, momentResultList))
@@ -249,6 +241,7 @@ public class Simulator {
         Indication carbonEmission = CarbonEmissionCalculator.calculate(deviceList);
 
         Indication totalCost = TotalCostCalculator.calculate(deviceList);
+        log.info("totalCost:{}", totalCost);//todo:初次迭代的时候这里的值都一样，需要检查
 
         Indication curtailmentRate = CurtailmentRateCalculator.calculate(deviceList, momentResultList);
 

@@ -1,5 +1,6 @@
 package org.esimulate.core.pso.particle;
 
+import com.alibaba.fastjson2.JSONObject;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.indication.TotalCost;
@@ -185,23 +186,30 @@ public class Particle {
         List<Device> currentSimulateDeviceList = deviceList.stream().map(Device::clone).collect(Collectors.toList());
 
         AtomicInteger i = new AtomicInteger(0);
-        deviceList.stream()
+        currentSimulateDeviceList.stream()
                 .filter(x -> x instanceof Dimension)
                 .forEach(x -> x.setQuantity(BigDecimal.valueOf(this.currentPosition.getValueAt(i.getAndIncrement()))));
+
+        List<BigDecimal> quantities = currentSimulateDeviceList.stream().map(Device::getQuantity).collect(Collectors.toList());
+        log.info("quantities:{}", quantities);
 
         SimulateResult simulateResult = Simulator.simulate(loadDataList, environmentDataList, currentSimulateDeviceList);
 
         this.fitnessValue = evaluateFitnessValue(simulateResult);
 
+        log.info("Particle {} @{} from@{} => fitnessValue={}, Position={}",
+                this.particleIndex,
+                Integer.toHexString(System.identityHashCode(this.fitnessValue)),
+                Integer.toHexString(System.identityHashCode(simulateResult)),
+                this.fitnessValue,
+                JSONObject.toJSONString(this.currentPosition.getCoordinateValueList())
+        );
+
         if (this.bestFitnessValue.compareTo(this.fitnessValue) > 0) {
-            log.info("bestFitnessValue changed:{}->{}", this.bestFitnessValue, this.fitnessValue);
+//            log.info("bestFitnessValue changed:{}->{}", this.bestFitnessValue, this.fitnessValue);//这里好像有多线程问题
             this.bestFitnessValue = this.fitnessValue;
             this.bestPosition = this.currentPosition.clone();
         }
-        log.debug("[Particle {}] =====>Simulate finish<=====", this.particleIndex);
-        log.debug("[Particle {}] Position:{}\tvalue:{}", this.particleIndex, this.currentPosition.getCoordinateValueList(), this.fitnessValue);
-        log.debug("[Particle {}] BestPosition:{}\tbestValue:{}", this.particleIndex, this.bestPosition.getCoordinateValueList(), this.bestFitnessValue);
-        log.debug("[Particle {}] ==============>\tStep {} End=======\t⬆️⬆️⬆️⬆️", this.particleIndex, this.currentIterations);
 
         return new SimulateSnapshot(this.particleIndex, this.maxCurtailmentRate, this.minRenewableEnergyShare, this.currentPosition, this.fitnessValue, simulateResult);
     }
