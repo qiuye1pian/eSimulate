@@ -122,36 +122,38 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
                 .multiply(this.quantity)
                 .setScale(10, RoundingMode.HALF_UP);
 
+        // 平滑和限幅
+        return new ElectricEnergy(smoothOutputPower(outputPower));
+
+    }
+
+    /**
+     * 对超过额定功率的输出进行分段平滑和限幅
+     */
+    private BigDecimal smoothOutputPower(BigDecimal outputPower) {
         if (outputPower.compareTo(BigDecimal.ZERO) <= 0) {
-            outputPower = BigDecimal.ZERO;
-            return new ElectricEnergy(outputPower);
+            return BigDecimal.ZERO;
         }
+        BigDecimal base = P_pvN;
+        BigDecimal cap = base.multiply(BigDecimal.valueOf(1.02));
+        BigDecimal top = base.multiply(BigDecimal.valueOf(1.08));
+        BigDecimal result;
 
-        // 分段平滑：
-        BigDecimal cap = P_pvN.multiply(BigDecimal.valueOf(1.02));
-
-        if (outputPower.compareTo(P_pvN) <= 0) {
-            return new ElectricEnergy(outputPower);
+        if (outputPower.compareTo(base) <= 0) {
+            result = outputPower;
         } else if (outputPower.compareTo(cap) <= 0) {
-            // 在 [P, 1.02P] 区间，缓慢增长：系数0.09
-            BigDecimal delta = outputPower.subtract(P_pvN);
-            outputPower = P_pvN.add(delta.multiply(BigDecimal.valueOf(0.09)))
-                    .setScale(10, RoundingMode.HALF_UP);
+            BigDecimal delta = outputPower.subtract(base);
+            result = base.add(delta.multiply(BigDecimal.valueOf(0.09)));
         } else {
-            // 超过1.02P后，再次缓慢增长：系数0.01
             BigDecimal delta = outputPower.subtract(cap);
-            outputPower = cap.add(delta.multiply(BigDecimal.valueOf(0.01)))
-                    .setScale(10, RoundingMode.HALF_UP);
+            result = cap.add(delta.multiply(BigDecimal.valueOf(0.01)));
         }
 
-        BigDecimal top = P_pvN.multiply(BigDecimal.valueOf(1.08));
-
-        if (outputPower.compareTo(top) >= 0) {
-            outputPower = top;
+        // 最终限幅到 1.08P
+        if (result.compareTo(top) > 0) {
+            result = top;
         }
-
-        return new ElectricEnergy(outputPower);
-
+        return result.setScale(10, RoundingMode.HALF_UP);
     }
 
     @Override
