@@ -130,7 +130,9 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
         // 分段平滑：
         BigDecimal cap = P_pvN.multiply(BigDecimal.valueOf(1.02));
 
-        if (outputPower.compareTo(cap) <= 0) {
+        if (outputPower.compareTo(P_pvN) <= 0) {
+            return new ElectricEnergy(outputPower);
+        } else if (outputPower.compareTo(cap) <= 0) {
             // 在 [P, 1.02P] 区间，缓慢增长：系数0.09
             BigDecimal delta = outputPower.subtract(P_pvN);
             outputPower = P_pvN.add(delta.multiply(BigDecimal.valueOf(0.09)))
