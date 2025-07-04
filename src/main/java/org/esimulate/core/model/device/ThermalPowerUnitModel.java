@@ -18,6 +18,7 @@ import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
+import org.springframework.util.CollectionUtils;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -412,6 +413,9 @@ public class ThermalPowerUnitModel extends Device implements Producer, Dimension
 
     @Override
     public List<Energy> getAdjustTotalEnergy() {
+        if (CollectionUtils.isEmpty(adjustElectricEnergyList)) {
+            return Collections.emptyList();
+        }
         BigDecimal totalEnergyValue = adjustElectricEnergyList.stream()
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
