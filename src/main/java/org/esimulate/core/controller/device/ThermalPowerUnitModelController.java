@@ -37,6 +37,6 @@ public class ThermalPowerUnitModelController {
     @PostMapping("/delete")
     public String deleteThermalPowerUnitModel(@RequestBody ThermalPowerUnitModelDto thermalPowerModelDto) {
         thermalPowerUnitService.deleteById(thermalPowerModelDto.getId());
-        return "光热模型删除成功";
+        return "火电模型删除成功";
     }
 }
