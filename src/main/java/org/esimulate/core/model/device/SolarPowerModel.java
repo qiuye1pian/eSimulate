@@ -106,7 +106,7 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
      * @param currentIrradiance  t 时刻的太阳辐照强度 (W/m²)
      * @return 计算得到的光伏输出功率 (kW)
      */
-    private Energy calculatePower(BigDecimal currentTemperature, BigDecimal currentIrradiance) {
+    private ElectricEnergy calculatePower(BigDecimal currentTemperature, BigDecimal currentIrradiance) {
 
         // 计算温度影响部分: (1 + t_e * (T_e - T_ref))
         BigDecimal temperatureEffect = t_e.multiply(currentTemperature.subtract(T_ref));
@@ -170,8 +170,8 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
                 .findAny()
                 .orElse(BigDecimal.ZERO);
 
-        Energy energy = calculatePower(temperature, sunlight);
-        this.electricEnergyList.add((ElectricEnergy) energy);
+        ElectricEnergy energy = calculatePower(temperature, sunlight).multiply(quantity);
+        this.electricEnergyList.add(energy);
         return Collections.singletonList(energy);
     }
 
