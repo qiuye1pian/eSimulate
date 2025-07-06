@@ -27,9 +27,6 @@ public class EnvironmentDataComponent {
     @Autowired
     SunlightIrradianceSchemeService sunlightIrradianceSchemeService;
 
-    @Autowired
-    GasSchemeService gasSchemeService;
-
     public @NotNull List<EnvironmentData> getEnvironmentData(List<EnvironmentDto> environmentDtoList) {
         return environmentDtoList.stream()
                 .parallel()
@@ -50,9 +47,6 @@ public class EnvironmentDataComponent {
 
             case Sunlight:
                 return sunlightIrradianceSchemeService.findWithValuesById(environmentDto.getId());
-
-            case Gas:
-                return gasSchemeService.findWithValuesById(environmentDto.getId());
 
             default:
                 log.error("未识别的环境类型: {}", environmentDto.getEnvironmentTypeEnum());
