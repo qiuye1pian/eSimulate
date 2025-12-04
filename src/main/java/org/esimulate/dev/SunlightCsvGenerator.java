@@ -28,7 +28,7 @@ public class SunlightCsvGenerator {
 
     public static void main(String[] args) {
 
-        int days = 1;
+        int days = 365;
 
         // 光照参数
         Result result = getSunlight();
