@@ -72,23 +72,8 @@ public class PsoApplication {
         OptimizeResult optimizeResult = new OptimizeResult();
         List<Particle> particleList = new ArrayList<>();
 
-        //临时加的剪切长度的
-        //======================================================
-        int size = loadDataList.stream().findAny().map(x -> x.getLoadValueList().size()).orElse(1);
-        int times = size / 24;
-        List<LoadData> shortLoadDataList = loadDataList.stream()
-                .map(x -> x.cutOffMoreThan(24))
-                .map(x -> (LoadData) x)
-                .collect(Collectors.toList());
-        List<EnvironmentData> shortEnvironmentDataList = environmentDataList.stream()
-                .map(environmentData -> environmentData.cutOffMoreThan(24))
-                .map(x -> (EnvironmentData) x)
-                .collect(Collectors.toList());
-        //======================================================
-
-
         for (int i = 0; i < psoConfig.getParticleCount(); i++) {
-            particleList.add(new Particle(i, psoConfig, shortLoadDataList, shortEnvironmentDataList, deviceList));
+            particleList.add(new Particle(i, psoConfig, loadDataList, environmentDataList, deviceList));
         }
 
         AtomicInteger atomicInteger = new AtomicInteger();
@@ -106,9 +91,6 @@ public class PsoApplication {
                     .parallel()
                     .peek(particle -> particle.move(optimizeResult.getGlobalBestPosition()))
                     .map(Particle::runSimulate)
-                    //======================================================
-                    .peek(x-> x.setFitnessValue(x.getFitnessValue().multiply(BigDecimal.valueOf(times))))
-                    //======================================================
                     .peek(particle -> optimizeTask.setCurrentIteration(atomicInteger.incrementAndGet()))
                     .collect(Collectors.toList());
             log.info("这次迭代的最优值:{}",simulateSnapshotList.stream()
