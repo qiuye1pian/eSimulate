@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface Producer extends CarbonEmitter {
 
-    Energy produce(List<EnvironmentValue> environmentValueList);
+    List<Energy> produce(List<EnvironmentValue> environmentValueList);
 
     BigDecimal getTotalEnergy();
 

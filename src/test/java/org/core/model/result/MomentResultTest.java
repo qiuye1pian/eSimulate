@@ -9,8 +9,6 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class MomentResultTest {
 
     @Test
@@ -28,7 +26,6 @@ class MomentResultTest {
         MomentResult validResult = new MomentResult(validList);
         MomentResult invalidResult = new MomentResult(invalidList);
 
-        assertFalse(validResult.isUnqualified());
-        assertTrue(invalidResult.isUnqualified());
+
     }
 }

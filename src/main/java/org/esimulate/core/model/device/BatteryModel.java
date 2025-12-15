@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
 import org.esimulate.core.pojo.model.BatteryModelDto;
 import org.esimulate.core.pso.particle.Dimension;
@@ -26,6 +27,7 @@ import java.util.List;
 /**
  * 蓄电池储能模型
  */
+@Slf4j
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
@@ -106,10 +108,10 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
     private List<BigDecimal> disChargingList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public BatteryModel(BatteryModelDto batteryModelDto) {
         this.modelName = batteryModelDto.getModelName();
@@ -137,7 +139,7 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
      * @return 经过储能调整后的 冗余/缺口 数据
      */
     @Override
-    public Energy storage(List<Energy> differenceList) {
+    public List<Energy> storage(List<Energy> differenceList) {
         // 1. 计算输入的电能冗余/缺口
         BigDecimal electricEnergyDifference = differenceList.stream()
                 .filter(x -> x instanceof ElectricEnergy)
@@ -168,7 +170,10 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
         this.E_ESS_t = this.E_ESS_t.divide(quantity, 2, RoundingMode.HALF_UP);
 
         // 4. 返回剩余的电能差值
-        return new ElectricEnergy(remainingDifference);
+        differenceList.removeIf(x -> x instanceof ElectricEnergy);
+        differenceList.add(new ElectricEnergy(remainingDifference));
+
+        return differenceList;
     }
 
     /**
@@ -265,7 +270,7 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getElectricStackedChartDataList() {
         StackedChartData chargingList = new StackedChartData(String.format("%s 充电", this.modelName), this.chargingList, 600);
         StackedChartData disChargingList = new StackedChartData(String.format("%s 放电", this.modelName), this.disChargingList, 600);
         return Arrays.asList(chargingList, disChargingList);
@@ -273,29 +278,35 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
 
     @Override
     public BatteryModel clone() {
-        BatteryModel batteryModel = (BatteryModel) super.clone();
+        BatteryModel clone = (BatteryModel) super.clone();
 
         // 深拷贝 Timestamp（可变类型必须拷贝）
-        batteryModel.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // 深拷贝 BigDecimal（不可变类型，为防御性复制仍重新构造）
-        batteryModel.C_t = new BigDecimal(this.C_t.toString());
-        batteryModel.SOC_min = new BigDecimal(this.SOC_min.toString());
-        batteryModel.SOC_max = new BigDecimal(this.SOC_max.toString());
-        batteryModel.mu = new BigDecimal(this.mu.toString());
-        batteryModel.maxChargePower = new BigDecimal(this.maxChargePower.toString());
-        batteryModel.maxDischargePower = new BigDecimal(this.maxDischargePower.toString());
-        batteryModel.etaHch = new BigDecimal(this.etaHch.toString());
-        batteryModel.etaHdis = new BigDecimal(this.etaHdis.toString());
-        batteryModel.E_ESS_t = new BigDecimal(this.E_ESS_t.toString());
-        batteryModel.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
-        batteryModel.cost = new BigDecimal(this.cost.toString());
-        batteryModel.purchaseCost = new BigDecimal(this.purchaseCost.toString());
+        clone.C_t = new BigDecimal(this.C_t.toString());
+        clone.SOC_min = new BigDecimal(this.SOC_min.toString());
+        clone.SOC_max = new BigDecimal(this.SOC_max.toString());
+        clone.mu = new BigDecimal(this.mu.toString());
+        clone.maxChargePower = new BigDecimal(this.maxChargePower.toString());
+        clone.maxDischargePower = new BigDecimal(this.maxDischargePower.toString());
+        clone.etaHch = new BigDecimal(this.etaHch.toString());
+        clone.etaHdis = new BigDecimal(this.etaHdis.toString());
+        clone.E_ESS_t = new BigDecimal(this.E_ESS_t.toString());
+        clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
+        clone.cost = new BigDecimal(this.cost.toString());
+        clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
 
         // 字符串字段直接赋值（不可变类型）
-        batteryModel.modelName = this.modelName;
+        clone.modelName = this.modelName;
 
-        return batteryModel;
+        clone.E_ESS_LIST = new ArrayList<>();
+
+        clone.chargingList = new ArrayList<>();
+
+        clone.disChargingList = new ArrayList<>();
+
+        return clone;
     }
 
 

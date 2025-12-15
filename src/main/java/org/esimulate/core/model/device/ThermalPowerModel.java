@@ -6,13 +6,15 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
+import org.esimulate.core.model.result.indication.calculator.RenewableEnergyDevice;
 import org.esimulate.core.pojo.model.ThermalPowerModelDto;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
+import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.ThermalDevice;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -29,7 +31,7 @@ import java.util.stream.Collectors;
 @Table(name = "thermal_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThermalPowerModel extends Device implements Producer, ThermalDevice {
+public class ThermalPowerModel extends Device implements Producer, Dimension, ThermalDevice, RenewableEnergyDevice {
 
     // 常量：用于将 W 转换为 kW
     private static final BigDecimal KW_CONVERSION_FACTOR = new BigDecimal("1000");
@@ -68,6 +70,12 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
     private Timestamp updatedAt;
 
     @Transient
+    Integer lowerBound;
+
+    @Transient
+    Integer upperBound;
+
+    @Transient
     // 每小时光热电站出力列表 (单位: kW)
     private List<ThermalEnergy> thermalEnergyList = new ArrayList<>();
 
@@ -94,7 +102,7 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
     }
 
     @Override
-    public Energy produce(List<EnvironmentValue> environmentValueList) {
+    public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
         BigDecimal output = environmentValueList.stream()
                 .filter(x -> x instanceof SunlightIrradianceValue)
                 .map(EnvironmentValue::getValue)
@@ -105,7 +113,7 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
 
         ThermalEnergy thermalEnergy = new ThermalEnergy(output);
         this.thermalEnergyList.add(thermalEnergy);
-        return thermalEnergy;
+        return Collections.singletonList(thermalEnergy);
     }
 
     @Override
@@ -150,7 +158,7 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getThermalStackedChartDataList() {
         List<BigDecimal> collect = this.thermalEnergyList.stream().map(ThermalEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 200);
         return Collections.singletonList(stackedChartData);
@@ -168,7 +176,7 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // 字符串字段直接赋值（不可变类型）
         clone.modelName = this.modelName;
@@ -176,8 +184,13 @@ public class ThermalPowerModel extends Device implements Producer, ThermalDevice
         // id 字段复制（如需排除可移除）
         clone.id = this.id;
 
-        // thermalEnergyList 为 @Transient 字段，不拷贝
+        clone.thermalEnergyList = new ArrayList<>();
 
         return clone;
+    }
+
+    @Override
+    public BigDecimal getTotalRenewableEnergy() {
+        return getTotalEnergy();
     }
 }

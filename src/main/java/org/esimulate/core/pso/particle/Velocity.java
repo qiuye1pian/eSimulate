@@ -1,18 +1,17 @@
 package org.esimulate.core.pso.particle;
 
 
-import lombok.Getter;
+import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 
 
-@Getter
+@Data
 public class Velocity implements Cloneable {
 
-    private BigDecimal[] velocities; // 粒子在各维度的速度
+    private Integer[] velocities; // 粒子在各维度的速度
 
-    public Velocity(BigDecimal[] velocities) {
+    public Velocity(Integer[] velocities) {
         this.velocities = velocities;
     }
 
@@ -24,12 +23,12 @@ public class Velocity implements Cloneable {
         return new Velocity(Arrays.copyOf(velocities, velocities.length));
     }
 
-    public void addAtDimension(int dimIndex, BigDecimal valueToAdd) {
-        velocities[dimIndex] = velocities[dimIndex].add(valueToAdd);
+    public void setAtDimension(int dimIndex, Integer newValue) {
+        velocities[dimIndex] = newValue;
     }
 
-    public void setAtDimension(int dimIndex, BigDecimal newValue) {
-        velocities[dimIndex] = newValue;
+    public Integer getVelocityAt(int index) {
+        return this.velocities[index];
     }
 
     @Override

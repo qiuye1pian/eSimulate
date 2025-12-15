@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
 import org.esimulate.core.pojo.model.ThermalSaverModelDto;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Storage;
 import org.esimulate.core.pso.simulator.facade.ThermalDevice;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -87,10 +87,10 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
     private List<BigDecimal> disChargingList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public ThermalSaverModel(ThermalSaverModelDto thermalSaverModelDto) {
         this.id = thermalSaverModelDto.getId();
@@ -106,7 +106,7 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
     }
 
     @Override
-    public Energy storage(List<Energy> differenceList) {
+    public List<Energy> storage(List<Energy> differenceList) {
         // 计算热能差值（正值表示有多余热能需储存，负值表示需从储能中释放）
         BigDecimal thermalEnergyDifference = differenceList.stream()
                 .filter(x -> x instanceof ThermalEnergy)
@@ -166,7 +166,10 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
 
         // 返回剩余未处理的热能差值
         thermalEnergyDifference = thermalEnergyDifference.subtract(effective);
-        return new ThermalEnergy(thermalEnergyDifference);
+
+        differenceList.removeIf(x -> x instanceof ThermalEnergy);
+        differenceList.add(new ThermalEnergy(thermalEnergyDifference));
+        return differenceList;
     }
 
     @Override
@@ -205,7 +208,7 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getThermalStackedChartDataList() {
         StackedChartData chargingList = new StackedChartData(String.format("%s 储热", this.modelName), this.chargingList, 600);
         StackedChartData disChargingList = new StackedChartData(String.format("%s 放热", this.modelName), this.disChargingList, 600);
         return Arrays.asList(chargingList, disChargingList);
@@ -226,7 +229,7 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // 字符串字段直接赋值
         clone.modelName = this.modelName;
@@ -234,7 +237,11 @@ public class ThermalSaverModel extends Device implements Storage, Dimension, The
         // id 字段赋值（可选）
         clone.id = this.id;
 
-        // 忽略 @Transient 字段：chargingList, disChargingList, E_ESS_LIST
+        clone.E_ESS_LIST = new ArrayList<>();
+
+        clone.chargingList = new ArrayList<>();
+
+        clone.disChargingList = new ArrayList<>();
 
         return clone;
     }

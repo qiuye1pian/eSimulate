@@ -55,3 +55,10 @@ management:
   endpoint:
     health:
       show-details: always  # 显示详细健康检查信息
+
+async:
+  corePoolSize: 2          # 核心线程数
+  maxPoolSize: 32          # 最大线程数
+  queueCapacity: 20        # 队列容量
+  keepAliveSeconds: 60     # 非核心线程空闲后保留时间（秒）
+  threadNamePrefix: "Async-"  # 线程名前缀

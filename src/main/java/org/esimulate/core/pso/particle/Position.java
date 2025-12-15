@@ -1,23 +1,29 @@
 package org.esimulate.core.pso.particle;
 
 import io.jsonwebtoken.lang.Collections;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Getter
+@Slf4j
+@Data
+@NoArgsConstructor
 public class Position implements Cloneable {
 
     /**
      * 粒子在各维度的坐标
      */
-    private final List<Coordinate> coordinateList;
+    private List<Coordinate> coordinateList;
 
     public Position(List<Dimension> dimensionsList) {
-        coordinateList = dimensionsList.stream().map(Coordinate::new).collect(Collectors.toList());
+        coordinateList = dimensionsList.stream()
+                .map(Coordinate::new)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -30,20 +36,21 @@ public class Position implements Cloneable {
     /**
      * 设置坐标在某维度的值
      */
-    public void setAtDimension(int dimIndex, BigDecimal newValue) {
+    public void setAtDimension(int dimIndex, Integer newValue) {
         coordinateList.get(dimIndex).setValue(newValue);
     }
 
-    /**
-     * 根据维度顺序获取维度值
-     *
-     * @param i 第i个维度
-     * @return 第i个维度的值
-     */
-    public BigDecimal getCoordinateByIndex(int i) {
-        return coordinateList.get(i).getValue();
+    public Integer getValueAt(int index) {
+        return coordinateList.get(index).getValue();
     }
 
+    public Integer getLowerBoundAt(int index) {
+        return coordinateList.get(index).getLowerBound();
+    }
+
+    public Integer getUpperBoundAt(int index) {
+        return coordinateList.get(index).getUpperBound();
+    }
 
     /**
      * 判断是否相等（严格比较 BigDecimal，包括精度）
@@ -78,7 +85,6 @@ public class Position implements Cloneable {
         return Arrays.hashCode(coordinateList.toArray());
     }
 
-
     /**
      * 深拷贝 Clone 方法
      */
@@ -88,19 +94,26 @@ public class Position implements Cloneable {
             // 创建浅拷贝
             Position cloned = (Position) super.clone();
             // 深拷贝 coordinateList
-            List<Coordinate> clonedCoordinateList = this.coordinateList.stream()
+            cloned.coordinateList = this.coordinateList.stream()
                     .map(Coordinate::clone) // 调用 Coordinate 的 clone 方法
                     .collect(Collectors.toList());
-            // 设置拷贝后的坐标列表
-            cloned.coordinateList.clear();
-            cloned.coordinateList.addAll(clonedCoordinateList);
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError("Cloning not supported", e);
         }
     }
 
-    public List<BigDecimal> getCoordinateValueList() {
-        return this.coordinateList.stream().map(Coordinate::getValue).collect(Collectors.toList());
+    public List<String> getCoordinateTitleList() {
+        return this.coordinateList.stream()
+                .sorted(Comparator.comparing(Coordinate::getModelName))
+                .map(Coordinate::getModelName)
+                .collect(Collectors.toList());
+    }
+
+    public List<Integer> getCoordinateValueList() {
+        return this.coordinateList.stream()
+                .sorted(Comparator.comparing(Coordinate::getModelName))
+                .map(Coordinate::getValue)
+                .collect(Collectors.toList());
     }
 }

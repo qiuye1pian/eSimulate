@@ -6,23 +6,23 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.pojo.simulate.enums.ModelTypeEnum;
 import org.esimulate.core.pso.particle.Dimension;
 
-import java.math.BigDecimal;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ModelDimensionDto implements Dimension, ModelLoadDto {
 
+    String modelName;
+
     ModelTypeEnum modelTypeEnum;
 
     Long id;
 
-    BigDecimal lowerBound = BigDecimal.ONE;
+    Integer lowerBound = 1;
 
-    BigDecimal upperBound = BigDecimal.valueOf(1000);
+    Integer upperBound = 2000;
 
     @Override
-    public BigDecimal getQuantity() {
+    public Integer getQuantity() {
         return lowerBound;
     }
 }

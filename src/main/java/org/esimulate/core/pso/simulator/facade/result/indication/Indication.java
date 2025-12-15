@@ -2,7 +2,7 @@ package org.esimulate.core.pso.simulator.facade.result.indication;
 
 import java.math.BigDecimal;
 
-public interface Indication {
+public interface Indication extends Cloneable{
 
     String getIndicationName();
 

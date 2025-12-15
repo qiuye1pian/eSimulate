@@ -3,14 +3,15 @@ package org.esimulate.core.model.device;
 import lombok.*;
 import org.esimulate.core.model.environment.water.WaterSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.indication.calculator.RenewableEnergyDevice;
 import org.esimulate.core.pojo.model.HydroPowerPlantModelDto;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.ElectricDevice;
 import org.esimulate.core.pso.simulator.facade.Producer;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.result.energy.Energy;
-import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 @Table(name = "hydro_power_plant_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class HydroPowerPlantModel extends Device implements Producer, Dimension, ElectricDevice {
+public class HydroPowerPlantModel extends Device implements Producer, Dimension, ElectricDevice, RenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -116,10 +117,10 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public HydroPowerPlantModel(HydroPowerPlantModelDto hydroPowerPlantModelDto) {
         this.modelName = hydroPowerPlantModelDto.getModelName();
@@ -199,7 +200,7 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
     }
 
     @Override
-    public Energy produce(List<EnvironmentValue> environmentValueList) {
+    public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
         // 1. 提取环境变量中的流量 Q
         BigDecimal Q = environmentValueList.stream()
                 .filter(env -> env instanceof WaterSpeedValue)
@@ -215,7 +216,7 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
         this.electricEnergyList.add(generatedEnergy);
 
         // 4. 返回当前时间点的发电量
-        return generatedEnergy;
+        return Collections.singletonList(generatedEnergy);
     }
 
     @Override
@@ -232,6 +233,7 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
                 .map(Energy::getValue)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO)
+                .multiply(quantity)
                 .multiply(carbonEmissionFactor);
     }
 
@@ -285,7 +287,12 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public BigDecimal getTotalRenewableEnergy() {
+        return getTotalEnergy();
+    }
+
+    @Override
+    public List<StackedChartData> getElectricStackedChartDataList() {
         List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 100);
         return Collections.singletonList(stackedChartData);
@@ -314,7 +321,7 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // String 字段直接赋值（不可变）
         clone.modelName = this.modelName;
@@ -322,6 +329,9 @@ public class HydroPowerPlantModel extends Device implements Producer, Dimension,
         // id 字段直接复制
         clone.id = this.id;
 
+        clone.electricEnergyList = new ArrayList<>();
+
         return clone;
     }
+
 }

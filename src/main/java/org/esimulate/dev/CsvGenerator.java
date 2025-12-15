@@ -26,36 +26,36 @@ public class CsvGenerator {
         String init = "21.0";
         String jump = "5.00";
         String valueTitle = "温度";
-        String min = "-40";
-        String max = "43.00";
+        String min = "-20";
+        String max = "41.35";
         return new Result(init, jump, valueTitle, min, max);
     }
 
     private static @NotNull Result getWindSpeed() {
-        String init = "3.0";
-        String jump = "3.00";
+        String init = "7.1";
+        String jump = "5.50";
         String valueTitle = "风速";
         String min = "0";
-        String max = "25.00";
+        String max = "32.00";
         return new Result(init, jump, valueTitle, min, max);
     }
 
     private static @NotNull Result getWaterSpeed() {
-        String init = "3.0";
-        String jump = "5.00";
+        String init = "13.3";
+        String jump = "5.80";
         String valueTitle = "水流";
-        String min = "0";
-        String max = "35.00";
+        String min = "0.5";
+        String max = "46.00";
         return new Result(init, jump, valueTitle, min, max);
     }
 
 
     private static @NotNull Result getLoad() {
-        String init = "501.0";
-        String jump = "80.00";
-        String valueTitle = "负荷";
-        String min = "85.1";
-        String max = "3041.00";
+        String init = "2209317.1";
+        String jump = "961318.03";
+        String valueTitle = "热负荷";
+        String min = "115318.1";
+        String max = "4209317.0";
         return new Result(init, jump, valueTitle, min, max);
     }
 
@@ -80,30 +80,36 @@ public class CsvGenerator {
         BigDecimal previousValue = new BigDecimal(result.init);
         // 设置波动范围
         BigDecimal maxFluctuation = new BigDecimal(result.jump);
+        // 上一次的波动值（用于引入惯性）
+        BigDecimal previousFluctuation = BigDecimal.ZERO;
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("/Users/chenhonghe/Desktop/华北电力大学/县域多能互补一体化平台/脚本/上传模板/load_values.csv"))) {
             // 写入 CSV 表头
             writer.write(String.format("%s,%s\n", "时间", result.valueTitle));
 
             // 写入每一行数据
-            for (int i = 0; i < days * 24; i++) { // 一年的小时数
+            for (int i = 0; i < days * 2; i++) { // 一年的小时数
                 // 当前时间
                 LocalDateTime currentTime = startTime.plusHours(i);
-                // 生成负荷值波动
-                BigDecimal fluctuation = maxFluctuation.multiply(BigDecimal.valueOf(random.nextDouble() * 2 - 1));
-                // 计算当前负荷值
+                // 生成随机波动分量
+                BigDecimal randomComponent = maxFluctuation.multiply(BigDecimal.valueOf(random.nextDouble() * 2 - 1));
+                // 当前波动 = 上一次波动 * 0.8 + 本次随机分量 * 0.2（可根据需求调整权重）
+                BigDecimal fluctuation = previousFluctuation.multiply(BigDecimal.valueOf(0.8))
+                        .add(randomComponent.multiply(BigDecimal.valueOf(0.2)));
+                // 计算当前值
                 BigDecimal currentValue = previousValue.add(fluctuation);
-                // 确保负荷值在指定范围内
+                // 确保值在指定范围内
                 if (currentValue.compareTo(new BigDecimal(result.min)) < 0) {
                     currentValue = new BigDecimal(result.min);
                 }
-
                 if (currentValue.compareTo(new BigDecimal(result.max)) > 0) {
-                    currentValue = new BigDecimal(result.max);
+                    currentValue = new BigDecimal(result.max).add(fluctuation.multiply(BigDecimal.valueOf(random.nextDouble() * 2 - 1)));
                 }
                 // 写入当前行
                 writer.write(String.format("%s,%.2f\n", currentTime.format(formatter), currentValue.setScale(2, RoundingMode.HALF_UP)));
-                // 更新前一个负荷值
+                // 更新上一波动值
+                previousFluctuation = fluctuation;
+                // 更新前一个荷值
                 previousValue = currentValue;
             }
         } catch (IOException e) {

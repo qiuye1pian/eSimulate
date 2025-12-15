@@ -2,6 +2,7 @@ package org.esimulate.core.model.load.electric;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.esimulate.core.pso.simulator.facade.load.LoadData;
 import org.esimulate.core.pso.simulator.facade.load.LoadValue;
 
 import javax.persistence.*;
@@ -61,6 +62,22 @@ public class ElectricLoadScheme implements ElectricLoadData {
     @Override
     public List<BigDecimal> getLoadValueList() {
         return electricLoadValues.stream().map(ElectricLoadValue::getLoadValue).collect(Collectors.toList());
+    }
+
+    @Override
+    public LoadData cutOffMoreThan(int i) {
+        if (i <= 0) {
+            // 保留 0 条
+            this.electricLoadValues.clear();
+        } else {
+            // 使用 Stream.limit 保留前 i 条，其余清除
+            List<ElectricLoadValue> truncated = this.electricLoadValues.stream()
+                    .limit(i)
+                    .collect(Collectors.toList());
+            this.electricLoadValues.clear();
+            this.electricLoadValues.addAll(truncated);
+        }
+        return this;
     }
 
 }

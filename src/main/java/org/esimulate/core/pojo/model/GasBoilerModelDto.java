@@ -32,4 +32,5 @@ public class GasBoilerModelDto {
 
     // 建设成本
     private BigDecimal purchaseCost;
+
 }

@@ -2,19 +2,28 @@ package org.esimulate.core.application;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.esimulate.core.model.enums.TaskStateEnum;
+import org.esimulate.core.model.task.OptimizeTask;
 import org.esimulate.core.pojo.pso.OptimizeResult;
+import org.esimulate.core.pojo.pso.OptimizeResultDto;
+import org.esimulate.core.pojo.pso.SimulateSnapshot;
 import org.esimulate.core.pojo.simulate.ModelLoadDto;
 import org.esimulate.core.pojo.simulate.PsoConfig;
-import org.esimulate.core.pso.PsoGlobal;
-import org.esimulate.core.pso.particle.Particle2;
+import org.esimulate.core.pso.particle.Particle;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentData;
 import org.esimulate.core.pso.simulator.facade.load.LoadData;
+import org.esimulate.core.service.pso.OptimizeTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,12 +39,17 @@ public class PsoApplication {
     @Autowired
     DeviceComponent deviceComponent;
 
-    public OptimizeResult doPso(PsoConfig psoConfig) {
-        log.info("开始仿真");
+    @Autowired
+    OptimizeTaskService optimizeTaskService;
+
+    @Async("psoAsyncExecutor")
+    public void doPso(OptimizeTask optimizeTask, PsoConfig psoConfig) {
+        log.info("开始寻优");
         long startTotal = System.currentTimeMillis();
 
         log.info("加载负荷数据");
         long startLoadData = System.currentTimeMillis();
+
         List<LoadData> loadDataList = loadDataComponent.getLoadData(psoConfig.getLoadDtoList());
         long endLoadData = System.currentTimeMillis();
         log.info("加载负荷数据耗时： {} ms", (endLoadData - startLoadData));
@@ -52,20 +66,78 @@ public class PsoApplication {
         long endModelData = System.currentTimeMillis();
         log.info("加载模型耗时： {} ms", (endModelData - startModelData));
 
-        PsoGlobal psoGlobal = new PsoGlobal();
+        log.info("开始PSO");
+        long startPso = System.currentTimeMillis();
 
-        List<Particle2> particleList = new ArrayList<>();
-        for (int i = 0; i <= psoConfig.getParticleCount(); i++) {
-            particleList.add(new Particle2(loadDataList, environmentDataList, deviceList));
+        OptimizeResult optimizeResult = new OptimizeResult();
+        List<Particle> particleList = new ArrayList<>();
+
+        for (int i = 0; i < psoConfig.getParticleCount(); i++) {
+            particleList.add(new Particle(i, psoConfig, loadDataList, environmentDataList, deviceList));
         }
 
-        psoGlobal.setParticleList(particleList);
+        AtomicInteger atomicInteger = new AtomicInteger();
 
-        for(int i = 0; i <= psoConfig.getMaxIterations();i++){
+        particleList.stream()
+                .map(Particle::getCurrentPosition)
+                .findAny()
+                .ifPresent(optimizeResult::setGlobalBestPosition);
 
+        optimizeTask.setTaskState(TaskStateEnum.IN_PROGRESS);
+        optimizeTaskService.save(optimizeTask);
+
+        for (int i = 0; i < psoConfig.getMaxIterations(); i++) {
+            List<SimulateSnapshot> simulateSnapshotList = particleList.stream()
+                    .parallel()
+                    .peek(particle -> particle.move(optimizeResult.getGlobalBestPosition()))
+                    .map(Particle::runSimulate)
+                    .peek(particle -> optimizeTask.setCurrentIteration(atomicInteger.incrementAndGet()))
+                    .collect(Collectors.toList());
+            log.info("这次迭代的最优值:{}",simulateSnapshotList.stream()
+                    .min(Comparator.comparing(SimulateSnapshot::getFitnessValue))
+                    .map(SimulateSnapshot::getFitnessValue)
+                    .orElse(BigDecimal.ZERO));
+            optimizeResult.addSimulateSnapshotList(simulateSnapshotList);
+            optimizeTaskService.save(optimizeTask);
+
+            TaskStateEnum taskStateEnum = optimizeTaskService.findOptimizeTaskById(optimizeTask.getId())
+                    .map(OptimizeTask::getTaskState)
+                    .orElse(optimizeTask.getTaskState());
+            log.debug("检查任务持久化状态, taskId={}, state={}", optimizeTask.getId(), taskStateEnum);
+            // 如果任务已在外部请求取消，则停止执行
+            if (taskStateEnum == TaskStateEnum.CANCELLED) {
+                log.debug("任务取消, taskId={}", optimizeTask.getId());
+                break;
+            }
         }
 
-        return new OptimizeResult();
+        long endPso = System.currentTimeMillis();
+        log.info("PSO耗时：{} ms", (endPso - startPso));
+
+        log.info("寻优结束");
+        long endTotal = System.currentTimeMillis();
+        log.info("总耗时： {} ms", (endTotal - startTotal));
+
+        optimizeTask.setOptimizeResult(optimizeResult);
+        optimizeTask.setTaskState(TaskStateEnum.COMPLETED);
+
+        optimizeTaskService.save(optimizeTask);
     }
 
+    public Optional<OptimizeTask> getOptimizeTask(Long taskId) {
+        return optimizeTaskService.findOptimizeTaskById(taskId);
+    }
+
+    public Optional<OptimizeResultDto> getOptimizeResult(Long taskId) {
+        return optimizeTaskService.findOptimizeTaskById(taskId)
+                .map(OptimizeResultDto::new);
+    }
+
+    public OptimizeTask createOptimizeTask(PsoConfig psoConfig) {
+        return optimizeTaskService.createOptimizeTask(psoConfig);
+    }
+
+    public void cancelTask(Long taskId) {
+        optimizeTaskService.cancelTask(taskId);
+    }
 }

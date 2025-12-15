@@ -2,6 +2,7 @@ package org.esimulate.core.model.environment.water;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.esimulate.core.pso.simulator.facade.base.TimeSeriesData;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 
 import javax.persistence.*;
@@ -53,5 +54,21 @@ public class WaterSpeedScheme implements WaterSpeedData {
                 .sorted(Comparator.comparing(WaterSpeedValue::getDatetime))
                 .collect(Collectors.toList())
                 .get(timeIndex);
+    }
+
+    @Override
+    public TimeSeriesData cutOffMoreThan(int i) {
+        if (i <= 0) {
+            // 保留 0 条
+            this.waterSpeedValues.clear();
+        } else {
+            // 使用 Stream.limit 保留前 i 条，其余清除
+            List<WaterSpeedValue> truncated = this.waterSpeedValues.stream()
+                    .limit(i)
+                    .collect(Collectors.toList());
+            this.waterSpeedValues.clear();
+            this.waterSpeedValues.addAll(truncated);
+        }
+        return this;
     }
 }

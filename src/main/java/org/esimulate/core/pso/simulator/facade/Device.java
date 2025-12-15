@@ -81,4 +81,11 @@ public abstract class Device implements Cloneable {
         }
     }
 
+    public abstract Long getId();
+
+    public abstract String getModelName();
+
+    public String getSortKey() {
+        return this.getId() + this.getModelName();
+    }
 }

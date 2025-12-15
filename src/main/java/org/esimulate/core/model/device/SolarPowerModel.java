@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.sunlight.SunlightIrradianceValue;
 import org.esimulate.core.model.environment.temperature.TemperatureValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.indication.calculator.RenewableEnergyDevice;
 import org.esimulate.core.pojo.model.SolarPowerModelDto;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 @Table(name = "solar_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class SolarPowerModel extends Device implements Producer, Dimension, ElectricDevice {
+public class SolarPowerModel extends Device implements Producer, Dimension, ElectricDevice, RenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -82,10 +83,10 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public SolarPowerModel(SolarPowerModelDto solarPowerModelDto) {
         this.modelName = solarPowerModelDto.getModelName();
@@ -105,7 +106,7 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
      * @param currentIrradiance  t 时刻的太阳辐照强度 (W/m²)
      * @return 计算得到的光伏输出功率 (kW)
      */
-    private Energy calculatePower(BigDecimal currentTemperature, BigDecimal currentIrradiance) {
+    private ElectricEnergy calculatePower(BigDecimal currentTemperature, BigDecimal currentIrradiance) {
 
         // 计算温度影响部分: (1 + t_e * (T_e - T_ref))
         BigDecimal temperatureEffect = t_e.multiply(currentTemperature.subtract(T_ref));
@@ -115,15 +116,48 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
         BigDecimal irradianceRatio = currentIrradiance.divide(G_ref, 10, RoundingMode.HALF_UP);
 
         // 计算最终光伏出力
-        return new ElectricEnergy(P_pvN
+        BigDecimal outputPower = P_pvN
                 .multiply(temperatureFactor)
                 .multiply(irradianceRatio)
                 .multiply(this.quantity)
-                .setScale(10, RoundingMode.HALF_UP));
+                .setScale(10, RoundingMode.HALF_UP);
+
+        // 平滑和限幅
+        return new ElectricEnergy(smoothOutputPower(outputPower));
+
+    }
+
+    /**
+     * 对超过额定功率的输出进行分段平滑和限幅
+     */
+    private BigDecimal smoothOutputPower(BigDecimal outputPower) {
+        if (outputPower.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal base = P_pvN;
+        BigDecimal cap = base.multiply(BigDecimal.valueOf(1.02));
+        BigDecimal top = base.multiply(BigDecimal.valueOf(1.08));
+        BigDecimal result;
+
+        if (outputPower.compareTo(base) <= 0) {
+            result = outputPower;
+        } else if (outputPower.compareTo(cap) <= 0) {
+            BigDecimal delta = outputPower.subtract(base);
+            result = base.add(delta.multiply(BigDecimal.valueOf(0.09)));
+        } else {
+            BigDecimal delta = outputPower.subtract(cap);
+            result = cap.add(delta.multiply(BigDecimal.valueOf(0.01)));
+        }
+
+        // 最终限幅到 1.08P
+        if (result.compareTo(top) > 0) {
+            result = top;
+        }
+        return result.setScale(10, RoundingMode.HALF_UP);
     }
 
     @Override
-    public Energy produce(List<EnvironmentValue> environmentValueList) {
+    public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
         BigDecimal sunlight = environmentValueList.stream()
                 .filter(x -> x instanceof SunlightIrradianceValue)
                 .map(EnvironmentValue::getValue)
@@ -136,9 +170,9 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
                 .findAny()
                 .orElse(BigDecimal.ZERO);
 
-        Energy energy = calculatePower(temperature, sunlight);
-        this.electricEnergyList.add((ElectricEnergy) energy);
-        return energy;
+        ElectricEnergy energy = calculatePower(temperature, sunlight).multiply(quantity);
+        this.electricEnergyList.add(energy);
+        return Collections.singletonList(energy);
     }
 
     @Override
@@ -184,10 +218,15 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getElectricStackedChartDataList() {
         List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName, collect, 500);
         return Collections.singletonList(stackedChartData);
+    }
+
+    @Override
+    public BigDecimal getTotalRenewableEnergy() {
+        return getTotalEnergy();
     }
 
     @Override
@@ -204,7 +243,7 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // 字符串字段直接赋值（不可变类型）
         clone.modelName = this.modelName;
@@ -212,8 +251,9 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
         // id 字段直接复制（若不希望保留可移除）
         clone.id = this.id;
 
-        // electricEnergyList 不拷贝（@Transient）
+        clone.electricEnergyList = new ArrayList<>();
 
         return clone;
     }
+
 }

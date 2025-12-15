@@ -5,11 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.esimulate.core.model.result.MomentResult;
-import org.esimulate.core.pso.simulator.facade.Producer;
-import org.esimulate.core.pso.simulator.facade.Provider;
-import org.esimulate.core.pso.simulator.facade.Storage;
-import org.esimulate.core.pso.simulator.facade.load.LoadData;
 import org.esimulate.core.pso.simulator.facade.result.indication.Indication;
 
 import java.util.List;
@@ -25,16 +20,6 @@ public class SimulateResult {
     SimulateResultType resultType;
 
     List<Indication> indicationList;
-
-    List<LoadData> loadList;
-
-    List<Producer> producerList;
-
-    List<Storage> storageList;
-
-    List<Provider> providerList;
-
-    List<MomentResult> momentResultList;
 
     StackedChartDto electricStackedChartDto;
 

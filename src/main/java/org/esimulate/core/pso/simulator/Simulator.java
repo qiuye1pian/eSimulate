@@ -2,6 +2,7 @@ package org.esimulate.core.pso.simulator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.esimulate.core.model.load.electric.ElectricLoadData;
+import org.esimulate.core.model.load.heat.ThermalLoadData;
 import org.esimulate.core.model.result.MomentResult;
 import org.esimulate.core.model.result.indication.calculator.CarbonEmissionCalculator;
 import org.esimulate.core.model.result.indication.calculator.CurtailmentRateCalculator;
@@ -13,7 +14,6 @@ import org.esimulate.core.pojo.simulate.result.StackedChartData;
 import org.esimulate.core.pojo.simulate.result.StackedChartDto;
 import org.esimulate.core.pso.simulator.facade.*;
 import org.esimulate.core.pso.simulator.facade.base.TimeSeriesData;
-import org.esimulate.core.pso.simulator.facade.constraint.Constraint;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentData;
 import org.esimulate.core.pso.simulator.facade.environment.EnvironmentValue;
 import org.esimulate.core.pso.simulator.facade.load.LoadData;
@@ -24,6 +24,7 @@ import org.esimulate.util.DateTimeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,12 +40,12 @@ public class Simulator {
      * @param loadList        负荷
      * @param environmentList 环境数据
      * @param deviceList      模型列表
-     * @param constraintList  约束
      * @return 仿真结果
      */
     public static SimulateResult simulate(List<LoadData> loadList, List<EnvironmentData> environmentList,
-                                          List<Device> deviceList, List<Constraint> constraintList) {
+                                          List<Device> deviceList) {
         try {
+
             List<Producer> producerList = deviceList.stream()
                     .filter(x -> x instanceof Producer)
                     .map(x -> (Producer) x)
@@ -53,6 +54,11 @@ public class Simulator {
             List<Storage> storageList = deviceList.stream()
                     .filter(x -> x instanceof Storage)
                     .map(x -> (Storage) x)
+                    .collect(Collectors.toList());
+
+            List<Adjustable> adjustableList = deviceList.stream()
+                    .filter(x -> x instanceof Adjustable)
+                    .map(x -> (Adjustable) x)
                     .collect(Collectors.toList());
 
             List<Provider> providerList = deviceList.stream()
@@ -66,16 +72,11 @@ public class Simulator {
             //计算某一时刻的情景
             List<MomentResult> momentResultList = IntStream.range(0, timeLength)
                     .mapToObj(timeIndex ->
-                            calculateAMoment(loadList, environmentList, producerList, storageList, providerList, timeIndex))
+                            calculateAMoment(loadList, environmentList, producerList, adjustableList, storageList, providerList, timeIndex))
                     .collect(Collectors.toList());
 
             return SimulateResult.builder()
-                    .loadList(loadList)
-                    .producerList(producerList)
-                    .storageList(storageList)
-                    .providerList(providerList)
-                    .momentResultList(momentResultList)
-                    .indicationList(getIndications(producerList, providerList, storageList, momentResultList))
+                    .indicationList(getIndications(deviceList, momentResultList))
                     .electricStackedChartDto(getElectricStackedChartDto(loadList, deviceList))
                     .thermalStackedChartDto(getThermalStackedChartDto(loadList, deviceList))
                     .resultType(SimulateResultType.SUCCESS)
@@ -108,6 +109,7 @@ public class Simulator {
     private static MomentResult calculateAMoment(List<LoadData> loadList,
                                                  List<EnvironmentData> environmentList,
                                                  List<Producer> producerList,
+                                                 List<Adjustable> adjustableList,
                                                  List<Storage> storageList,
                                                  List<Provider> providerList,
                                                  int timeIndex) {
@@ -124,6 +126,7 @@ public class Simulator {
         // 列表里根据仿真参与的模型，结果可能混合了电能和热能
         List<Energy> produceList = producerList.stream()
                 .map(x -> x.produce(environmentListAtAMount))
+                .flatMap(List::stream)
                 .collect(Collectors.toList());
 
         //用负荷数据减去已生产的能源，电能和热能分开计算的，获得能源 冗余/缺口 数据
@@ -145,15 +148,27 @@ public class Simulator {
                 .collect(Collectors.toList());
 
         //如果有储能设备， 计算经过储能调整后的 冗余/缺口 数据
-        List<Energy> afterStorageEnergyList = CollectionUtils.isEmpty(storageList) ? differenceList : storageList.stream()
-                //热能和电能分开计算
-                .map(x -> x.storage(differenceList))
-                //通过储能计算后，各能源的 冗余/缺口
-                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(storageList)) {
+            for (Storage storage : storageList) {
+                // storage.storage 会返回一个新的 List<Energy>，我们就用它来替换掉 differenceList
+                differenceList = storage.storage(differenceList);
+            }
+        }
+
+        // 拷贝一份 differenceList，避免引用同一对象
+        List<Energy> afterStorageEnergyList = new ArrayList<>(differenceList);
+
+        if (!CollectionUtils.isEmpty(adjustableList)) {
+            for (Adjustable adjustable : adjustableList) {
+                // storage.storage 会返回一个新的 List<Energy>，我们就用它来替换掉 differenceList
+                afterStorageEnergyList = adjustable.adjustable(afterStorageEnergyList);
+            }
+        }
+        List<Energy> afterAdjustableEnergyList = afterStorageEnergyList;
 
         //供应商作为兜底，将 调整后的 冗余/缺口 数据 交给供应商作为最后补充
         List<Energy> afterProvideList = providerList.stream()
-                .map(x -> x.provide(afterStorageEnergyList))
+                .map(x -> x.provide(afterAdjustableEnergyList))
                 .collect(Collectors.toList());
 
         //剩余的能源将被丢弃，电能为弃风弃光，热能为自然散逸
@@ -164,7 +179,7 @@ public class Simulator {
         List<StackedChartData> deviceStackedChartDataList = deviceList.stream()
                 .filter(x -> x instanceof ElectricDevice)
                 .map(x -> (ElectricDevice) x)
-                .map(ElectricDevice::getStackedChartDataList)
+                .map(ElectricDevice::getElectricStackedChartDataList)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
@@ -180,7 +195,7 @@ public class Simulator {
 
         List<StackedChartData> loadStackedChartDataList = loadList.stream()
                 .filter(x -> x instanceof ElectricLoadData)
-                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200))
+                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200, "Load"))
                 .collect(Collectors.toList());
 
         List<StackedChartData> mergedStackedChartDataList = new java.util.ArrayList<>();
@@ -194,7 +209,7 @@ public class Simulator {
         List<StackedChartData> deviceStackedChartDataList = deviceList.stream()
                 .filter(x -> x instanceof ThermalDevice)
                 .map(x -> (ThermalDevice) x)
-                .map(ThermalDevice::getStackedChartDataList)
+                .map(ThermalDevice::getThermalStackedChartDataList)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
@@ -208,8 +223,8 @@ public class Simulator {
                 .orElse(Collections.emptyList());
 
         List<StackedChartData> loadStackedChartDataList = loadList.stream()
-                .filter(x -> x instanceof ThermalDevice)
-                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200))
+                .filter(x -> x instanceof ThermalLoadData)
+                .map(x -> new StackedChartData(x.getLoadName(), x.getLoadValueList(), 200, "Load"))
                 .collect(Collectors.toList());
 
         List<StackedChartData> mergedStackedChartDataList = new java.util.ArrayList<>();
@@ -219,11 +234,16 @@ public class Simulator {
         return new StackedChartDto(sortedLocalDateTimes, mergedStackedChartDataList);
     }
 
-    private static @NotNull List<Indication> getIndications(List<Producer> producerList, List<Provider> providerList, List<Storage> storageList, List<MomentResult> momentResultList) {
-        Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(producerList, providerList);
-        Indication carbonEmission = CarbonEmissionCalculator.calculate(producerList, storageList, providerList);
-        Indication totalCost = TotalCostCalculator.calculate(producerList, storageList, providerList);
-        Indication curtailmentRate  = CurtailmentRateCalculator.calculate(producerList, momentResultList);
+    private static @NotNull List<Indication> getIndications(List<Device> deviceList, List<MomentResult> momentResultList) {
+
+        Indication renewableEnergyPercent = RenewableEnergyShareCalculator.calculate(deviceList);
+
+        Indication carbonEmission = CarbonEmissionCalculator.calculate(deviceList);
+
+        Indication totalCost = TotalCostCalculator.calculate(deviceList);
+
+        Indication curtailmentRate = CurtailmentRateCalculator.calculate(deviceList, momentResultList);
+
         return Arrays.asList(renewableEnergyPercent, carbonEmission, totalCost, curtailmentRate);
     }
 

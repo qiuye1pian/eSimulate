@@ -46,8 +46,12 @@ public class SolarPowerService {
 
         for (TemperatureValue temperatureValue : temperatureList) {
             for (SunlightIrradianceValue sunlightIrradianceValue : sunlightIrradianceValueList) {
-                Energy produce = solarPowerModel.produce(Arrays.asList(temperatureValue, sunlightIrradianceValue));
-                solarPower3DChartDtoList.add(Arrays.asList(temperatureValue.getValue(), sunlightIrradianceValue.getValue(), produce.getValue()));
+                BigDecimal produce = solarPowerModel.produce(Arrays.asList(temperatureValue, sunlightIrradianceValue))
+                        .stream()
+                        .findAny()
+                        .map(Energy::getValue)
+                        .orElse(BigDecimal.ZERO);
+                solarPower3DChartDtoList.add(Arrays.asList(temperatureValue.getValue(), sunlightIrradianceValue.getValue(), produce));
             }
         }
 

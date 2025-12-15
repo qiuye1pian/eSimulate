@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.esimulate.core.pojo.simulate.result.StackedChartData;
 
 import java.util.List;
 
@@ -53,9 +54,26 @@ public abstract class ChartLineDto<X, Y> {
         private final Boolean smooth = true;
         @JsonInclude(JsonInclude.Include.NON_NULL)
         private final String stack;
-        private final AreaStyle areaStyle = new AreaStyle();
-        private final Emphasis emphasis = new Emphasis();
+        private AreaStyle areaStyle = new AreaStyle();
+        private Emphasis emphasis = new Emphasis();
         private List<Y> data;
+
+        @SuppressWarnings("unchecked")
+        public Series(StackedChartData x) {
+            this.name = x.getName();
+            this.stack = x.getStack();
+            this.data = (List<Y>) x.getSeriesData();
+            if ("Load".equalsIgnoreCase(x.getStack())) {
+                this.emphasis = null;
+                this.areaStyle= null;
+            }
+        }
+
+        public Series(String name, String stack, List<Y> seriesData) {
+            this.name = name;
+            this.stack = stack;
+            this.data = seriesData;
+        }
 
         @Getter
         @Setter
@@ -73,6 +91,7 @@ public abstract class ChartLineDto<X, Y> {
                 private String focus = "series";
             }
         }
+
     }
 
 }

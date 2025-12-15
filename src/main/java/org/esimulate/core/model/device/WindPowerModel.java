@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.environment.wind.WindSpeedValue;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.indication.calculator.RenewableEnergyDevice;
 import org.esimulate.core.pojo.model.WindPowerModelDto;
 import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 @Table(name = "wind_power_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class WindPowerModel extends Device implements Producer, Dimension, ElectricDevice {
+public class WindPowerModel extends Device implements Producer, Dimension, ElectricDevice, RenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -81,10 +82,10 @@ public class WindPowerModel extends Device implements Producer, Dimension, Elect
     private List<ElectricEnergy> electricEnergyList = new ArrayList<>();
 
     @Transient
-    BigDecimal lowerBound;
+    Integer lowerBound;
 
     @Transient
-    BigDecimal upperBound;
+    Integer upperBound;
 
     public WindPowerModel(WindPowerModelDto windPowerModelDto) {
         this.modelName = windPowerModelDto.getModelName();
@@ -125,19 +126,18 @@ public class WindPowerModel extends Device implements Producer, Dimension, Elect
 
 
     @Override
-    public Energy produce(List<EnvironmentValue> environmentValueList) {
+    public List<Energy> produce(List<EnvironmentValue> environmentValueList) {
         BigDecimal windSpeed = environmentValueList.stream()
                 .filter(x -> x instanceof WindSpeedValue)
                 .findAny()
                 .map(EnvironmentValue::getValue)
-                .orElse(BigDecimal.ZERO)
-                .multiply(this.quantity);
+                .orElse(BigDecimal.ZERO);
 
-        ElectricEnergy currentEnergy = calculatePower(windSpeed);
+        ElectricEnergy currentEnergy = calculatePower(windSpeed).multiply(this.quantity);
 
         this.electricEnergyList.add(currentEnergy);
 
-        return currentEnergy;
+        return Collections.singletonList(currentEnergy);
     }
 
     @Override
@@ -181,10 +181,15 @@ public class WindPowerModel extends Device implements Producer, Dimension, Elect
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getElectricStackedChartDataList() {
         List<BigDecimal> collect = this.electricEnergyList.stream().map(ElectricEnergy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName,collect,400);
         return Collections.singletonList(stackedChartData);
+    }
+
+    @Override
+    public BigDecimal getTotalRenewableEnergy() {
+        return getTotalEnergy();
     }
 
     @Override
@@ -201,7 +206,7 @@ public class WindPowerModel extends Device implements Producer, Dimension, Elect
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // 字符串字段直接复制
         clone.modelName = this.modelName;
@@ -209,7 +214,7 @@ public class WindPowerModel extends Device implements Producer, Dimension, Elect
         // id 字段保留
         clone.id = this.id;
 
-        // electricEnergyList 为 @Transient 字段，不拷贝
+        clone.electricEnergyList = new ArrayList<>();
 
         return clone;
     }

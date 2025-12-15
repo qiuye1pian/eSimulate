@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ThermalEnergy;
+import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
 import org.esimulate.core.pojo.model.GasBoilerModelDto;
 import org.esimulate.core.pojo.simulate.result.StackedChartData;
-import org.esimulate.core.pso.particle.Dimension;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.Provider;
 import org.esimulate.core.pso.simulator.facade.ThermalDevice;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Table(name = "gas_boiler_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GasBoilerModel extends Device implements Provider, Dimension, ThermalDevice {
+public class GasBoilerModel extends Device implements Provider, ThermalDevice, NonRenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,12 +70,6 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
-
-    @Transient
-    BigDecimal lowerBound;
-
-    @Transient
-    BigDecimal upperBound;
 
     public GasBoilerModel(GasBoilerModelDto gasBoilerModelDto) {
         this.modelName = gasBoilerModelDto.getModelName();
@@ -145,6 +139,7 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
         return gasConsumptionList.stream()
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO)
+                .multiply(quantity)
                 .multiply(this.carbonEmissionFactor);
     }
 
@@ -192,7 +187,7 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getThermalStackedChartDataList() {
         List<BigDecimal> collect = this.gasBoilerOutputList.stream().map(Energy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(this.modelName,collect,300);
         return Collections.singletonList(stackedChartData);
@@ -203,14 +198,20 @@ public class GasBoilerModel extends Device implements Provider, Dimension, Therm
         GasBoilerModel clone = (GasBoilerModel) super.clone();
 
         // 深拷贝可变对象字段
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
         clone.etaGB = new BigDecimal(this.etaGB.toString());
         clone.gasEnergyDensity = new BigDecimal(this.gasEnergyDensity.toString());
         clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
         clone.cost = new BigDecimal(this.cost.toString());
         clone.purchaseCost = new BigDecimal(this.purchaseCost.toString());
         clone.modelName = this.modelName;
-
+        clone.gasBoilerOutputList = new ArrayList<>();
+        clone.gasConsumptionList = new ArrayList<>();
         return clone;
+    }
+
+    @Override
+    public BigDecimal getTotalNonRenewableEnergy() {
+        return getTotalEnergy();
     }
 }

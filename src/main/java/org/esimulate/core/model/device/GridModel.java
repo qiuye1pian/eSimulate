@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.esimulate.core.model.result.energy.ElectricEnergy;
+import org.esimulate.core.model.result.indication.calculator.NonRenewableEnergyDevice;
 import org.esimulate.core.pojo.model.GridModelDto;
 import org.esimulate.core.pso.simulator.facade.Device;
 import org.esimulate.core.pso.simulator.facade.ElectricDevice;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 @Table(name = "grid_model")
 @AllArgsConstructor
 @NoArgsConstructor
-public class GridModel extends Device implements Provider, ElectricDevice {
+public class GridModel extends Device implements Provider, ElectricDevice, NonRenewableEnergyDevice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -131,7 +132,7 @@ public class GridModel extends Device implements Provider, ElectricDevice {
     }
 
     @Override
-    public List<StackedChartData> getStackedChartDataList() {
+    public List<StackedChartData> getElectricStackedChartDataList() {
         List<BigDecimal> collect = this.gridOutPutList.stream().map(Energy::getValue).collect(Collectors.toList());
         StackedChartData stackedChartData = new StackedChartData(String.format("电网购电: %s", this.modelName), collect, 100);
         return Collections.singletonList(stackedChartData);
@@ -146,7 +147,7 @@ public class GridModel extends Device implements Provider, ElectricDevice {
         clone.carbonEmissionFactor = new BigDecimal(this.carbonEmissionFactor.toString());
 
         // 深拷贝 Timestamp
-        clone.updatedAt = new Timestamp(this.updatedAt.getTime());
+        clone.updatedAt = this.updatedAt == null ? null : new Timestamp(this.updatedAt.getTime());
 
         // 字符串字段直接复制（不可变类型）
         clone.modelName = this.modelName;
@@ -154,6 +155,13 @@ public class GridModel extends Device implements Provider, ElectricDevice {
         // id 字段，如保留
         clone.id = this.id;
 
+        clone.gridOutPutList = new ArrayList<>();
+
         return clone;
+    }
+
+    @Override
+    public BigDecimal getTotalNonRenewableEnergy() {
+        return getTotalEnergy();
     }
 }

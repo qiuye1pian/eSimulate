@@ -15,4 +15,6 @@ public interface LoadData extends TimeSeriesData {
     String getLoadName();
 
     List<BigDecimal> getLoadValueList();
+
+
 }
