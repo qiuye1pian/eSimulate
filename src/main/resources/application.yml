@@ -10,9 +10,9 @@ spring:
   application:
     name: eSimulate  # 应用名称
   datasource:
-    url: jdbc:mysql://47.113.180.169:3306/eSimulate?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
-    username: simulator
-    password: simulatorPassword
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/eSimulate?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:simulator}
+    password: ${SPRING_DATASOURCE_PASSWORD:simulatorPassword}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10 # 连接池最大连接数
