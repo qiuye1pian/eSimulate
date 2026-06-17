@@ -1,4 +1,4 @@
-FROM maven:3.9.9-eclipse-temurin-8 AS build
+FROM m.daocloud.io/docker.io/library/maven:3.9.9-eclipse-temurin-8 AS build
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN mvn -B dependency:go-offline
 COPY src ./src
 RUN mvn -B clean package -DskipTests
 
-FROM eclipse-temurin:8-jre-jammy AS runtime
+FROM m.daocloud.io/docker.io/library/eclipse-temurin:8-jre-jammy AS runtime
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \
