@@ -49,7 +49,7 @@ public class SolarPowerModel extends Device implements Producer, Dimension, Elec
     private BigDecimal P_pvN;
 
     // 光伏组件温度系数 (1/℃)，通常为负值
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 19, scale = 8)
     private BigDecimal t_e;
 
     // 参考温度 (℃)
