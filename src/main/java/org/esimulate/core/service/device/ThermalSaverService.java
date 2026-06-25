@@ -65,15 +65,13 @@ public class ThermalSaverService {
 
         ThermalSaverModel thermalSaverModel = thermalSaverModelOptional.get();
         thermalSaverModel.setModelName(thermalSaverModelDto.getModelName());
-        thermalSaverModel.setModelName(thermalSaverModelDto.getModelName());
         thermalSaverModel.setTotalStorageCapacity(thermalSaverModelDto.getTotalStorageCapacity());
         thermalSaverModel.setCurrentStorage(thermalSaverModelDto.getCurrentStorage());
         thermalSaverModel.setChargingEfficiency(thermalSaverModelDto.getChargingEfficiency());
         thermalSaverModel.setDischargingEfficiency(thermalSaverModelDto.getDischargingEfficiency());
         thermalSaverModel.setThermalLossRate(thermalSaverModelDto.getThermalLossRate());
         thermalSaverModel.setCarbonEmissionFactor(thermalSaverModelDto.getCarbonEmissionFactor());
-        thermalSaverModel.setPurchaseCost(thermalSaverModelDto.getPurchaseCost());
-        thermalSaverModel.setCarbonEmissionFactor(thermalSaverModelDto.getCarbonEmissionFactor());
+        thermalSaverModel.setCost(thermalSaverModelDto.getCost());
         thermalSaverModel.setPurchaseCost(thermalSaverModelDto.getPurchaseCost());
         thermalSaverModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return thermalSaverRepository.save(thermalSaverModel);

@@ -51,6 +51,7 @@ public class ThermalSaverModelDto {
         this.dischargingEfficiency = thermalSaverModel.getDischargingEfficiency();
         this.thermalLossRate = thermalSaverModel.getThermalLossRate();
         this.carbonEmissionFactor = thermalSaverModel.getCarbonEmissionFactor();
+        this.cost = thermalSaverModel.getCost();
         this.purchaseCost = thermalSaverModel.getPurchaseCost();
     }
 }
