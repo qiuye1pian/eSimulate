@@ -111,12 +111,6 @@ public class PumpedStorageModel extends Device implements Storage, Dimension, El
     }
 
 
-    //抽水蓄能，初始投资成本: 7000元人民币/千瓦，使用年限: 50年，折现率: 6%
-    @Override
-    public BigDecimal getPurchaseCost() {
-        return PMax.multiply(purchaseCost);
-    }
-
     @Override
     protected BigDecimal getDiscountRate() {
         return BigDecimal.valueOf(0.06);
