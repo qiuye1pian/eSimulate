@@ -48,15 +48,15 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
     private BigDecimal C_t;
 
     // SOC 最小值 (0~1)
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 19, scale = 3)
     private BigDecimal SOC_min;
 
     // SOC 最大值 (0~1)
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 19, scale = 3)
     private BigDecimal SOC_max;
 
     // 自放电损失率 (无量纲)
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 19, scale = 5)
     private BigDecimal mu;
 
     // 最大充电功率 (W)
@@ -68,11 +68,11 @@ public class BatteryModel extends Device implements Storage, Dimension, Electric
     private BigDecimal maxDischargePower;
 
     // 充电效率 (0~1)
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 19, scale = 3)
     private BigDecimal etaHch;
 
     // 放电效率 (0~1)
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 19, scale = 3)
     private BigDecimal etaHdis;
 
     // 当前储电量 (Wh)
