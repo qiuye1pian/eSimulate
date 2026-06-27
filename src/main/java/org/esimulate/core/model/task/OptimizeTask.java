@@ -87,7 +87,7 @@ public class OptimizeTask {
                 .map(Position::getCoordinateTitleList)
                 .findAny()
                 .orElse(new ArrayList<>());
-        titleList.add("值");
+        titleList.add("年度总成本");
         titleList.add("约束");
         this.positionTitle = titleList;
         this.taskDetailList = simulateSnapshotList.stream()
